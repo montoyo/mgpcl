@@ -1,0 +1,22 @@
+{
+	someArray: [
+		true,
+		false,
+		"some string",
+		null,
+		{
+			"a"	: "gaben",
+			b          : 12.784, "c": {}, dee: "hel\tlo",
+		},
+	],
+	
+	"someArray2": [
+		[ 1,  2,
+			3 ],
+			
+		{
+			"good"       : -789,
+			"yup"    : true
+		}
+	]
+}

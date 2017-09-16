@@ -17,7 +17,7 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-﻿#pragma once
+#pragma once
 #include "Config.h"
 #include "IOStream.h"
 #include "DataSerializer.h"

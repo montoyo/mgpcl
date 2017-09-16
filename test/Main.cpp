@@ -53,6 +53,7 @@ static TestObject randomTestObj()
 #include <mgpcl/Process.h>
 
 static bool g_noSound = false;
+static bool g_simpleEnd = false;
 
 static void playSound(const m::String &snd)
 {
@@ -157,6 +158,8 @@ int main(int argc, char *argv[])
 			return 0;
 		} else if(strcmp(argv[i], "--no-sound") == 0)
 			g_noSound = true;
+        else if(strcmp(argv[i], "--simple-exit") == 0)
+            g_simpleEnd = true;
 		else if(strcmp(argv[i], "--test") == 0) {
 			i++;
 			if(i < argc) {
@@ -219,19 +222,22 @@ int main(int argc, char *argv[])
 		taskBar->Release();
 #endif
 
-	drawCenteredRect(50, 4);
+    if(g_simpleEnd) {
+        m::console::setColor(result ? m::kCC_Black : m::kCC_White, result ? m::kCC_LightGreen : m::kCC_Red);
+        std::cout << (result ? "TESTS PASSED" : "TESTS FAILED");
+    } else {
+        drawCenteredRect(50, 4);
 
-	{
-		m::String str(result ? " TESTS PASSED " : " TESTS FAILED ");
-		m::Vector2i cur(m::console::getCursorPos());
-		int sx = (m::console::getSize().x() - str.length()) / 2;
+        m::String str(result ? " TESTS PASSED " : " TESTS FAILED ");
+        m::Vector2i cur(m::console::getCursorPos());
+        int sx = (m::console::getSize().x() - str.length()) / 2;
 
-		m::console::setCursorPos(sx, cur.y() - 3);
-		m::console::setColor(result ? m::kCC_Black : m::kCC_White, result ? m::kCC_LightGreen : m::kCC_Red);
-		std::cout << str.raw();
-		m::console::resetColor();
-		m::console::setCursorPos(cur);
-	}
+        m::console::setCursorPos(sx, cur.y() - 3);
+        m::console::setColor(result ? m::kCC_Black : m::kCC_White, result ? m::kCC_LightGreen : m::kCC_Red);
+        std::cout << str.raw();
+        m::console::resetColor();
+        m::console::setCursorPos(cur);
+    }
 
 	if(result)
 		playSound("passed.wav");

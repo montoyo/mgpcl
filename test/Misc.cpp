@@ -273,16 +273,28 @@ TEST
 	m::AES aes(m::kAESM_Encrypt, m::kAESV_256CBC, key, iv);
 	testAssert(aes.isValid(), "couldn't init encryption");
 
-	uint32_t totalEnc = 0;
+	uint32_t totalEnc;
 	uint8_t *enc = new uint8_t[testLen + aes.blockSize() - 1 + aes.blockSize()];
 
 	uint32_t tmpSz = testLen + aes.blockSize() - 1;
 	testAssert(aes.update(utest, testLen, enc, &tmpSz), "could not encrypt data");
-	totalEnc += tmpSz;
+	totalEnc = tmpSz;
 
 	tmpSz = aes.blockSize();
 	testAssert(aes.final(enc + totalEnc, &tmpSz), "could not finalize encryption");
 	totalEnc += tmpSz;
+
+    //Try a reset
+    aes.reset(key, iv);
+    testAssert(aes.isValid(), "m::AES::reset() failed!");
+
+    tmpSz = testLen + aes.blockSize() - 1;
+    testAssert(aes.update(utest, testLen, enc, &tmpSz), "could not re-encrypt data");
+    totalEnc = tmpSz;
+
+    tmpSz = aes.blockSize();
+    testAssert(aes.final(enc + totalEnc, &tmpSz), "could not finalize re-encryption");
+    totalEnc += tmpSz;
 
 	//Decrypt
 	testAssert(aes.init(m::kAESM_Decrypt, m::kAESV_256CBC, key, iv), "could not init decryption");
@@ -313,7 +325,7 @@ TEST
 		m::SSharedPtr<m::InputStream> strr(new m::BufferInputStream(reinterpret_cast<const uint8_t*>(test), testLen));
 		testAssert(m::IO::transfer(ecos.ptr(), strr.ptr(), 256), "could not encrypt data (streams)");
 
-		ecos->close(); //Don't forget to close the AESOutputStream in order to write the final block (if any).
+		ecos.staticCast<m::AESOutputStream>()->finalAndFlush(key, iv); //Don't forget to close the AESOutputStream in order to write the final block (if any).
 	}
 
 	{

@@ -45,3 +45,15 @@ uint64_t m::prng::Xoroshiro::next()
 
 	return result; 
 }
+
+#ifndef MGPCL_NO_SSL
+#include <openssl/rand.h>
+
+uint64_t m::prng::OpenSSL::next()
+{
+    uint64_t ret;
+    RAND_bytes(reinterpret_cast<uint8_t*>(&ret), sizeof(uint64_t));
+    return ret;
+}
+
+#endif

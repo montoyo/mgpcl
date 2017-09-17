@@ -21,6 +21,7 @@
 #include "Assert.h"
 #include "Date.h"
 #include "Time.h"
+#include "Config.h"
 #include <cstdint>
 
 #define M_ONE_OVER_2_POWER_64 5.421010862427522170037264004349e-20
@@ -70,6 +71,14 @@ namespace m
 		private:
 			uint64_t m_s[2];
 		};
+
+#ifndef MGPCL_NO_SSL
+        class OpenSSL
+        {
+        public:
+            uint64_t next();
+        };
+#endif
 
 	}
 

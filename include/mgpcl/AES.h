@@ -54,7 +54,7 @@ namespace m
 		~AES();
 
 		bool init(AESMode mode, AESVersion version, const uint8_t *key, const uint8_t *iv);
-		void reset();
+		void reset(const uint8_t *key, const uint8_t *iv);
 
 		/* In encryption mode: dst should be able to handle at most 'srcLen + this->blockSize() - 1'
 		 * In decryption mode: dst should be able to handle at most 'srcLen + this->blockSize()',
@@ -93,8 +93,8 @@ namespace m
 			return m_mode != kAESM_None && m_version != kAESV_None;
 		}
 
-		AES &operator =(const AES &src);
-		AES &operator =(AES &&src) noexcept;
+		AES &operator = (const AES &src);
+		AES &operator = (AES &&src) noexcept;
 
 	private:
 		AESMode m_mode;
@@ -152,12 +152,8 @@ namespace m
 
 		~TAESOutputStream() override
 		{
-			if(m_buf != nullptr) {
-				if(m_aes.isValid())
-					final();
-
+			if(m_buf != nullptr)
 				delete[] m_buf;
-			}
 		}
 
 		bool init(AESMode mode, AESVersion version, const uint8_t *key, const uint8_t *iv)
@@ -230,15 +226,15 @@ namespace m
 			return m_out->flush();
 		}
 
+        //You need to call .final() or .finalAndFlush() before closing
 		void close() override
 		{
-			if(m_aes.isValid())
-				final();
-
 			m_out->close();
 		}
 
-		bool final()
+		//TODO: Could be nice to keep an internal copy of key and iv
+        //to avoid passing them again to .final() or .finalAndFlush()
+		bool final(uint8_t *key, uint8_t *iv)
 		{
 			if(m_finalized)
 				return true;
@@ -247,15 +243,15 @@ namespace m
 			if(enc < 0)
 				return false;
 
-			m_aes.reset();
+			m_aes.reset(key, iv);
 			m_pos = 0;
 			m_finalized = true;
 			return !writeBuf(enc);
 		}
 
-		bool finalAndFlush()
+		bool finalAndFlush(uint8_t *key, uint8_t *iv)
 		{
-			return final() && m_out->flush();
+			return final(key, iv) && m_out->flush();
 		}
 
 		//Call this after .init()!!

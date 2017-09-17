@@ -142,10 +142,12 @@ bool m::AES::final(uint8_t *dst, uint32_t *dstLen)
 	return true;
 }
 
-void m::AES::reset()
+void m::AES::reset(const uint8_t *key, const uint8_t *iv)
 {
-	if(m_mode != kAESM_None)
-		EVP_CipherInit(m_aes, nullptr, nullptr, nullptr, -1);
+	if(m_mode != kAESM_None) {
+        EVP_CIPHER_CTX_reset(m_aes);
+        EVP_CipherInit(m_aes, g_mapping[m_version](), key, iv, m_mode == kAESM_Encrypt);
+    }
 }
 
 m::AES &m::AES::operator = (const AES &src)

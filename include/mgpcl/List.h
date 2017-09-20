@@ -23,7 +23,6 @@
 #include "Assert.h"
 #include <functional>
 #include <initializer_list>
-#include <cstdint>
 
 namespace m
 {
@@ -39,9 +38,12 @@ namespace m
 
 		List(Size alloc)
 		{
+			if(alloc < 0)
+				abort();
+
 			m_alloc = alloc;
 			m_size = 0;
-			m_data = reinterpret_cast<T*>(new uint8_t[alloc * sizeof(T)]);
+			m_data = (alloc == 0) ? nullptr : Mem::alloc<T>(static_cast<size_t>(alloc));
 		}
 
 		List(const List<T, Size> &src)
@@ -49,9 +51,13 @@ namespace m
 			m_alloc = src.m_alloc;
 			m_size = src.m_size;
 
-			m_data = reinterpret_cast<T*>(new uint8_t[m_alloc * sizeof(T)]);
-			for(Size i = Size(0); i < m_size; ++i)
-				new(m_data + i) T(src.m_data[i]);
+            if(m_alloc > 0)
+			    m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
+            else
+                m_data = nullptr;
+
+            if(m_size > 0)
+			    Mem::copyInitT<T>(m_data, src.m_data, static_cast<size_t>(m_size));
 		}
 
 		List(List<T, Size> &&src)
@@ -68,9 +74,8 @@ namespace m
 			m_alloc = Size(list.size());
 			m_size = m_alloc;
 
-			m_data = reinterpret_cast<T*>(new uint8_t[m_alloc * sizeof(T)]);
-			for(Size i = Size(0); i < m_size; ++i)
-				new(m_data + i) T(list.begin()[i]);
+			m_data = Mem::alloc<T>(m_alloc);
+			Mem::copyInitT<T>(m_data, list.begin(), list.size());
 		}
 
 		~List()
@@ -249,6 +254,11 @@ namespace m
 			return m_size;
 		}
 
+        Size operator ~ () const
+        {
+            return m_size;
+        }
+
 		bool isEmpty() const
 		{
 			return m_size <= Size(0);
@@ -343,7 +353,7 @@ namespace m
 				for(Size i = Size(0); i < m_size; ++i)
 					m_data[i].~T();
 
-				delete[] reinterpret_cast<uint8_t*>(m_data); //i'm not quite sure; is this cast needed?
+				Mem::del<T>(m_data);
 				m_alloc = Size(0);
 				m_size = Size(0);
 				m_data = nullptr;
@@ -478,9 +488,8 @@ namespace m
 			m_alloc = src.m_alloc;
 			m_size = src.m_size;
 
-			m_data = reinterpret_cast<T*>(new uint8_t[m_alloc * sizeof(T)]);
-			for(Size i = Size(0); i < m_size; ++i)
-				new(m_data + i) T(src.m_data[i]);
+			m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
+			Mem::copyInitT(m_data, src.m_data, static_cast<size_t>(m_size));
 
 			return *this;
 		}
@@ -502,9 +511,8 @@ namespace m
 			m_alloc = Size(list.size());
 			m_size = m_alloc;
 
-			m_data = reinterpret_cast<T*>(new uint8_t[m_alloc * sizeof(T)]);
-			for(Size i = Size(0); i < m_size; ++i)
-				new(m_data + i) T(list.begin()[i]);
+			m_data = Mem::alloc<T>(list.size());
+			Mem::copyInitT(m_data, list.begin(), list.size());
 
 			return *this;
 		}
@@ -550,6 +558,66 @@ namespace m
 			return indexOf(src, -1);
 		}
 
+        List<T, Size> operator + (const List<T, Size> &src) const
+        {
+            List<T, Size> ret(m_size + src.m_size);
+            Mem::copyInitT(ret.m_data, m_data, m_size);
+            Mem::copyInitT(ret.m_data + m_size, src.m_data, src.m_size);
+            ret.m_size = m_size + src.m_size;
+
+            return ret;
+        }
+
+        //If T is trivially copy constructible, this helper function
+        //can be used to set the size of this array and directly
+        //initialize its contents.
+        //
+        //func will be called twice: the first time to know how many
+        //elements will be put inside this array (so the 2nd parameter
+        //will be nullptr), and another time to fill the T array (this
+        //time with a non-nullptr parameter).
+        //
+        //In case of internal failure, func can return false to abort
+        //the process. setFromDoubleCall will return what func returns.
+        template<typename U = T> typename std::enable_if<std::is_trivially_copy_constructible<U>::value, bool>::type setFromDoubleCall(std::function<bool(Size*, T*)> func)
+        {
+            Size newSize(0);
+            if(!func(&newSize, nullptr))
+                return false;
+
+            if(newSize < 0)
+                return false; //This isn't working.
+
+            if(newSize == 0)
+                return true;
+
+            if(m_data != nullptr) {
+                for(Size i = Size(0); i < m_size; ++i)
+                    m_data[i].~T();
+
+                Mem::del<T>(m_data);
+            }
+
+            m_alloc = newSize;
+            m_size = newSize;
+            m_data = Mem::alloc<T>(newSize);
+            return func(&newSize, m_data);
+        }
+
+        //FIXME: This uses memcmp and not the == operator
+        //Might not work as expected for your usage.
+        bool operator == (const List<T, Size> &src) const
+        {
+            return m_size == src.m_size && Mem::cmp(m_data, src.m_data, static_cast<size_t>(m_size) * sizeof(T)) == 0;
+        }
+
+        //FIXME: This uses memcmp and not the != operator
+        //Might not work as expected for your usage.
+        bool operator != (const List<T, Size> &src) const
+        {
+            return m_size != src.m_size || Mem::cmp(m_data, src.m_data, static_cast<size_t>(m_size) * sizeof(T)) != 0;
+        }
+
 	private:
 		void grow(Size sz)
 		{
@@ -567,15 +635,20 @@ namespace m
 			m_alloc = sz;
 
 			if(m_data == nullptr)
-				m_data = reinterpret_cast<T*>(new uint8_t[sz * sizeof(T)]);
+				m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
 			else {
-				T *nptr = reinterpret_cast<T*>(new uint8_t[sz * sizeof(T)]);
-				for(Size i = Size(0); i < m_size; ++i) {
-					new(nptr + i) T(std::move(m_data[i]));
-					m_data[i].~T();
-				}
+				T *nptr = Mem::alloc<T>(static_cast<size_t>(m_alloc));
 
-				delete[] reinterpret_cast<uint8_t*>(m_data);
+                if(std::is_trivially_move_constructible<T>::value && std::is_trivially_destructible<T>::value)
+                    Mem::copy(nptr, m_data, static_cast<size_t>(m_size) * sizeof(T));
+                else {
+                    for(Size i = Size(0); i < m_size; ++i) {
+                        new(nptr + i) T(std::move(m_data[i]));
+                        m_data[i].~T();
+                    }
+                }
+
+				Mem::del<T>(m_data);
 				m_data = nptr;
 			}
 		}
@@ -584,4 +657,5 @@ namespace m
 		Size m_size;
 		Size m_alloc;
 	};
+
 }

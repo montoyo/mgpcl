@@ -18,7 +18,9 @@
  */
 
 #pragma once
+#include <type_traits>
 #include <cstring>
+#include <cstdint>
 
 namespace m
 {
@@ -48,6 +50,45 @@ namespace m
 		{
 			return *static_cast<T*>(memset(&obj, 0, sizeof(T)));
 		}
+
+        //Only allocate; does not call constructors.
+		template<typename T> T *alloc(size_t cnt)
+		{
+			return reinterpret_cast<T*>(new char[sizeof(T) * cnt]);
+		}
+
+        //Only frees allocated memory; does not call destructors
+        template<typename T> void del(T *ptr)
+        {
+            delete[] reinterpret_cast<uint8_t*>(ptr);
+        }
+
+		//Cleverly copies an array of cnt Ts into another
+        template<typename T> T *copyT(T *dst, const T *src, size_t cnt)
+        {
+            if(std::is_trivially_copyable<T>::value)
+                memcpy(dst, src, cnt * sizeof(T));
+            else {
+                for(size_t i = 0; i < cnt; i++)
+                    dst[i] = src[i];
+            }
+
+            return dst;
+        }
+
+        //Cleverly initializes an array of cnt Ts from another (calls copy constructor)
+        //dst must NOT be intialized (i.e. allocated with Mem::alloc)
+        template<typename T> T *copyInitT(T *dst, const T *src, size_t cnt)
+        {
+            if(std::is_trivially_copy_constructible<T>::value)
+                memcpy(dst, src, cnt * sizeof(T));
+            else {
+                for(size_t i = 0; i < cnt; i++)
+                    new(dst + i) T(src[i]);
+            }
+
+            return dst;
+        }
 
 	}
 }

@@ -178,3 +178,32 @@ TEST
 	testAssert(TestObject::instances() == 0, "invalid test object count");
 	return true;
 }
+
+static const int g_12345[] = { 1, 2, 3, 4, 5 };
+
+static void genArray(int *sz, int *dst)
+{
+    if(dst == nullptr) {
+        *sz = 5;
+        return;
+    } else if(*sz != 5)
+        abort();
+
+    m::Mem::copy(dst, g_12345, 5 * sizeof(int));
+}
+
+TEST
+{
+	volatile StackIntegrityChecker sic;
+    m::List<int> test;
+    testAssert(test.setFromDoubleCall([] (int *sz, int *dst) -> bool {
+        genArray(sz, dst);
+        return true;
+    }), "List<int>::setFromDoubleCall failed");
+
+    testAssert(~test == 5, "setFromDoubleCall got bad size");
+    for(int i = 0; i < 5; i++)
+        testAssert(test[i] == i + 1, "setFromDoubleCall copied data wrongly!");
+
+	return true;
+};

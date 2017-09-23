@@ -67,6 +67,11 @@ namespace m
 			return m_ver != kSHAV_None && m_ctx_ != nullptr;
 		}
 
+		bool operator ! () const
+        {
+            return m_ver == kSHAV_None || m_ctx_ == nullptr;
+        }
+
 		SHA &operator = (const SHA &src);
 		SHA &operator = (SHA &&src);
 

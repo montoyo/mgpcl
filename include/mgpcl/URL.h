@@ -124,6 +124,11 @@ namespace m
 			return !m_proto.isEmpty() && !m_host.isEmpty() && m_port != 0;
 		}
 
+		bool operator ! () const
+        {
+            return m_proto.isEmpty() || m_host.isEmpty() || m_port == 0;
+        }
+
 		//TODO: Encode/decode arguments
 
 	private:

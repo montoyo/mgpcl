@@ -59,6 +59,11 @@ namespace m
 			return m_sock != INVALID_SOCKET && m_ssl_ != nullptr;
 		}
 
+		bool operator ! () const override
+        {
+            return m_sock == INVALID_SOCKET || m_ssl_ == nullptr;
+        }
+
 		const SSLContext &context() const
 		{
 			return m_ctx;

@@ -93,6 +93,11 @@ namespace m
 			return m_mode != kAESM_None && m_version != kAESV_None;
 		}
 
+		bool operator ! () const
+        {
+            return m_mode == kAESM_None || m_version == kAESV_None;
+        }
+
 		AES &operator = (const AES &src);
 		AES &operator = (AES &&src) noexcept;
 
@@ -168,6 +173,11 @@ namespace m
 		{
 			return !m_out.isNull() && m_aes.isValid();
 		}
+
+        bool operator ! () const
+        {
+            return m_out.isNull() || !m_aes;
+        }
 
 		AES &aes()
 		{
@@ -482,6 +492,11 @@ namespace m
 		{
 			return !m_in.isNull() && m_aes.isValid();
 		}
+
+        bool operator ! () const
+        {
+            return m_in.isNull() || !m_aes;
+        }
 
 		AES &aes()
 		{

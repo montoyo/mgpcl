@@ -67,6 +67,11 @@ namespace m
 			return m_data != nullptr;
 		}
 
+		bool operator ! () const
+        {
+            return m_data == nullptr;
+        }
+
 		TFPacket<Alloc> duplicate() const
 		{
 			//TODO: Allow ref-counting packets to avoid this!
@@ -446,6 +451,11 @@ namespace m
 			return m_buf != nullptr;
 		}
 
+        bool operator ! () const
+        {
+            return m_buf == nullptr;
+        }
+
 	private:
 		Alloc m_al;
 		uint8_t *m_buf;
@@ -514,6 +524,11 @@ namespace m
 		{
 			return m_data != nullptr;
 		}
+
+        bool operator ! () const
+        {
+            return m_data == nullptr;
+        }
 
 		void set(const TFPacket<Alloc> &src)
 		{

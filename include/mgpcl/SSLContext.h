@@ -70,6 +70,11 @@ namespace m
 			return m_refs != nullptr;
 		}
 
+		bool operator ! () const
+		{
+			return m_refs == nullptr;
+		}
+
 	private:
 		void *m_ctx_;
 		Atomic *m_refs;

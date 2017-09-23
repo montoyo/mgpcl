@@ -55,6 +55,7 @@ namespace m
 		virtual int send(const uint8_t *src, int sz) = 0;
 		virtual void close() = 0;
 		virtual bool isValid() const = 0;
+        virtual bool operator ! () const = 0;
 		virtual inet::SocketError lastError() const = 0;
 
 		void setConnectionTimeout(int val)
@@ -144,7 +145,7 @@ namespace m
 		bool listen(int backlog = SOMAXCONN);
 
 		/*
-		 * Use client.isValid() to check if it worked.
+		 * Use client.isValid() to check if it worked (or the '!' operator)
 		 * If the resulting socket is invalid, use server.lastError()
 		 * in order to determine what's going on. If it's inet::kSE_NoError,
 		 * then accept() timed out.
@@ -157,6 +158,11 @@ namespace m
 		bool isValid() const override
 		{
 			return m_sock != INVALID_SOCKET;
+		}
+
+		bool operator ! () const override
+		{
+			return m_sock == INVALID_SOCKET;
 		}
 
 		inet::SocketError lastError() const override

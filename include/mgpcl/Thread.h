@@ -246,6 +246,11 @@ namespace m
 			return m_threads != nullptr;
 		}
 
+		bool operator ! () const
+		{
+			return m_threads == nullptr;
+		}
+
 		CallbackThread &access(int idx);
 		CallbackThread &operator[] (int idx);
 

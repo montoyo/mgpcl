@@ -94,6 +94,11 @@ namespace m
 			return type != kWET_NoEvent;
 		}
 
+		bool operator ! () const
+        {
+            return type == kWET_NoEvent;
+        }
+
 		bool isMouse() const
 		{
 			return type == kWET_MouseMove || type == kWET_MousePress || type == kWET_MouseRelease;

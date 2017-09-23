@@ -526,12 +526,12 @@ void m::Window::waitEvent()
 	MSG msg;
 
 	m_event.clear();
-	while(!m_event.isValid()) {
-		if(PeekMessage(&msg, m_wnd, 0, 0, PM_REMOVE)) {
+	while(!!m_event) {
+		if(GetMessage(&msg, m_wnd, 0, 0)) {
+			//GetMessage only fails if the window was closed anyway
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		} else
-			WaitMessage();
+		}
 	}
 #else
 	while(m_queue.isEmpty())
@@ -626,7 +626,7 @@ void m::Window::setIcon(const uint8_t *pixels, int width, int height)
 	m_iconMask = mask;
 	m_icon = icon;
 #else
-	GBytes *gpixels = g_bytes_new(pixels, width * height * 4);
+	GBytes *gpixels = g_bytes_new(pixels, static_cast<gsize>(width * height * 4));
 	GdkPixbuf *icon = gdk_pixbuf_new_from_bytes(gpixels, GDK_COLORSPACE_RGB, TRUE, 8, width, height, width * 4);
 	g_object_ref_sink(icon);
 	gtk_window_set_icon(GTK_WINDOW(m_wnd), icon);

@@ -26,7 +26,7 @@ namespace m
 {
 	//What I call a "cat-mouse" queue. Somebody probably invented it already, but I don't know how he called it.
 	//Pushing a value will move the mouse forward
-	//Poping a value will move the cat forward
+	//Popping a value will move the cat forward
 	//When the cat eats the mouse, they start over
 	//
 	//The maximum number of elements that can be pushed is called backlog
@@ -34,8 +34,8 @@ namespace m
 	//If offerEx() is used, backlog is increased automatically and buffers are re-allocated.
 	//Two buffers of size "backlog" are used, to avoid overlap and thus prefer the use of Mem::copy over Mem::move which should be a bit faster
 	//
-	//This queue implementation was designed to be faster than using Lists with .add() and .removeFirst(),
-	//which would call Mem::move() everytime an element is popped. Here elements are copied to the secondary
+	//This queue implementation is designed to be faster than using Lists with .add() and .removeFirst(),
+	//which would call Mem::move() every time an element is popped. Here elements are copied to the secondary
 	//buffer only if "the mouse" reaches the maximum size (the backlog). It has NO cost if elements are popped
 	//faster than they are pushed, within the limits of the defined backlog, which can be changed at any moment
 	//using .setBacklog(). Doing so will re-allocate the two buffers. One could also use offerEx() which is the same
@@ -48,7 +48,7 @@ namespace m
 			m_backlog = 2;
 			m_size = 0;
 			m_pos = 0;
-			m_data = reinterpret_cast<T*>(new uint8_t[sizeof(T) * 4]);
+			m_data = Mem::alloc<T>(4);
 			m_buffer = m_data + 2;
 		}
 
@@ -57,7 +57,7 @@ namespace m
 			m_backlog = bl;
 			m_size = 0;
 			m_pos = 0;
-			m_data = reinterpret_cast<T*>(new uint8_t[sizeof(T) * (bl << 1)]);
+			m_data = Mem::alloc<T>(bl << 1);
 			m_buffer = m_data + bl;
 		}
 
@@ -66,14 +66,12 @@ namespace m
 			m_backlog = src.m_backlog;
 			m_size = src.m_size;
 			m_pos = 0;
-			m_data = reinterpret_cast<T*>(new uint8_t[sizeof(T) * (m_backlog << 1)]);
+			m_data = Mem::alloc<T>(m_backlog << 1);
 			m_buffer = m_data + m_backlog;
-
-			for(uint32_t i = 0; i < m_size; i++)
-				new(m_data + i) T(src.m_data[src.m_pos + i]);
+            Mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
 		}
 
-		Queue(Queue &&src)
+		Queue(Queue &&src) noexcept
 		{
 			m_backlog = src.m_backlog;
 			m_size = src.m_size;
@@ -90,9 +88,9 @@ namespace m
 					m_data[m_pos + i].~T();
 
 				if(m_data < m_buffer)
-					delete[] reinterpret_cast<uint8_t*>(m_data);
+					Mem::del<T>(m_data);
 				else
-					delete[] reinterpret_cast<uint8_t*>(m_buffer);
+					Mem::del<T>(m_buffer);
 			}
 		}
 
@@ -103,10 +101,7 @@ namespace m
 
 			if(m_pos + m_size >= m_backlog) {
 				//Copy on next buffer
-				for(uint32_t i = 0; i < m_size; i++) {
-					new(m_buffer + i) T(std::move(m_data[m_pos + i]));
-					m_data[m_pos + i].~T();
-				}
+                moveData(m_buffer, m_data + m_pos, m_size);
 
 				//Swap buffer and reset pos
 				T *tmp = m_data;
@@ -125,16 +120,13 @@ namespace m
 				//Realloc
 				m_backlog += m_backlog >> 1; //backlog is at least two, so this would do 2 + (2 >> 1) = 2 + 1 = 3
 
-				T *nptr = reinterpret_cast<T*>(new uint8_t[sizeof(T) * (m_backlog << 1)]);
-				for(uint32_t i = 0; i < m_size; i++) {
-					new(nptr + i) T(std::move(m_data[m_pos + i]));
-					m_data[m_pos + i].~T();
-				}
+				T *nptr = Mem::alloc<T>(m_backlog << 1);
+				moveData(nptr, m_data + m_pos, m_size);
 
 				if(m_data < m_buffer)
-					delete[] reinterpret_cast<uint8_t*>(m_data);
+					delete[] Mem::del<T>(m_data);
 				else
-					delete[] reinterpret_cast<uint8_t*>(m_buffer);
+					delete[] Mem::del<T>(m_buffer);
 
 				m_data = nptr;
 				m_buffer = nptr + m_backlog;
@@ -142,10 +134,7 @@ namespace m
 
 			if(m_pos + m_size >= m_backlog) {
 				//Copy on next buffer
-				for(uint32_t i = 0; i < m_size; i++) {
-					new(m_buffer + i) T(std::move(m_data[m_pos + i]));
-					m_data[m_pos + i].~T();
-				}
+				moveData(m_buffer, m_data + m_pos, m_size);
 
 				//Swap buffer and reset pos
 				T *tmp = m_data;
@@ -207,20 +196,16 @@ namespace m
 			mDebugAssert(bl >= 2, "backlog must be at least 2");
 			m_backlog = bl;
 
-			T *nptr = reinterpret_cast<T*>(new uint8_t[sizeof(T) * (bl << 1)]);
+			T *nptr = Mem::alloc<T>(bl << 1);
 			if(m_size > 0) {
-				for(uint32_t i = 0; i < m_size; i++) {
-					new(nptr + i) T(std::move(m_data[m_pos + i]));
-					m_data[m_pos + i].~T();
-				}
-
+				moveData(nptr, m_data + m_pos, m_size);
 				m_pos = 0;
 			}
 
 			if(m_data < m_buffer)
-				delete[] reinterpret_cast<uint8_t*>(m_data);
+				delete[] Mem::del<T>(m_data);
 			else
-				delete[] reinterpret_cast<uint8_t*>(m_buffer);
+				delete[] Mem::del<T>(m_buffer);
 
 			m_data = nptr;
 			m_buffer = nptr + bl;
@@ -236,6 +221,11 @@ namespace m
 			return m_size;
 		}
 
+		uint32_t operator ~ () const
+		{
+			return m_size;
+		}
+
 		Queue &operator = (const Queue &src)
 		{
 			if(m_data == src.m_data)
@@ -246,21 +236,19 @@ namespace m
 					m_data[m_pos + i].~T();
 
 				if(m_data < m_buffer)
-					delete[] reinterpret_cast<uint8_t*>(m_data);
+					delete[] Mem::del<T>(m_data);
 				else
-					delete[] reinterpret_cast<uint8_t*>(m_buffer);
+					delete[] Mem::del<T>(m_buffer);
 
 				m_backlog = src.m_backlog;
-				m_data = reinterpret_cast<T*>(new uint8_t[sizeof(T) * (m_backlog << 1)]);
+				m_data = Mem::alloc<T>(m_backlog << 1);
 				m_buffer = m_data + m_backlog;
 			}
 
 			m_size = src.m_size;
 			m_pos = 0;
 
-			for(uint32_t i = 0; i < m_size; i++)
-				new(m_data + i) T(src.m_data[src.m_pos + i]);
-
+            Mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
 			return *this;
 		}
 
@@ -270,9 +258,9 @@ namespace m
 				m_data[m_pos + i].~T();
 
 			if(m_data < m_buffer)
-				delete[] reinterpret_cast<uint8_t*>(m_data);
+				Mem::del<T>(m_data);
 			else
-				delete[] reinterpret_cast<uint8_t*>(m_buffer);
+				Mem::del<T>(m_buffer);
 
 			m_backlog = src.m_backlog;
 			m_size = src.m_size;
@@ -284,6 +272,18 @@ namespace m
 		}
 
 	private:
+        static void moveData(T *dst, T *src, uint32_t sz)
+        {
+            if(std::is_trivially_move_constructible<T>::value && std::is_trivially_destructible<T>::value)
+                Mem::copy(dst, src, sz);
+            else {
+                for(uint32_t i = 0; i < sz; i++) {
+                    new(dst + i) T(std::move(src[i]));
+                    src[i].~T();
+                }
+            }
+        }
+
 		uint32_t m_backlog;
 		uint32_t m_size;
 		uint32_t m_pos;

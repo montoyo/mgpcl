@@ -155,6 +155,11 @@ namespace m
 			return !m_name.isEmpty();
 		}
 
+		bool operator ! () const
+        {
+            return m_name.isEmpty();
+        }
+
 	private:
 		time_t m_creation;
 		String m_name;

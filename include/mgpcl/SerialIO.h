@@ -59,6 +59,15 @@ namespace m
 #endif
 		}
 
+		bool operator ! () const
+        {
+#ifdef MGPCL_WIN
+            return m_handle == INVALID_HANDLE_VALUE;
+#else
+            return m_fd < 0;
+#endif
+        }
+
 		void addRef()
 		{
 			m_refs.increment();

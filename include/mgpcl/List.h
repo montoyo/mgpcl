@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "Mem.h"
 #include "Assert.h"
+#include "Util.h"
 #include <functional>
 #include <initializer_list>
 
@@ -604,19 +605,31 @@ namespace m
             return func(&newSize, m_data);
         }
 
-        //FIXME: This uses memcmp and not the == operator
-        //Might not work as expected for your usage.
-        bool operator == (const List<T, Size> &src) const
+        template<typename U = T> typename std::enable_if<m::HasEqualOperator<U>::value, bool>::type operator == (const List<T, Size> &src) const
         {
-            return m_size == src.m_size && Mem::cmp(m_data, src.m_data, static_cast<size_t>(m_size) * sizeof(T)) == 0;
-        }
+            if(m_size != src.m_size)
+                return false;
 
-        //FIXME: This uses memcmp and not the != operator
-        //Might not work as expected for your usage.
-        bool operator != (const List<T, Size> &src) const
+            for(Size i = Size(0); i < m_size; ++i) {
+                if(!(m_data[i] == src.m_data[i]))
+                    return false;
+            }
+
+            return true;
+        };
+
+        template<typename U = T> typename std::enable_if<m::HasEqualOperator<U>::value, bool>::type operator != (const List<T, Size> &src) const
         {
-            return m_size != src.m_size || Mem::cmp(m_data, src.m_data, static_cast<size_t>(m_size) * sizeof(T)) != 0;
-        }
+            if(m_size != src.m_size)
+                return true;
+
+            for(Size i = Size(0); i < m_size; ++i) {
+                if(!(m_data[i] == src.m_data[i]))
+                    return true;
+            }
+
+            return false;
+        };
 
 	private:
 		void grow(Size sz)

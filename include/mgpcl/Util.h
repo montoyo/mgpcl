@@ -44,6 +44,30 @@
 
 namespace m
 {
+    //So this is a bit of a hack
+    //But the whole SFINAE thing is a hack; isn't it?
+	template<class T> struct HasEqualOperator
+    {
+        template<class U> static auto testFunc(bool) -> decltype(*reinterpret_cast<const U*>(0) == *reinterpret_cast<const U*>(0));
+        template<class U> static void testFunc(...);
+
+        enum
+        {
+            value = std::is_same<decltype(testFunc<T>(true)), bool>::value
+        };
+    };
+
+    template<class T> struct HasNotEqualOperator
+    {
+        template<class U> static auto testFunc(bool) -> decltype(*reinterpret_cast<const U*>(0) != *reinterpret_cast<const U*>(0));
+        template<class U> static void testFunc(...);
+
+        enum
+        {
+            value = std::is_same<decltype(testFunc<T>(true)), bool>::value
+        };
+    };
+
 	template<typename T> int intLen(T value, uint8_t base = 10)
 	{
 		static_assert(std::is_integral<T>::value, "m::intLen() only works with integral types!");
@@ -62,6 +86,19 @@ namespace m
 		return static_cast<T>(idx < 10 ? '0' + idx : 'a' + (idx - 10));
 	}
 
+    //hexVal returns 0xFF if chr is invalid (i.e. not within [0-9a-fA-F])
+	static inline uint8_t hexVal(char chr)
+    {
+        if(chr >= '0' && chr <= '9')
+            return static_cast<uint8_t>(chr - '0');
+        else if(chr >= 'a' && chr <= 'f')
+            return static_cast<uint8_t>(chr - 'a' + 10);
+        else if(chr >= 'A' && chr <= 'F')
+            return static_cast<uint8_t>(chr - 'A' + 10);
+
+        return 0xFF;
+    }
+
 	template<typename T> class TString;
 	template<typename T, typename Size> class List;
 
@@ -76,6 +113,7 @@ namespace m
 	M_UTIL_PREFIX bool parseArgs(const TString<char> &str, List<TString<char>, int> &dst, bool strict = true);
 	M_UTIL_PREFIX void makeSizeString(uint64_t sz, TString<char> &dst);
 	M_UTIL_PREFIX void hexString(const uint8_t *data, uint32_t sz, TString<char> &dst);
+    M_UTIL_PREFIX uint32_t unHexString(const TString<char> &src, uint8_t *dst, uint32_t bufSz);
 	M_UTIL_PREFIX void base64Encode(const uint8_t *data, uint32_t sz, TString<char> &dst);
 	M_UTIL_PREFIX bool base64Decode(const char *data, uint8_t *dst, uint32_t &sz, int dataLen = -1);
 	M_UTIL_PREFIX bool base64Decode(const TString<char> &str, uint8_t *dst, uint32_t &sz);

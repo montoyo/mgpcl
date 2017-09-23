@@ -199,6 +199,8 @@ TEST
 
 TEST
 {
+	//I should probably move this to Misc
+
 	volatile StackIntegrityChecker sic;
 	m::CPUInfo info(m::CPUInfo::fetch());
 
@@ -213,3 +215,23 @@ TEST
 	std::cout << "[i]\tCPUInfo::maxFrequency() = " << info.maxFrequency() << " MHz" << std::endl;
 	return true;
 }
+
+TEST
+{
+    volatile StackIntegrityChecker sic;
+    static const uint8_t origHex[] = { 0x00, 0x11, 0xAF, 0x33, 0x44, 0x55, 0x66, 0x77 };
+
+    uint8_t testBuf[8];
+    const uint32_t testSz = 8;
+
+    const m::String test1("this isn't valid");
+    const m::String test2("abcabcabcabcabc");
+    const m::String test3("0011aF3344556677");
+
+    testAssert(m::unHexString(test1, testBuf, testSz) == 0, "un-hex test1 should have failed");
+    testAssert(m::unHexString(test2, testBuf, testSz) == 0, "un-hex test2 should have failed");
+    testAssert(m::unHexString(test3, testBuf, testSz) == 8, "un-hex test3 failed for no reason");
+    testAssert(m::Mem::cmp(testBuf, origHex, 8) == 0, "un-hexed data does not match hex data");
+
+    return true;
+};

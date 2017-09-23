@@ -192,6 +192,19 @@ static void genArray(int *sz, int *dst)
     m::Mem::copy(dst, g_12345, 5 * sizeof(int));
 }
 
+class ClassWithEqualOp
+{
+public:
+    bool operator == (const ClassWithEqualOp &test) const
+    {
+        return true;
+    }
+};
+
+class ClassWithoutEqualOp
+{
+};
+
 TEST
 {
 	volatile StackIntegrityChecker sic;
@@ -201,9 +214,31 @@ TEST
         return true;
     }), "List<int>::setFromDoubleCall failed");
 
+    /*m::List<TestObject> invalidTest;
+    invalidTest.setFromDoubleCall([] (int*, TestObject*) -> bool { return false; });*/
+
     testAssert(~test == 5, "setFromDoubleCall got bad size");
     for(int i = 0; i < 5; i++)
         testAssert(test[i] == i + 1, "setFromDoubleCall copied data wrongly!");
+
+    m::List<int> anotherTest{ 1, 2, 3, 4, 5 };
+    testAssert(test == anotherTest, "m::List::operator == doesn't work with ints");
+
+    m::List<ClassWithEqualOp> lst1;
+    lst1 << ClassWithEqualOp();
+    lst1 << ClassWithEqualOp();
+
+    decltype(lst1) lst2(lst1);
+    testAssert(lst1 == lst2, "m::List::operator == doesn't work with classes");
+
+    /*
+    m::List<ClassWithoutEqualOp> lst3;
+    lst3 << ClassWithoutEqualOp();
+    lst3 << ClassWithoutEqualOp();
+
+    decltype(lst3) lst4(lst3);
+    std::cout << (lst3 == lst4) << std::endl;
+    */
 
 	return true;
 };

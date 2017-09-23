@@ -30,6 +30,11 @@ namespace m
 			return m_valid;
 		}
 
+		bool operator ! () const
+		{
+			return !m_valid;
+		}
+
 		//If !isValid(), use this to get the error string
 		String error() const
 		{

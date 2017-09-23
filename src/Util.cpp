@@ -18,6 +18,8 @@
  */
 
 #define M_UTIL_DECLARE
+
+#include <cstdint>
 #include "mgpcl/Util.h"
 #include "mgpcl/String.h"
 
@@ -359,6 +361,28 @@ bool m::base64Decode(const char *data, uint8_t *dst, uint32_t &sz, int dataLen)
 bool m::base64Decode(const TString<char> &str, uint8_t *dst, uint32_t &sz)
 {
 	return base64Decode(str.raw(), dst, sz, str.length());
+}
+
+uint32_t m::unHexString(const TString<char> &src, uint8_t *dst, uint32_t bufSz)
+{
+    if((src.length() & 1) != 0)
+        return 0;
+
+    uint32_t sz = static_cast<uint32_t>(src.length()) >> 1;
+    if(sz > bufSz)
+        sz = bufSz;
+
+    for(uint32_t i = 0; i < sz; i++) {
+        uint8_t a = hexVal(src[static_cast<int>(i << 1)]);
+        uint8_t b = hexVal(src[static_cast<int>((i << 1) | 1)]);
+
+        if(a == 0xFF || b == 0xFF)
+            return 0; //Found bad character in string
+
+        dst[i] = (a << 4) | b;
+    }
+
+    return sz;
 }
 
 #include "mgpcl/CRC32_Poly.h"

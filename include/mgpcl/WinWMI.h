@@ -34,42 +34,42 @@
 
 namespace m
 {
-	class WMIResult;
+    class WMIResult;
 
-	namespace wmi
-	{
-		M_WMI_PREFIX bool acquire();
-		M_WMI_PREFIX WMIResult *query(const char *q);
-		M_WMI_PREFIX const String &lastError();
-		M_WMI_PREFIX void release();
-	}
+    namespace wmi
+    {
+        M_WMI_PREFIX bool acquire();
+        M_WMI_PREFIX WMIResult *query(const char *q);
+        M_WMI_PREFIX const String &lastError();
+        M_WMI_PREFIX void release();
+    }
 
-	//Note: I think we can remove the ref-counting bs here...
-	class WMIResult
-	{
-		friend WMIResult *wmi::query(const char *q);
+    //Note: I think we can remove the ref-counting bs here...
+    class WMIResult
+    {
+        friend WMIResult *wmi::query(const char *q);
 
-	public:
-		bool next();
-		void addRef();
-		void releaseRef();
-		String getString(LPCWSTR key);
-		uint32_t getUInt32(LPCWSTR key);
+    public:
+        bool next();
+        void addRef();
+        void releaseRef();
+        String getString(LPCWSTR key);
+        uint32_t getUInt32(LPCWSTR key);
 
-	private:
-		WMIResult(IEnumWbemClassObject *ienum);
-		WMIResult()
-		{
-		}
+    private:
+        WMIResult(IEnumWbemClassObject *ienum);
+        WMIResult()
+        {
+        }
 
-		~WMIResult()
-		{
-		}
+        ~WMIResult()
+        {
+        }
 
-		Atomic m_refs;
-		IEnumWbemClassObject *m_enumerator;
-		IWbemClassObject *m_entry;
-	};
+        Atomic m_refs;
+        IEnumWbemClassObject *m_enumerator;
+        IWbemClassObject *m_entry;
+    };
 
 }
 

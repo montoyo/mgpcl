@@ -134,48 +134,48 @@ namespace m
             m_data[col][row] = val;
         }
 
-		Matrix3<T> &operator *= (const Matrix3<T> &src) {
-			T tmp[3][3];
+        Matrix3<T> &operator *= (const Matrix3<T> &src) {
+            T tmp[3][3];
 
-			for(int x = 0; x < 3; x++) {
-				tmp[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2];
-				tmp[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2];
-				tmp[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2];
-			}
+            for(int x = 0; x < 3; x++) {
+                tmp[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2];
+                tmp[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2];
+                tmp[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2];
+            }
 
-			Mem::copy(m_data, tmp, 3 * 3 * sizeof(float));
-			return *this;
-		}
+            Mem::copy(m_data, tmp, 3 * 3 * sizeof(float));
+            return *this;
+        }
 
-		Matrix3<T> operator * (const Matrix3<T> &src) const {
-			Matrix3<T> ret;
+        Matrix3<T> operator * (const Matrix3<T> &src) const {
+            Matrix3<T> ret;
 
-			for(int x = 0; x < 3; x++) {
-				ret.m_data[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2];
-				ret.m_data[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2];
-				ret.m_data[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2];
-			}
+            for(int x = 0; x < 3; x++) {
+                ret.m_data[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2];
+                ret.m_data[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2];
+                ret.m_data[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2];
+            }
 
-			return ret;
-		}
+            return ret;
+        }
 
-		Vector2<T> operator * (const Vector2<T> &src) const {
-			Vector2<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0]);
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1]);
+        Vector2<T> operator * (const Vector2<T> &src) const {
+            Vector2<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0]);
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1]);
 
-			return ret;
-		}
+            return ret;
+        }
 
-		Vector3<T> operator * (const Vector3<T> &src) const {
-			Vector3<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z());
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z());
-			ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z());
+        Vector3<T> operator * (const Vector3<T> &src) const {
+            Vector3<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z());
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z());
+            ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z());
 
-			return ret;
-		}
-		
+            return ret;
+        }
+        
     private:
         T m_data[3][3];
     };

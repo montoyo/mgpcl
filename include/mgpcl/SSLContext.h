@@ -26,59 +26,59 @@
 
 namespace m
 {
-	enum SSLContextMethod
-	{
-		kSCM_v23Method,
-		kSCM_v23Client,
-		kSCM_v23Server
-	};
+    enum SSLContextMethod
+    {
+        kSCM_v23Method,
+        kSCM_v23Client,
+        kSCM_v23Server
+    };
 
-	enum SSLVerifyFlags
-	{
-		kSVF_None = 0,
-		kSVF_VerifyPeer = 1,
-		kSVF_FailIfNoPeerCert = 2,
-		kSVF_VerifyClientOnce = 4
-	};
+    enum SSLVerifyFlags
+    {
+        kSVF_None = 0,
+        kSVF_VerifyPeer = 1,
+        kSVF_FailIfNoPeerCert = 2,
+        kSVF_VerifyClientOnce = 4
+    };
 
-	class SSLContext
-	{
-	public:
-		SSLContext();
-		SSLContext(const SSLContext &src);
-		SSLContext(SSLContext &&src);
-		SSLContext(SSLContextMethod method);
-		~SSLContext();
+    class SSLContext
+    {
+    public:
+        SSLContext();
+        SSLContext(const SSLContext &src);
+        SSLContext(SSLContext &&src);
+        SSLContext(SSLContextMethod method);
+        ~SSLContext();
 
-		bool initialize(SSLContextMethod method);
-		bool loadVerifyPath(const String &path);
-		bool loadVerifyFile(const String &file);
-		bool loadOSVerify();
-		bool setVerifyFlags(int flags);
-		bool setVerifyDepth(int depth);
+        bool initialize(SSLContextMethod method);
+        bool loadVerifyPath(const String &path);
+        bool loadVerifyFile(const String &file);
+        bool loadOSVerify();
+        bool setVerifyFlags(int flags);
+        bool setVerifyDepth(int depth);
 
-		SSLContext &operator = (const SSLContext &src);
-		SSLContext &operator = (SSLContext &&src);
+        SSLContext &operator = (const SSLContext &src);
+        SSLContext &operator = (SSLContext &&src);
 
-		void *raw() const
-		{
-			return m_ctx_;
-		}
+        void *raw() const
+        {
+            return m_ctx_;
+        }
 
-		bool isValid() const
-		{
-			return m_refs != nullptr;
-		}
+        bool isValid() const
+        {
+            return m_refs != nullptr;
+        }
 
-		bool operator ! () const
-		{
-			return m_refs == nullptr;
-		}
+        bool operator ! () const
+        {
+            return m_refs == nullptr;
+        }
 
-	private:
-		void *m_ctx_;
-		Atomic *m_refs;
-	};
+    private:
+        void *m_ctx_;
+        Atomic *m_refs;
+    };
 }
 
 #endif

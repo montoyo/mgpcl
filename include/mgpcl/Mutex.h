@@ -29,62 +29,62 @@
 
 namespace m
 {
-	class Cond;
+    class Cond;
 
-	class MGPCL_PREFIX Mutex
-	{
-		friend class Cond;
+    class MGPCL_PREFIX Mutex
+    {
+        friend class Cond;
 
-	public:
-		Mutex()
-		{
+    public:
+        Mutex()
+        {
 #ifdef MGPCL_WIN
-			InitializeCriticalSection(&m_cs);
+            InitializeCriticalSection(&m_cs);
 #else
             m_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
-		}
+        }
 
-		~Mutex()
-		{
+        ~Mutex()
+        {
 #ifdef MGPCL_WIN
-			DeleteCriticalSection(&m_cs);
+            DeleteCriticalSection(&m_cs);
 #endif
-		}
+        }
 
-		void lock()
-		{
+        void lock()
+        {
 #ifdef MGPCL_WIN
-			EnterCriticalSection(&m_cs);
+            EnterCriticalSection(&m_cs);
 #else
             pthread_mutex_lock(&m_mutex);
 #endif
-		}
+        }
 
-		bool tryLock()
-		{
+        bool tryLock()
+        {
 #ifdef MGPCL_WIN
-			return TryEnterCriticalSection(&m_cs) != FALSE;
+            return TryEnterCriticalSection(&m_cs) != FALSE;
 #else
             return pthread_mutex_trylock(&m_mutex) == 0;
 #endif
-		}
+        }
 
-		void unlock()
-		{
+        void unlock()
+        {
 #ifdef MGPCL_WIN
-			LeaveCriticalSection(&m_cs);
+            LeaveCriticalSection(&m_cs);
 #else
             pthread_mutex_unlock(&m_mutex);
 #endif
-		}
+        }
 
-	private:
+    private:
 #ifdef MGPCL_WIN
-		CRITICAL_SECTION m_cs;
+        CRITICAL_SECTION m_cs;
 #else
         pthread_mutex_t m_mutex;
 #endif
-	};
+    };
 }
 

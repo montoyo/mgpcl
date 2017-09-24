@@ -21,64 +21,64 @@
 
 namespace m
 {
-	template<class T> class DefaultHasher
-	{
-	public:
-		static int hash(const T &src)
-		{
-			return src.hash();
-		}
-	};
+    template<class T> class DefaultHasher
+    {
+    public:
+        static int hash(const T &src)
+        {
+            return src.hash();
+        }
+    };
 
-	template<typename T> class StaticCastHasher
-	{
-	public:
-		static int hash(T i)
-		{
-			return static_cast<int>(i);
-		}
-	};
+    template<typename T> class StaticCastHasher
+    {
+    public:
+        static int hash(T i)
+        {
+            return static_cast<int>(i);
+        }
+    };
 
-	template<> class DefaultHasher<int> : public StaticCastHasher<int>
-	{
-	};
+    template<> class DefaultHasher<int> : public StaticCastHasher<int>
+    {
+    };
 
-	template<> class DefaultHasher<short> : public StaticCastHasher<short>
-	{
-	};
+    template<> class DefaultHasher<short> : public StaticCastHasher<short>
+    {
+    };
 
-	template<> class DefaultHasher<char> : public StaticCastHasher<char>
-	{
-	};
+    template<> class DefaultHasher<char> : public StaticCastHasher<char>
+    {
+    };
 
-	template<> class DefaultHasher<long> : public StaticCastHasher<long>
-	{
-	};
+    template<> class DefaultHasher<long> : public StaticCastHasher<long>
+    {
+    };
 
-	template<> class DefaultHasher<unsigned int> : public StaticCastHasher<unsigned int>
-	{
-	};
+    template<> class DefaultHasher<unsigned int> : public StaticCastHasher<unsigned int>
+    {
+    };
 
-	template<> class DefaultHasher<unsigned short> : public StaticCastHasher<unsigned short>
-	{
-	};
+    template<> class DefaultHasher<unsigned short> : public StaticCastHasher<unsigned short>
+    {
+    };
 
-	template<> class DefaultHasher<unsigned char> : public StaticCastHasher<unsigned char>
-	{
-	};
+    template<> class DefaultHasher<unsigned char> : public StaticCastHasher<unsigned char>
+    {
+    };
 
-	template<> class DefaultHasher<unsigned long> : public StaticCastHasher<unsigned long>
-	{
-	};
+    template<> class DefaultHasher<unsigned long> : public StaticCastHasher<unsigned long>
+    {
+    };
 
-	template<> class DefaultHasher<float>
-	{
-	public:
-		static int hash(float i)
-		{
-			static_assert(sizeof(float) == sizeof(int), "sizeof(float) != sizeof(int)");
-			return *reinterpret_cast<int*>(&i);
-		}
-	};
+    template<> class DefaultHasher<float>
+    {
+    public:
+        static int hash(float i)
+        {
+            static_assert(sizeof(float) == sizeof(int), "sizeof(float) != sizeof(int)");
+            return *reinterpret_cast<int*>(&i);
+        }
+    };
 
 }

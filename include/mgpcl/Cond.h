@@ -28,31 +28,31 @@
 
 namespace m
 {
-	class MGPCL_PREFIX Cond
-	{
-	public:
-		Cond()
-		{
+    class MGPCL_PREFIX Cond
+    {
+    public:
+        Cond()
+        {
 #ifdef MGPCL_WIN
-			InitializeConditionVariable(&m_cv);
+            InitializeConditionVariable(&m_cv);
 #else
             m_cv = PTHREAD_COND_INITIALIZER;
 #endif
-		}
+        }
 
-		void wait(Mutex &m)
-		{
+        void wait(Mutex &m)
+        {
 #ifdef MGPCL_WIN
-			SleepConditionVariableCS(&m_cv, &m.m_cs, INFINITE);
+            SleepConditionVariableCS(&m_cv, &m.m_cs, INFINITE);
 #else
             pthread_cond_wait(&m_cv, &m.m_mutex);
 #endif
-		}
+        }
 
-		bool waitFor(Mutex &m, uint32_t ms)
-		{
+        bool waitFor(Mutex &m, uint32_t ms)
+        {
 #ifdef MGPCL_WIN
-			return SleepConditionVariableCS(&m_cv, &m.m_cs, ms) != FALSE;
+            return SleepConditionVariableCS(&m_cv, &m.m_cs, ms) != FALSE;
 #else
             struct timeval tv;
             struct timespec ts;
@@ -66,32 +66,32 @@ namespace m
 
             return pthread_cond_timedwait(&m_cv, &m.m_mutex, &ts) == 0;
 #endif
-		}
+        }
 
-		void signal()
-		{
+        void signal()
+        {
 #ifdef MGPCL_WIN
-			WakeConditionVariable(&m_cv);
+            WakeConditionVariable(&m_cv);
 #else
             pthread_cond_signal(&m_cv);
 #endif
-		}
+        }
 
-		void signalAll()
-		{
+        void signalAll()
+        {
 #ifdef MGPCL_WIN
-			WakeAllConditionVariable(&m_cv);
+            WakeAllConditionVariable(&m_cv);
 #else
             pthread_cond_broadcast(&m_cv);
 #endif
-		}
+        }
 
-	private:
+    private:
 #ifdef MGPCL_WIN
-		CONDITION_VARIABLE m_cv;
+        CONDITION_VARIABLE m_cv;
 #else
         pthread_cond_t m_cv;
 #endif
-	};
+    };
 }
 

@@ -24,22 +24,22 @@
 
 namespace m
 {
-	class MGPCL_PREFIX ReadWriteLock
-	{
-	public:
-		ReadWriteLock();
-		~ReadWriteLock();
+    class MGPCL_PREFIX ReadWriteLock
+    {
+    public:
+        ReadWriteLock();
+        ~ReadWriteLock();
 
-		void lockFor(RWAction t);
-		void releaseFor(RWAction t);
-		bool tryLockForWriting();
+        void lockFor(RWAction t);
+        void releaseFor(RWAction t);
+        bool tryLockForWriting();
 
-	private:
-		Mutex m_lock;
-		Cond m_read;
-		Cond m_write;
+    private:
+        Mutex m_lock;
+        Cond m_read;
+        Cond m_write;
 
-		volatile uint32_t m_reads;
-		volatile bool m_writing;
-	};
+        volatile uint32_t m_reads;
+        volatile bool m_writing;
+    };
 }

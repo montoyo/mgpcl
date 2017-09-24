@@ -22,63 +22,63 @@
 namespace m
 {
 
-	template<class T> class Singleton
-	{
-	public:
-		static T &instance()
-		{
-			return *m_ptr;
-		}
+    template<class T> class Singleton
+    {
+    public:
+        static T &instance()
+        {
+            return *m_ptr;
+        }
 
-		static T &create()
-		{
-			if(m_ptr == nullptr)
-				m_ptr = new T;
+        static T &create()
+        {
+            if(m_ptr == nullptr)
+                m_ptr = new T;
 
-			return *m_ptr;
-		}
+            return *m_ptr;
+        }
 
-		static void destroy()
-		{
-			if(m_ptr != nullptr) {
-				delete m_ptr;
-				m_ptr = nullptr;
-			}
-		}
+        static void destroy()
+        {
+            if(m_ptr != nullptr) {
+                delete m_ptr;
+                m_ptr = nullptr;
+            }
+        }
 
-	private:
-		static T *m_ptr;
-	};
+    private:
+        static T *m_ptr;
+    };
 
-	template<class T> T *Singleton<T>::m_ptr = nullptr;
-	
-	//If you reaaallllyy need a real singleton, here
-	//it is; but I won't be held responsible for the
-	//lack of performance in your program.
-	template<class T> class RSingleton
-	{
-	public:
-		static T &instance()
-		{
-			if(m_ptr == nullptr)
-				m_ptr = new T;
-			
-			return *m_ptr;
-		}
+    template<class T> T *Singleton<T>::m_ptr = nullptr;
+    
+    //If you reaaallllyy need a real singleton, here
+    //it is; but I won't be held responsible for the
+    //lack of performance in your program.
+    template<class T> class RSingleton
+    {
+    public:
+        static T &instance()
+        {
+            if(m_ptr == nullptr)
+                m_ptr = new T;
+            
+            return *m_ptr;
+        }
 
-		static void destroy()
-		{
-			if(m_ptr != nullptr) {
-				delete m_ptr;
-				m_ptr = nullptr;
-			}
-		}
+        static void destroy()
+        {
+            if(m_ptr != nullptr) {
+                delete m_ptr;
+                m_ptr = nullptr;
+            }
+        }
 
-	private:
-		static T *m_ptr;
-	};
+    private:
+        static T *m_ptr;
+    };
 
-	template<class T> T *RSingleton<T>::m_ptr = nullptr;
+    template<class T> T *RSingleton<T>::m_ptr = nullptr;
 
 }
 

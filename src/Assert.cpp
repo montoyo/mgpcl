@@ -31,24 +31,24 @@
 
 void m::debugBreak(const char *fname, int line, const char *str)
 {
-	String txt(fname);
-	int pos = Math::maximum(txt.lastIndexOf('/'), txt.lastIndexOf('\\'));
+    String txt(fname);
+    int pos = Math::maximum(txt.lastIndexOf('/'), txt.lastIndexOf('\\'));
 
-	if(pos > 0)
-		txt = txt.substr(pos + 1);
+    if(pos > 0)
+        txt = txt.substr(pos + 1);
 
-	txt += '@';
-	txt += String::fromInteger(line);
-	txt += ": ";
-	txt += str;
+    txt += '@';
+    txt += String::fromInteger(line);
+    txt += ": ";
+    txt += str;
 
 #ifdef MGPCL_WIN
-	txt += "\r\n";
+    txt += "\r\n";
 
-	OutputDebugStringA(txt.raw());
-	DebugBreak();
+    OutputDebugStringA(txt.raw());
+    DebugBreak();
 #else
-	std::cerr << txt.raw() << std::endl;
-	std::abort();
+    std::cerr << txt.raw() << std::endl;
+    std::abort();
 #endif
 }

@@ -23,170 +23,170 @@
 namespace m
 {
 
-	template<typename K, typename V> class FlatMap
-	{
-	public:
-		class Pair
-		{
-		public:
-			Pair(const K &k, const V &v) : key(k), value(v)
-			{
-			}
+    template<typename K, typename V> class FlatMap
+    {
+    public:
+        class Pair
+        {
+        public:
+            Pair(const K &k, const V &v) : key(k), value(v)
+            {
+            }
 
-			Pair(const K &k) : key(k)
-			{
-			}
+            Pair(const K &k) : key(k)
+            {
+            }
 
-			K key;
-			V value;
+            K key;
+            V value;
 
-		private:
-			Pair()
-			{
-			}
-		};
+        private:
+            Pair()
+            {
+            }
+        };
 
-		typedef Pair *Iterator;
-		typedef const Pair *CIterator;
+        typedef Pair *Iterator;
+        typedef const Pair *CIterator;
 
-		Iterator begin()
-		{
-			return m_data.begin();
-		}
+        Iterator begin()
+        {
+            return m_data.begin();
+        }
 
-		Iterator end()
-		{
-			return m_data.end();
-		}
+        Iterator end()
+        {
+            return m_data.end();
+        }
 
-		CIterator begin() const
-		{
-			return m_data.begin();
-		}
+        CIterator begin() const
+        {
+            return m_data.begin();
+        }
 
-		CIterator end() const
-		{
-			return m_data.end();
-		}
+        CIterator end() const
+        {
+            return m_data.end();
+        }
 
-		void put(const K &key, const V &value)
-		{
-			if(m_data.isEmpty())
-				m_data.add(Pair(key, value));
-			else {
-				int begin = 0;
-				int end = m_data.size();
+        void put(const K &key, const V &value)
+        {
+            if(m_data.isEmpty())
+                m_data.add(Pair(key, value));
+            else {
+                int begin = 0;
+                int end = m_data.size();
 
-				do {
-					int pos = (begin + end) / 2;
+                do {
+                    int pos = (begin + end) / 2;
 
-					if(key == m_data[pos].key) {
-						m_data[pos].value = value;
-						return;
-					} else if(key > m_data[pos].key)
-						begin = pos + 1;
-					else
-						end = pos;
-				} while(begin != end);
+                    if(key == m_data[pos].key) {
+                        m_data[pos].value = value;
+                        return;
+                    } else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
 
-				m_data.insert(begin, Pair(key, value));
-			}
-		}
+                m_data.insert(begin, Pair(key, value));
+            }
+        }
 
-		V &operator [] (const K &key)
-		{
-			if(m_data.isEmpty()) {
-				m_data.add(Pair(key));
-				return m_data.last().value;
-			} else {
-				int begin = 0;
-				int end = m_data.size();
+        V &operator [] (const K &key)
+        {
+            if(m_data.isEmpty()) {
+                m_data.add(Pair(key));
+                return m_data.last().value;
+            } else {
+                int begin = 0;
+                int end = m_data.size();
 
-				do {
-					int pos = (begin + end) / 2;
+                do {
+                    int pos = (begin + end) / 2;
 
-					if(key == m_data[pos].key)
-						return m_data[pos].value;
-					else if(key > m_data[pos].key)
-						begin = pos + 1;
-					else
-						end = pos;
-				} while(begin != end);
+                    if(key == m_data[pos].key)
+                        return m_data[pos].value;
+                    else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
 
-				m_data.insert(begin, Pair(key));
-				return m_data[begin].value;
-			}
-		}
+                m_data.insert(begin, Pair(key));
+                return m_data[begin].value;
+            }
+        }
 
-		bool hasKey(const K &key) const
-		{
-			if(m_data.isEmpty())
-				return false;
-			else {
-				int begin = 0;
-				int end = m_data.size();
+        bool hasKey(const K &key) const
+        {
+            if(m_data.isEmpty())
+                return false;
+            else {
+                int begin = 0;
+                int end = m_data.size();
 
-				do {
-					int pos = (begin + end) / 2;
+                do {
+                    int pos = (begin + end) / 2;
 
-					if(key == m_data[pos].key)
-						return true;
-					else if(key > m_data[pos].key)
-						begin = pos + 1;
-					else
-						end = pos;
-				} while(begin != end);
+                    if(key == m_data[pos].key)
+                        return true;
+                    else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		bool removeKey(const K &key)
-		{
-			if(m_data.isEmpty())
-				return false;
-			else {
-				int begin = 0;
-				int end = m_data.size();
+        bool removeKey(const K &key)
+        {
+            if(m_data.isEmpty())
+                return false;
+            else {
+                int begin = 0;
+                int end = m_data.size();
 
-				do {
-					int pos = (begin + end) / 2;
+                do {
+                    int pos = (begin + end) / 2;
 
-					if(key == m_data[pos].key) {
-						m_data.remove(pos);
-						return true;
-					} else if(key > m_data[pos].key)
-						begin = pos + 1;
-					else
-						end = pos;
-				} while(begin != end);
+                    if(key == m_data[pos].key) {
+                        m_data.remove(pos);
+                        return true;
+                    } else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
 
-				return false;
-			}
-		}
+                return false;
+            }
+        }
 
-		bool isEmpty() const
-		{
-			return m_data.isEmpty();
-		}
+        bool isEmpty() const
+        {
+            return m_data.isEmpty();
+        }
 
-		int size() const
-		{
-			return m_data.size();
-		}
+        int size() const
+        {
+            return m_data.size();
+        }
 
-		void clear()
-		{
-			m_data.clear();
-		}
+        void clear()
+        {
+            m_data.clear();
+        }
 
-		void cleanup()
-		{
-			m_data.cleanup();
-		}
+        void cleanup()
+        {
+            m_data.cleanup();
+        }
 
-	private:
-		List<Pair> m_data;
-	};
+    private:
+        List<Pair> m_data;
+    };
 
 }

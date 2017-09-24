@@ -29,103 +29,103 @@
 namespace m
 {
 
-	class TCPClient
-	{
-		M_NON_COPYABLE(TCPClient)
+    class TCPClient
+    {
+        M_NON_COPYABLE(TCPClient)
 
-	public:
-		TCPClient();
-		~TCPClient();
+    public:
+        TCPClient();
+        ~TCPClient();
 
-		SocketConnectionError connect(const IPv4Address &addr);
-		void stop();
+        SocketConnectionError connect(const IPv4Address &addr);
+        void stop();
 
-		bool send(const FPacket &pkt)
-		{
-			m_sLock.lock();
-			volatile bool ret = m_sQueue.offer(pkt);
-			m_sLock.unlock();
+        bool send(const FPacket &pkt)
+        {
+            m_sLock.lock();
+            volatile bool ret = m_sQueue.offer(pkt);
+            m_sLock.unlock();
 
-			return ret;
-		}
+            return ret;
+        }
 
-		FPacket nextPacket()
-		{
-			FPacket pkt;
+        FPacket nextPacket()
+        {
+            FPacket pkt;
 
-			m_rLock.lock();
-			if(!m_rQueue.isEmpty()) {
-				pkt = m_rQueue.first();
-				m_rQueue.poll();
-			}
+            m_rLock.lock();
+            if(!m_rQueue.isEmpty()) {
+                pkt = m_rQueue.first();
+                m_rQueue.poll();
+            }
 
-			m_rLock.unlock();
-			return pkt;
-		}
+            m_rLock.unlock();
+            return pkt;
+        }
 
-		void setConnectionTimeout(int to)
-		{
-			m_sock.setConnectionTimeout(to);
-		}
+        void setConnectionTimeout(int to)
+        {
+            m_sock.setConnectionTimeout(to);
+        }
 
-		int connectionTimeout() const
-		{
-			return m_sock.connectionTimeout();
-		}
+        int connectionTimeout() const
+        {
+            return m_sock.connectionTimeout();
+        }
 
-		inet::SocketError lastError()
-		{
-			if(m_running.get() == 0)
-				return m_lastError;
-			else
-				return m_sock.lastError();
-		}
+        inet::SocketError lastError()
+        {
+            if(m_running.get() == 0)
+                return m_lastError;
+            else
+                return m_sock.lastError();
+        }
 
-		int maxErrorCount() const
-		{
-			return m_maxError;
-		}
+        int maxErrorCount() const
+        {
+            return m_maxError;
+        }
 
-		void setMaxErrorCount(int me)
-		{
-			if(m_running.get() == 0)
-				m_maxError = me;
-		}
+        void setMaxErrorCount(int me)
+        {
+            if(m_running.get() == 0)
+                m_maxError = me;
+        }
 
-		bool isRunning()
-		{
-			return m_running.get() != 0;
-		}
+        bool isRunning()
+        {
+            return m_running.get() != 0;
+        }
 
-		//Please note this signal will be called from the net thread
-		//and therefore shouln't hang. If it does, packets won't be
-		//received or sent until every slots returned.
-		Signal<TCPClient*> onPacketAvailable;
+        //Please note this signal will be called from the net thread
+        //and therefore shouln't hang. If it does, packets won't be
+        //received or sent until every slots returned.
+        Signal<TCPClient*> onPacketAvailable;
 
-	private:
-		void threadFunc();
+    private:
+        void threadFunc();
 
-		TCPSocket m_sock;
-		Atomic m_running;
-		ClassThread<TCPClient> m_thread;
+        TCPSocket m_sock;
+        Atomic m_running;
+        ClassThread<TCPClient> m_thread;
 
-		//Error handling
-		int m_maxError;
-		int m_errorCount;
-		inet::SocketError m_lastError;
+        //Error handling
+        int m_maxError;
+        int m_errorCount;
+        inet::SocketError m_lastError;
 
-		//Outgoing
-		Mutex m_sLock;
-		Queue<FPacket> m_sQueue;
-		FPacket m_sPkt;
-		uint32_t m_sPos;
+        //Outgoing
+        Mutex m_sLock;
+        Queue<FPacket> m_sQueue;
+        FPacket m_sPkt;
+        uint32_t m_sPos;
 
-		//Ingoing
-		Mutex m_rLock;
-		Queue<FPacket> m_rQueue;
-		uint8_t *m_rBuffer;
-		uint32_t m_rBufPos;
-		PrePacket m_rPkt;
-	};
+        //Ingoing
+        Mutex m_rLock;
+        Queue<FPacket> m_rQueue;
+        uint8_t *m_rBuffer;
+        uint32_t m_rBufPos;
+        PrePacket m_rPkt;
+    };
 
 }

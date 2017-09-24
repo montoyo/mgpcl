@@ -60,7 +60,7 @@ m::HMAC::HMAC(HMACHash hash, const uint8_t *key, int keyLen)
         m_hash = hash;
 
 #ifdef M_CRYPTO_11
-		m_ctx = HMAC_CTX_new();
+        m_ctx = HMAC_CTX_new();
 #else
         m_ctx = new HMAC_CTX;
         HMAC_CTX_init(m_ctx);
@@ -79,7 +79,7 @@ m::HMAC::HMAC(const HMAC &src)
         m_hash = src.m_hash;
 
 #ifdef M_CRYPTO_11
-		m_ctx = HMAC_CTX_new();
+        m_ctx = HMAC_CTX_new();
 #else
         m_ctx = new HMAC_CTX;
         HMAC_CTX_init(m_ctx);
@@ -100,7 +100,7 @@ m::HMAC::~HMAC()
 {
     if(m_ctx != nullptr) {
 #ifdef M_CRYPTO_11
-		HMAC_CTX_free(m_ctx);
+        HMAC_CTX_free(m_ctx);
 #else
         HMAC_CTX_cleanup(m_ctx);
         delete m_ctx;
@@ -114,10 +114,10 @@ bool m::HMAC::init(HMACHash hash, const uint8_t *key, int keyLen)
     if(alg == nullptr) {
         if(m_ctx != nullptr) {
 #ifdef M_CRYPTO_11
-			HMAC_CTX_free(m_ctx);
+            HMAC_CTX_free(m_ctx);
 #else
-			HMAC_CTX_cleanup(m_ctx);
-			delete m_ctx;
+            HMAC_CTX_cleanup(m_ctx);
+            delete m_ctx;
 #endif
 
             m_ctx = nullptr;
@@ -130,8 +130,8 @@ bool m::HMAC::init(HMACHash hash, const uint8_t *key, int keyLen)
         m_hash = hash;
 
 #ifdef M_CRYPTO_11
-		if(m_ctx == nullptr)
-			m_ctx = HMAC_CTX_new();
+        if(m_ctx == nullptr)
+            m_ctx = HMAC_CTX_new();
 #else
         if(m_ctx == nullptr)
             m_ctx = new HMAC_CTX;
@@ -149,8 +149,8 @@ bool m::HMAC::init(HMACHash hash, const uint8_t *key, int keyLen)
 void m::HMAC::reset()
 {
 #ifdef M_CRYPTO_11
-	if(m_ctx != nullptr)
-		HMAC_Init_ex(m_ctx, nullptr, 0, HMAC_CTX_get_md(m_ctx), nullptr);
+    if(m_ctx != nullptr)
+        HMAC_Init_ex(m_ctx, nullptr, 0, HMAC_CTX_get_md(m_ctx), nullptr);
 #else
     if(m_ctx != nullptr)
         HMAC_Init_ex(m_ctx, nullptr, 0, m_ctx->md, nullptr);
@@ -220,8 +220,8 @@ uint8_t *m::HMAC::final()
 
 uint32_t m::HMAC::hashSize() const
 {
-	if(m_ctx_ == nullptr)
-		return 0;
+    if(m_ctx_ == nullptr)
+        return 0;
 
     return static_cast<uint32_t>(HMAC_size(static_cast<const HMAC_CTX*>(m_ctx_)));
 }
@@ -240,10 +240,10 @@ m::HMAC &m::HMAC::operator = (const HMAC &src)
     if(src.m_ctx_ == nullptr) {
         if(m_ctx != nullptr) {
 #ifdef M_CRYPTO_11
-			HMAC_CTX_free(m_ctx);
+            HMAC_CTX_free(m_ctx);
 #else
-			HMAC_CTX_cleanup(m_ctx);
-			delete m_ctx;
+            HMAC_CTX_cleanup(m_ctx);
+            delete m_ctx;
 #endif
         }
 
@@ -251,15 +251,15 @@ m::HMAC &m::HMAC::operator = (const HMAC &src)
         m_ctx = nullptr;
     } else {
 #ifdef M_CRYPTO_11
-		if(m_ctx == nullptr)
-			m_ctx = HMAC_CTX_new();
+        if(m_ctx == nullptr)
+            m_ctx = HMAC_CTX_new();
 #else
         if(m_ctx == nullptr)
             m_ctx = new HMAC_CTX;
         else
             HMAC_CTX_cleanup(m_ctx);
 
-		HMAC_CTX_init(m_ctx);
+        HMAC_CTX_init(m_ctx);
 #endif
 
         m_hash = src.m_hash;
@@ -273,10 +273,10 @@ m::HMAC &m::HMAC::operator = (HMAC &&src)
 {
     if(m_ctx != nullptr) {
 #ifdef M_CRYPTO_11
-		HMAC_CTX_free(m_ctx);
+        HMAC_CTX_free(m_ctx);
 #else
-		HMAC_CTX_cleanup(m_ctx);
-		delete m_ctx;
+        HMAC_CTX_cleanup(m_ctx);
+        delete m_ctx;
 #endif
     }
 
@@ -296,11 +296,11 @@ bool m::HMAC::quick(HMACHash hash, const uint8_t *key, int keyLen, const uint8_t
         return false;
 
 #ifdef M_CRYPTO_11
-	HMAC_CTX *ctx = HMAC_CTX_new();
-	HMAC_Init_ex(ctx, key, keyLen, alg, nullptr);
-	HMAC_Update(ctx, data, static_cast<size_t>(dataLen));
-	HMAC_Final(ctx, result, nullptr);
-	HMAC_CTX_free(ctx);
+    HMAC_CTX *ctx = HMAC_CTX_new();
+    HMAC_Init_ex(ctx, key, keyLen, alg, nullptr);
+    HMAC_Update(ctx, data, static_cast<size_t>(dataLen));
+    HMAC_Final(ctx, result, nullptr);
+    HMAC_CTX_free(ctx);
 #else
     HMAC_CTX ctx;
     HMAC_CTX_init(&ctx);
@@ -324,11 +324,11 @@ m::String m::HMAC::quick(HMACHash hash, const uint8_t *key, int keyLen, const ui
     uint32_t len = EVP_MAX_MD_SIZE;
 
 #ifdef M_CRYPTO_11
-	HMAC_CTX *ctx = HMAC_CTX_new();
-	HMAC_Init_ex(ctx, key, keyLen, alg, nullptr);
-	HMAC_Update(ctx, data, static_cast<size_t>(dataLen));
-	HMAC_Final(ctx, result, &len);
-	HMAC_CTX_free(ctx);
+    HMAC_CTX *ctx = HMAC_CTX_new();
+    HMAC_Init_ex(ctx, key, keyLen, alg, nullptr);
+    HMAC_Update(ctx, data, static_cast<size_t>(dataLen));
+    HMAC_Final(ctx, result, &len);
+    HMAC_CTX_free(ctx);
 #else
     HMAC_CTX ctx;
     HMAC_CTX_init(&ctx);

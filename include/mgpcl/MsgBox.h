@@ -25,38 +25,38 @@
 
 namespace m
 {
-	enum MsgBoxButtons
-	{
-		kMBB_Ok = 0,
-		kMBB_OkCancel,
-		kMBB_AbortRetryIgnore,
-		kMBB_YesNoCancel,
-		kMBB_YesNo,
-		kMBB_RetryCancel,
-		kMBB_CancelTryAgainContinue
-	};
+    enum MsgBoxButtons
+    {
+        kMBB_Ok = 0,
+        kMBB_OkCancel,
+        kMBB_AbortRetryIgnore,
+        kMBB_YesNoCancel,
+        kMBB_YesNo,
+        kMBB_RetryCancel,
+        kMBB_CancelTryAgainContinue
+    };
 
-	enum MsgBoxResult
-	{
-		kMBR_MsgBoxError = 0,
-		kMBR_Abort,
-		kMBR_Cancel,
-		kMBR_Continue,
-		kMBR_Ignore,
-		kMBR_Yes,
-		kMBR_No,
-		kMBR_Retry,
-		kMBR_TryAgain,
-		kMBR_Ok
-	};
+    enum MsgBoxResult
+    {
+        kMBR_MsgBoxError = 0,
+        kMBR_Abort,
+        kMBR_Cancel,
+        kMBR_Continue,
+        kMBR_Ignore,
+        kMBR_Yes,
+        kMBR_No,
+        kMBR_Retry,
+        kMBR_TryAgain,
+        kMBR_Ok
+    };
 
-	namespace msgBox
-	{
-		MsgBoxResult info(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
-		MsgBoxResult warning(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
-		MsgBoxResult error(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
-		MsgBoxResult question(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
-	}
+    namespace msgBox
+    {
+        MsgBoxResult info(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
+        MsgBoxResult warning(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
+        MsgBoxResult error(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
+        MsgBoxResult question(const String &text, const String &title, MsgBoxButtons buttons = kMBB_Ok);
+    }
 }
 
 #endif

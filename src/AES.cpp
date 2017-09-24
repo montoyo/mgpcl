@@ -31,120 +31,120 @@ static AESFunc g_mapping[m::kAESV_Max] = { nullptr, EVP_aes_128_cbc, EVP_aes_192
 
 m::AES::AES()
 {
-	m_mode = kAESM_None;
-	m_version = kAESV_None;
-	m_aes = EVP_CIPHER_CTX_new();
+    m_mode = kAESM_None;
+    m_version = kAESV_None;
+    m_aes = EVP_CIPHER_CTX_new();
 }
 
 m::AES::AES(AESMode mode, AESVersion version, const uint8_t *key, const uint8_t *iv)
 {
-	m_aes = EVP_CIPHER_CTX_new(); //Always create a cipher context
+    m_aes = EVP_CIPHER_CTX_new(); //Always create a cipher context
 
-	if((mode == kAESM_Encrypt || mode == kAESM_Decrypt) && (version > kAESV_None && version < kAESV_Max)) {
-		if(EVP_CipherInit(m_aes, g_mapping[version](), key, iv, mode == kAESM_Encrypt) != 0) {
-			m_mode = mode;
-			m_version = version;
-			return;
-		}
-	}
+    if((mode == kAESM_Encrypt || mode == kAESM_Decrypt) && (version > kAESV_None && version < kAESV_Max)) {
+        if(EVP_CipherInit(m_aes, g_mapping[version](), key, iv, mode == kAESM_Encrypt) != 0) {
+            m_mode = mode;
+            m_version = version;
+            return;
+        }
+    }
 
-	m_mode = kAESM_None;
-	m_version = kAESV_None;
+    m_mode = kAESM_None;
+    m_version = kAESV_None;
 }
 
 m::AES::AES(const AES &src)
 {
-	m_mode = src.m_mode;
-	m_version = src.m_version;
-	m_aes = EVP_CIPHER_CTX_new();
+    m_mode = src.m_mode;
+    m_version = src.m_version;
+    m_aes = EVP_CIPHER_CTX_new();
 
-	if(m_mode != kAESM_None)
-		EVP_CIPHER_CTX_copy(m_aes, AES_OF(src));
+    if(m_mode != kAESM_None)
+        EVP_CIPHER_CTX_copy(m_aes, AES_OF(src));
 }
 
 m::AES::AES(AES &&src) noexcept
 {
-	m_mode = src.m_mode;
-	m_version = src.m_version;
-	m_aes = AES_OF(src);
-	src.m_aes_ = nullptr;
+    m_mode = src.m_mode;
+    m_version = src.m_version;
+    m_aes = AES_OF(src);
+    src.m_aes_ = nullptr;
 }
 
 m::AES::~AES()
 {
-	if(m_aes != nullptr)
-		EVP_CIPHER_CTX_free(m_aes);
+    if(m_aes != nullptr)
+        EVP_CIPHER_CTX_free(m_aes);
 }
 
 bool m::AES::init(AESMode mode, AESVersion version, const uint8_t *key, const uint8_t *iv)
 {
-	if(mode != kAESM_Encrypt && mode != kAESM_Decrypt)
-		return false;
+    if(mode != kAESM_Encrypt && mode != kAESM_Decrypt)
+        return false;
 
-	if(version <= kAESV_None || version >= kAESV_Max)
-		return false;
+    if(version <= kAESV_None || version >= kAESV_Max)
+        return false;
 
-	if(EVP_CipherInit(m_aes, g_mapping[version](), key, iv, mode == kAESM_Encrypt) == 0)
-		return false;
+    if(EVP_CipherInit(m_aes, g_mapping[version](), key, iv, mode == kAESM_Encrypt) == 0)
+        return false;
 
-	m_mode = mode;
-	m_version = version;
-	return true;
+    m_mode = mode;
+    m_version = version;
+    return true;
 }
 
 int m::AES::update(const uint8_t *src, uint32_t srcLen, uint8_t *dst, uint32_t dstLen)
 {
-	if(m_mode == kAESM_None)
-		return -1;
+    if(m_mode == kAESM_None)
+        return -1;
 
-	int idst = static_cast<int>(dstLen);
-	if(EVP_CipherUpdate(m_aes, dst, &idst, src, static_cast<int>(srcLen)) == 0)
-		return -1;
+    int idst = static_cast<int>(dstLen);
+    if(EVP_CipherUpdate(m_aes, dst, &idst, src, static_cast<int>(srcLen)) == 0)
+        return -1;
 
-	return idst;
+    return idst;
 }
 
 bool m::AES::update(const uint8_t *src, uint32_t srcLen, uint8_t *dst, uint32_t *dstLen)
 {
-	if(m_mode == kAESM_None)
-		return false;
+    if(m_mode == kAESM_None)
+        return false;
 
-	int idst = static_cast<int>(*dstLen);
-	if(EVP_CipherUpdate(m_aes, dst, &idst, src, static_cast<int>(srcLen)) == 0)
-		return false;
+    int idst = static_cast<int>(*dstLen);
+    if(EVP_CipherUpdate(m_aes, dst, &idst, src, static_cast<int>(srcLen)) == 0)
+        return false;
 
-	*dstLen = static_cast<uint32_t>(idst);
-	return true;
+    *dstLen = static_cast<uint32_t>(idst);
+    return true;
 }
 
 int m::AES::final(uint8_t *dst, uint32_t dstLen)
 {
-	if(m_mode == kAESM_None)
-		return false;
+    if(m_mode == kAESM_None)
+        return false;
 
-	int idst = static_cast<int>(dstLen);
-	if(EVP_CipherFinal(m_aes, dst, &idst) == 0)
-		return -1;
+    int idst = static_cast<int>(dstLen);
+    if(EVP_CipherFinal(m_aes, dst, &idst) == 0)
+        return -1;
 
-	return idst;
+    return idst;
 }
 
 bool m::AES::final(uint8_t *dst, uint32_t *dstLen)
 {
-	if(m_mode == kAESM_None)
-		return false;
+    if(m_mode == kAESM_None)
+        return false;
 
-	int idst = static_cast<int>(*dstLen);
-	if(EVP_CipherFinal(m_aes, dst, &idst) == 0)
-		return false;
+    int idst = static_cast<int>(*dstLen);
+    if(EVP_CipherFinal(m_aes, dst, &idst) == 0)
+        return false;
 
-	*dstLen = static_cast<uint32_t>(idst);
-	return true;
+    *dstLen = static_cast<uint32_t>(idst);
+    return true;
 }
 
 void m::AES::reset(const uint8_t *key, const uint8_t *iv)
 {
-	if(m_mode != kAESM_None) {
+    if(m_mode != kAESM_None) {
         EVP_CIPHER_CTX_reset(m_aes);
         EVP_CipherInit(m_aes, g_mapping[m_version](), key, iv, m_mode == kAESM_Encrypt);
     }
@@ -152,81 +152,81 @@ void m::AES::reset(const uint8_t *key, const uint8_t *iv)
 
 m::AES &m::AES::operator = (const AES &src)
 {
-	if(m_aes_ == src.m_aes_)
-		return *this;
+    if(m_aes_ == src.m_aes_)
+        return *this;
 
-	if(m_mode != kAESM_None) {
-		EVP_CIPHER_CTX_free(m_aes);
-		m_aes = EVP_CIPHER_CTX_new();
-	}
+    if(m_mode != kAESM_None) {
+        EVP_CIPHER_CTX_free(m_aes);
+        m_aes = EVP_CIPHER_CTX_new();
+    }
 
-	m_mode = src.m_mode;
-	m_version = src.m_version;
+    m_mode = src.m_mode;
+    m_version = src.m_version;
 
-	if(m_mode != kAESM_None)
-		EVP_CIPHER_CTX_copy(m_aes, AES_OF(src));
+    if(m_mode != kAESM_None)
+        EVP_CIPHER_CTX_copy(m_aes, AES_OF(src));
 
-	return *this;
+    return *this;
 }
 
 m::AES &m::AES::operator = (AES &&src) noexcept
 {
-	EVP_CIPHER_CTX_free(m_aes);
+    EVP_CIPHER_CTX_free(m_aes);
 
-	m_mode = src.m_mode;
-	m_version = src.m_version;
-	m_aes = AES_OF(src);
-	src.m_aes_ = nullptr;
+    m_mode = src.m_mode;
+    m_version = src.m_version;
+    m_aes = AES_OF(src);
+    src.m_aes_ = nullptr;
 
-	return *this;
+    return *this;
 }
 
 uint32_t m::AES::blockSize() const
 {
-	if(m_mode == kAESM_None)
-		return 0;
+    if(m_mode == kAESM_None)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_CTX_block_size(m_caes));
+    return static_cast<uint32_t>(EVP_CIPHER_CTX_block_size(m_caes));
 }
 
 uint32_t m::AES::keySize() const
 {
-	if(m_mode == kAESM_None)
-		return 0;
+    if(m_mode == kAESM_None)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_CTX_key_length(m_caes));
+    return static_cast<uint32_t>(EVP_CIPHER_CTX_key_length(m_caes));
 }
 
 uint32_t m::AES::ivSize() const
 {
-	if(m_mode == kAESM_None)
-		return 0;
+    if(m_mode == kAESM_None)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_CTX_iv_length(m_caes));
+    return static_cast<uint32_t>(EVP_CIPHER_CTX_iv_length(m_caes));
 }
 
 uint32_t m::AES::blockSize(AESVersion ver)
 {
-	if(ver <= kAESV_None || ver >= kAESV_Max)
-		return 0;
+    if(ver <= kAESV_None || ver >= kAESV_Max)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_block_size(g_mapping[ver]()));
+    return static_cast<uint32_t>(EVP_CIPHER_block_size(g_mapping[ver]()));
 }
 
 uint32_t m::AES::keySize(AESVersion ver)
 {
-	if(ver <= kAESV_None || ver >= kAESV_Max)
-		return 0;
+    if(ver <= kAESV_None || ver >= kAESV_Max)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_key_length(g_mapping[ver]()));
+    return static_cast<uint32_t>(EVP_CIPHER_key_length(g_mapping[ver]()));
 }
 
 uint32_t m::AES::ivSize(AESVersion ver)
 {
-	if(ver <= kAESV_None || ver >= kAESV_Max)
-		return 0;
+    if(ver <= kAESV_None || ver >= kAESV_Max)
+        return 0;
 
-	return static_cast<uint32_t>(EVP_CIPHER_iv_length(g_mapping[ver]()));
+    return static_cast<uint32_t>(EVP_CIPHER_iv_length(g_mapping[ver]()));
 }
 
 #endif

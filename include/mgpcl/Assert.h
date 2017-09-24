@@ -30,5 +30,5 @@
 
 namespace m
 {
-	MGPCL_PREFIX void debugBreak(const char *fname, int line, const char *str);
+    MGPCL_PREFIX void debugBreak(const char *fname, int line, const char *str);
 }

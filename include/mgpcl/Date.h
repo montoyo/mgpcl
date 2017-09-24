@@ -24,145 +24,145 @@
 
 namespace m
 {
-	class MGPCL_PREFIX Date
-	{
-	public:
-		Date();
-		Date(time_t unixt);
-		~Date();
+    class MGPCL_PREFIX Date
+    {
+    public:
+        Date();
+        Date(time_t unixt);
+        ~Date();
 
-		static time_t unixTime()
-		{
-			return ::time(nullptr);
-		}
+        static time_t unixTime()
+        {
+            return ::time(nullptr);
+        }
 
-		static Date now();
+        static Date now();
 
-		/* Returns the date/time as a string using the given format.
-		 * % +
-		 * s: Seconds
-		 * S: Seconds with a zero
-		 * m: Minutes
-		 * M: Minutes with a zero
-		 * h: Hour
-		 * H: Hour with a zero
-		 * d: Day of month
-	  	 * D: Day of month with a zero
-	  	 * o: Month number
-		 * O: Month number with a zero
-		 * y: Year number
-		 * n: Small month name
-		 * N: Complete month name
-		 * w: Small week day name
-		 * W: Complete week day name
-		 * f: Day of year number
-		 * %: %
-		 */
-		String format(const String &frm);
-		time_t asUnixTimeLocal() const; //Considers this Date fields as local
-		time_t asUnixTimeGMT() const; //Considers this Date fields as GMT
+        /* Returns the date/time as a string using the given format.
+         * % +
+         * s: Seconds
+         * S: Seconds with a zero
+         * m: Minutes
+         * M: Minutes with a zero
+         * h: Hour
+         * H: Hour with a zero
+         * d: Day of month
+           * D: Day of month with a zero
+           * o: Month number
+         * O: Month number with a zero
+         * y: Year number
+         * n: Small month name
+         * N: Complete month name
+         * w: Small week day name
+         * W: Complete week day name
+         * f: Day of year number
+         * %: %
+         */
+        String format(const String &frm);
+        time_t asUnixTimeLocal() const; //Considers this Date fields as local
+        time_t asUnixTimeGMT() const; //Considers this Date fields as GMT
 
-		bool parseRFC6265_511(const String &str);
+        bool parseRFC6265_511(const String &str);
 
-		int yearDay() const
-		{
-			return m_yDay;
-		}
+        int yearDay() const
+        {
+            return m_yDay;
+        }
 
-		int monthDay() const
-		{
-			return m_mDay;
-		}
+        int monthDay() const
+        {
+            return m_mDay;
+        }
 
-		int weekDay() const
-		{
-			return m_wDay;
-		}
+        int weekDay() const
+        {
+            return m_wDay;
+        }
 
-		int year() const
-		{
-			return m_year;
-		}
+        int year() const
+        {
+            return m_year;
+        }
 
-		int month() const
-		{
-			return m_month;
-		}
+        int month() const
+        {
+            return m_month;
+        }
 
-		int hour() const
-		{
-			return m_hour;
-		}
+        int hour() const
+        {
+            return m_hour;
+        }
 
-		int minutes() const
-		{
-			return m_min;
-		}
+        int minutes() const
+        {
+            return m_min;
+        }
 
-		int seconds() const
-		{
-			return m_sec;
-		}
+        int seconds() const
+        {
+            return m_sec;
+        }
 
-		void setSeconds(int sec)
-		{
-			m_sec = sec;
-		}
+        void setSeconds(int sec)
+        {
+            m_sec = sec;
+        }
 
-		void setMinutes(int min)
-		{
-			m_min = min;
-		}
+        void setMinutes(int min)
+        {
+            m_min = min;
+        }
 
-		void setHour(int hour)
-		{
-			m_hour = hour;
-		}
+        void setHour(int hour)
+        {
+            m_hour = hour;
+        }
 
-		void setMonthDay(int day)
-		{
-			m_mDay = day;
-		}
+        void setMonthDay(int day)
+        {
+            m_mDay = day;
+        }
 
-		void setMonth(int month)
-		{
-			m_month = month;
-		}
+        void setMonth(int month)
+        {
+            m_month = month;
+        }
 
-		void setYear(int year)
-		{
-			m_year = year;
-		}
+        void setYear(int year)
+        {
+            m_year = year;
+        }
 
-		void setWeekDay(int day)
-		{
-			m_wDay = day;
-		}
+        void setWeekDay(int day)
+        {
+            m_wDay = day;
+        }
 
-		void setYearDay(int day)
-		{
-			m_yDay = day;
-		}
+        void setYearDay(int day)
+        {
+            m_yDay = day;
+        }
 
-		bool isDST() const
-		{
-			return m_dst;
-		}
+        bool isDST() const
+        {
+            return m_dst;
+        }
 
-		void setDST(bool dst)
-		{
-			m_dst = dst;
-		}
+        void setDST(bool dst)
+        {
+            m_dst = dst;
+        }
 
-	private:
-		int m_sec;
-		int m_min;
-		int m_hour;
-		int m_mDay;
-		int m_month;
-		int m_year;
-		int m_wDay;
-		int m_yDay;
-		bool m_dst;
-	};
+    private:
+        int m_sec;
+        int m_min;
+        int m_hour;
+        int m_mDay;
+        int m_month;
+        int m_year;
+        int m_wDay;
+        int m_yDay;
+        bool m_dst;
+    };
 }

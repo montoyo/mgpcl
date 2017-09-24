@@ -31,239 +31,239 @@
 
 namespace m
 {
-	class ThreadArray;
+    class ThreadArray;
 
-	class Thread
-	{
-		friend class ThreadArray;
-		M_NON_COPYABLE(Thread)
+    class Thread
+    {
+        friend class ThreadArray;
+        M_NON_COPYABLE(Thread)
 
-	public:
-		Thread();
-		Thread(const String &name);
-		virtual ~Thread();
+    public:
+        Thread();
+        Thread(const String &name);
+        virtual ~Thread();
 
-		Thread(Thread &&src) : m_name(std::move(src.m_name))
-		{
-			m_running = src.m_running;
+        Thread(Thread &&src) : m_name(std::move(src.m_name))
+        {
+            m_running = src.m_running;
 
 #ifdef MGPCL_WIN
-			m_handle = src.m_handle;
-			src.m_handle = nullptr;
+            m_handle = src.m_handle;
+            src.m_handle = nullptr;
 #else
-			m_thread = src.m_thread;
-			m_isValid = src.m_isValid;
-			src.m_isValid = false;
+            m_thread = src.m_thread;
+            m_isValid = src.m_isValid;
+            src.m_isValid = false;
 #endif
-		}
+        }
 
-		bool join();
-		bool start();
-		bool setAffinityMask(uint64_t mask); //Use this after .start()!
+        bool join();
+        bool start();
+        bool setAffinityMask(uint64_t mask); //Use this after .start()!
 
-		Thread &operator = (Thread &&src)
-		{
-			m_name = std::move(src.m_name);
-			m_running = src.m_running;
+        Thread &operator = (Thread &&src)
+        {
+            m_name = std::move(src.m_name);
+            m_running = src.m_running;
 
 #ifdef MGPCL_WIN
-			m_handle = src.m_handle;
-			src.m_handle = nullptr;
+            m_handle = src.m_handle;
+            src.m_handle = nullptr;
 #else
-			m_thread = src.m_thread;
-			m_isValid = src.m_isValid;
-			src.m_isValid = false;
+            m_thread = src.m_thread;
+            m_isValid = src.m_isValid;
+            src.m_isValid = false;
 #endif
 
-			return *this;
-		}
+            return *this;
+        }
 
-		const String &name() const
-		{
-			return m_name;
-		}
+        const String &name() const
+        {
+            return m_name;
+        }
 
-		bool isRunning() const
-		{
-			volatile bool running = m_running;
-			return running;
-		}
+        bool isRunning() const
+        {
+            volatile bool running = m_running;
+            return running;
+        }
 
-		static String currentThreadName();
+        static String currentThreadName();
 
-	protected:
-		virtual void run() = 0;
+    protected:
+        virtual void run() = 0;
 
-	private:
+    private:
 #ifdef MGPCL_WIN
-		static DWORD WINAPI threadProc(LPVOID me);
-		HANDLE m_handle;
+        static DWORD WINAPI threadProc(LPVOID me);
+        HANDLE m_handle;
 #else
         static void *threadProc(void *me);
         pthread_t m_thread;
         bool m_isValid;
 #endif
 
-		volatile bool m_running;
-		String m_name;
-	};
+        volatile bool m_running;
+        String m_name;
+    };
 
-	class MGPCL_PREFIX FunctionalThread : public Thread
-	{
-		M_NON_COPYABLE(FunctionalThread)
+    class MGPCL_PREFIX FunctionalThread : public Thread
+    {
+        M_NON_COPYABLE(FunctionalThread)
 
-	public:
-		FunctionalThread(std::function<void()> func);
-		FunctionalThread(std::function<void()> func, const String &name);
+    public:
+        FunctionalThread(std::function<void()> func);
+        FunctionalThread(std::function<void()> func, const String &name);
 
-	protected:
-		void run() override;
+    protected:
+        void run() override;
 
-	private:
-		FunctionalThread();
-		std::function<void()> m_func;
-	};
+    private:
+        FunctionalThread();
+        std::function<void()> m_func;
+    };
 
-	template<class T> class ClassThread : public Thread
-	{
-		M_NON_COPYABLE_T(ClassThread, T)
+    template<class T> class ClassThread : public Thread
+    {
+        M_NON_COPYABLE_T(ClassThread, T)
 
-	public:
-		typedef void (T::*Func)();
+    public:
+        typedef void (T::*Func)();
 
-		ClassThread()
-		{
-			m_instance = nullptr;
-			m_func = nullptr;
-		}
+        ClassThread()
+        {
+            m_instance = nullptr;
+            m_func = nullptr;
+        }
 
-		ClassThread(const String &name) : Thread(name)
-		{
-			m_instance = nullptr;
-			m_func = nullptr;
-		}
+        ClassThread(const String &name) : Thread(name)
+        {
+            m_instance = nullptr;
+            m_func = nullptr;
+        }
 
-		ClassThread(T *ptr, Func f)
-		{
-			m_instance = ptr;
-			m_func = f;
-		}
+        ClassThread(T *ptr, Func f)
+        {
+            m_instance = ptr;
+            m_func = f;
+        }
 
-		ClassThread(T *ptr, Func f, const String &name) : Thread(name)
-		{
-			m_instance = ptr;
-			m_func = f;
-		}
+        ClassThread(T *ptr, Func f, const String &name) : Thread(name)
+        {
+            m_instance = ptr;
+            m_func = f;
+        }
 
-		ClassThread &setFunc(T *ptr, Func f)
-		{
-			m_instance = ptr;
-			m_func = f;
-			return *this;
-		}
+        ClassThread &setFunc(T *ptr, Func f)
+        {
+            m_instance = ptr;
+            m_func = f;
+            return *this;
+        }
 
-		T *instance()
-		{
-			return m_instance;
-		}
+        T *instance()
+        {
+            return m_instance;
+        }
 
-	protected:
-		void run() override
-		{
-			mDebugAssert(m_instance != nullptr, "forgot to set instance");
-			mDebugAssert(m_func != nullptr, "forgot to set function");
-			(m_instance->*m_func)();
-		}
+    protected:
+        void run() override
+        {
+            mDebugAssert(m_instance != nullptr, "forgot to set instance");
+            mDebugAssert(m_func != nullptr, "forgot to set function");
+            (m_instance->*m_func)();
+        }
 
-	private:
-		T *m_instance;
-		Func m_func;
-	};
+    private:
+        T *m_instance;
+        Func m_func;
+    };
 
-	class CallbackThread : public Thread
-	{
-	public:
-		typedef void(*Callback)(void*);
-		CallbackThread();
-		CallbackThread(const String &name);
-		CallbackThread(Callback cb);
-		CallbackThread(Callback cb, const String &name);
-		CallbackThread(Callback cb, void *ud);
-		CallbackThread(Callback cb, void *ud, const String &name);
+    class CallbackThread : public Thread
+    {
+    public:
+        typedef void(*Callback)(void*);
+        CallbackThread();
+        CallbackThread(const String &name);
+        CallbackThread(Callback cb);
+        CallbackThread(Callback cb, const String &name);
+        CallbackThread(Callback cb, void *ud);
+        CallbackThread(Callback cb, void *ud, const String &name);
 
-		CallbackThread &setCallback(Callback cb);
-		CallbackThread &setCallback(Callback cb, void *ud);
-		CallbackThread &setUserdata(void *ud);
+        CallbackThread &setCallback(Callback cb);
+        CallbackThread &setCallback(Callback cb, void *ud);
+        CallbackThread &setUserdata(void *ud);
 
-		Callback callback() const
-		{
-			return m_callback;
-		}
+        Callback callback() const
+        {
+            return m_callback;
+        }
 
-		void *userdata() const
-		{
-			return m_userdata;
-		}
+        void *userdata() const
+        {
+            return m_userdata;
+        }
 
-	protected:
-		void run() override;
+    protected:
+        void run() override;
 
-	private:
-		Callback m_callback;
-		void *m_userdata;
-	};
+    private:
+        Callback m_callback;
+        void *m_userdata;
+    };
 
-	class ThreadArray
-	{
-	public:
-		ThreadArray();
-		ThreadArray(int cnt);
-		ThreadArray(int cnt, const String &name);
-		~ThreadArray();
+    class ThreadArray
+    {
+    public:
+        ThreadArray();
+        ThreadArray(int cnt);
+        ThreadArray(int cnt, const String &name);
+        ~ThreadArray();
 
-		ThreadArray &setCount(int cnt);
-		ThreadArray &setName(const String &name);
-		ThreadArray &setCallback(CallbackThread::Callback cb);
-		ThreadArray &setCallback(CallbackThread::Callback cb, void *ud);
-		ThreadArray &setUserdata(void *ud);
-		ThreadArray &setUserdata(int id, void *ud);
-		ThreadArray &dispatchOnCores(uint8_t numCpus);
-		ThreadArray &start();
-		ThreadArray &joinAll();
+        ThreadArray &setCount(int cnt);
+        ThreadArray &setName(const String &name);
+        ThreadArray &setCallback(CallbackThread::Callback cb);
+        ThreadArray &setCallback(CallbackThread::Callback cb, void *ud);
+        ThreadArray &setUserdata(void *ud);
+        ThreadArray &setUserdata(int id, void *ud);
+        ThreadArray &dispatchOnCores(uint8_t numCpus);
+        ThreadArray &start();
+        ThreadArray &joinAll();
 
-		int count() const
-		{
-			return m_count;
-		}
+        int count() const
+        {
+            return m_count;
+        }
 
-		const String &name() const
-		{
-			return m_name;
-		}
+        const String &name() const
+        {
+            return m_name;
+        }
 
-		bool isValid() const
-		{
-			return m_threads != nullptr;
-		}
+        bool isValid() const
+        {
+            return m_threads != nullptr;
+        }
 
-		bool operator ! () const
-		{
-			return m_threads == nullptr;
-		}
+        bool operator ! () const
+        {
+            return m_threads == nullptr;
+        }
 
-		CallbackThread &access(int idx);
-		CallbackThread &operator[] (int idx);
+        CallbackThread &access(int idx);
+        CallbackThread &operator[] (int idx);
 
-		CallbackThread::Callback callback() const;
-		void *userdata() const;
-		void *userdata(int id) const;
+        CallbackThread::Callback callback() const;
+        void *userdata() const;
+        void *userdata(int id) const;
 
-	private:
-		int m_count;
-		CallbackThread *m_threads;
-		String m_name;
-		uint8_t m_cpus;
-	};
+    private:
+        int m_count;
+        CallbackThread *m_threads;
+        String m_name;
+        uint8_t m_cpus;
+    };
 
 }
 

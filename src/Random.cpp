@@ -35,15 +35,15 @@
 
 uint64_t m::prng::Xoroshiro::next()
 {
-	const uint64_t s0 = m_s[0];
-	uint64_t s1 = m_s[1];
-	const uint64_t result = s0 + s1;
+    const uint64_t s0 = m_s[0];
+    uint64_t s1 = m_s[1];
+    const uint64_t result = s0 + s1;
 
-	s1 ^= s0;
-	m_s[0] = M_ROTL(s0, 55) ^ s1 ^ (s1 << 14); // a, b
-	m_s[1] = M_ROTL(s1, 36); // c
+    s1 ^= s0;
+    m_s[0] = M_ROTL(s0, 55) ^ s1 ^ (s1 << 14); // a, b
+    m_s[1] = M_ROTL(s1, 36); // c
 
-	return result; 
+    return result; 
 }
 
 #ifndef MGPCL_NO_SSL

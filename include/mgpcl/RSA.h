@@ -29,204 +29,204 @@
 
 namespace m
 {
-	enum RSAExponent
-	{
-		kRSAE_3,
-		kRSAE_17,
-		kRSAE_65537
-	};
+    enum RSAExponent
+    {
+        kRSAE_3,
+        kRSAE_17,
+        kRSAE_65537
+    };
 
-	enum RSAPadding
-	{
-		kRSAP_NoPadding = 0, //Insecure. Do not use unless you do manual padding.
-		kRSAP_PKCS1,
-		kRSAP_PKCS1OAEP,
-		kRSAP_SSLv23,
+    enum RSAPadding
+    {
+        kRSAP_NoPadding = 0, //Insecure. Do not use unless you do manual padding.
+        kRSAP_PKCS1,
+        kRSAP_PKCS1OAEP,
+        kRSAP_SSLv23,
 
-		kRSAP_Max //NOT AN ACTUAL PADDING. KEEP AT END.
-	};
+        kRSAP_Max //NOT AN ACTUAL PADDING. KEEP AT END.
+    };
 
-	enum RSASignatureAlgorithm
-	{
-		kRSASA_SHA1 = 0,
-		kRSASA_MD5,
-		kRSASA_RipeMD160,
-		kRSASA_MD5SHA1,
+    enum RSASignatureAlgorithm
+    {
+        kRSASA_SHA1 = 0,
+        kRSASA_MD5,
+        kRSASA_RipeMD160,
+        kRSASA_MD5SHA1,
 
-		kRSASA_Max //DO NOT USE. KEEP AT END.
-	};
+        kRSASA_Max //DO NOT USE. KEEP AT END.
+    };
 
-	class RSAPublicKey
-	{
-	public:
-		RSAPublicKey();
-		RSAPublicKey(const BigNumber &e, const BigNumber &n);
+    class RSAPublicKey
+    {
+    public:
+        RSAPublicKey();
+        RSAPublicKey(const BigNumber &e, const BigNumber &n);
 
-		const BigNumber &e() const
-		{
-			return m_e;
-		}
+        const BigNumber &e() const
+        {
+            return m_e;
+        }
 
-		const BigNumber &n() const
-		{
-			return m_n;
-		}
+        const BigNumber &n() const
+        {
+            return m_n;
+        }
 
-		BigNumber &e()
-		{
-			return m_e;
-		}
+        BigNumber &e()
+        {
+            return m_e;
+        }
 
-		BigNumber &n()
-		{
-			return m_n;
-		}
+        BigNumber &n()
+        {
+            return m_n;
+        }
 
-	private:
-		BigNumber m_e;
-		BigNumber m_n;
-	};
+    private:
+        BigNumber m_e;
+        BigNumber m_n;
+    };
 
-	class RSAPrivateKey
-	{
-	public:
-		RSAPrivateKey();
-		RSAPrivateKey(const BigNumber &p, const BigNumber &q, const BigNumber &e, const BigNumber &n, const BigNumber &d);
+    class RSAPrivateKey
+    {
+    public:
+        RSAPrivateKey();
+        RSAPrivateKey(const BigNumber &p, const BigNumber &q, const BigNumber &e, const BigNumber &n, const BigNumber &d);
 
-		static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, const BigNumber &e);
-		static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, RSAExponent e);
+        static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, const BigNumber &e);
+        static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, RSAExponent e);
 
-		RSAPublicKey publicKey() const;
+        RSAPublicKey publicKey() const;
 
-		const BigNumber &e() const
-		{
-			return m_e;
-		}
+        const BigNumber &e() const
+        {
+            return m_e;
+        }
 
-		const BigNumber &n() const
-		{
-			return m_n;
-		}
+        const BigNumber &n() const
+        {
+            return m_n;
+        }
 
-		const BigNumber &d() const
-		{
-			return m_d;
-		}
+        const BigNumber &d() const
+        {
+            return m_d;
+        }
 
-		const BigNumber &p() const
-		{
-			return m_p;
-		}
+        const BigNumber &p() const
+        {
+            return m_p;
+        }
 
-		const BigNumber &q() const
-		{
-			return m_q;
-		}
+        const BigNumber &q() const
+        {
+            return m_q;
+        }
 
-		BigNumber &e()
-		{
-			return m_e;
-		}
+        BigNumber &e()
+        {
+            return m_e;
+        }
 
-		BigNumber &n()
-		{
-			return m_n;
-		}
+        BigNumber &n()
+        {
+            return m_n;
+        }
 
-		BigNumber &d()
-		{
-			return m_d;
-		}
+        BigNumber &d()
+        {
+            return m_d;
+        }
 
-		BigNumber &p()
-		{
-			return m_p;
-		}
+        BigNumber &p()
+        {
+            return m_p;
+        }
 
-		BigNumber &q()
-		{
-			return m_q;
-		}
+        BigNumber &q()
+        {
+            return m_q;
+        }
 
-	private:
-		BigNumber m_e;
-		BigNumber m_n;
-		BigNumber m_d;
-		BigNumber m_p;
-		BigNumber m_q;
-	};
+    private:
+        BigNumber m_e;
+        BigNumber m_n;
+        BigNumber m_d;
+        BigNumber m_p;
+        BigNumber m_q;
+    };
 
-	class RSA
-	{
-	public:
-		RSA();
-		~RSA();
+    class RSA
+    {
+    public:
+        RSA();
+        ~RSA();
 
-		bool generateKeys(int bits, RSAExponent exp = kRSAE_65537);
-		BigNumber e() const; //Public exponent
-		BigNumber n() const; //Modulus
-		BigNumber d() const; //Private exponent
-		BigNumber p() const;
-		BigNumber q() const;
+        bool generateKeys(int bits, RSAExponent exp = kRSAE_65537);
+        BigNumber e() const; //Public exponent
+        BigNumber n() const; //Modulus
+        BigNumber d() const; //Private exponent
+        BigNumber p() const;
+        BigNumber q() const;
 
-		RSAPublicKey publicKey() const;
-		RSAPrivateKey privateKey() const;
-		void setPublicKey(const RSAPublicKey &pk);
-		void setPrivateKey(const RSAPrivateKey &pk);
+        RSAPublicKey publicKey() const;
+        RSAPrivateKey privateKey() const;
+        void setPublicKey(const RSAPublicKey &pk);
+        void setPrivateKey(const RSAPrivateKey &pk);
 
-		/* If no padding is used, srcLen must be exactly this->size().
-		 * Otherwise, srcLen must less or equal to this->size(padding).
-		 * Output buffer will contain this->size() bytes, if everything
-		 * went well, i.e., publicEncrypt() returned true.
-		 */
-		bool publicEncrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
+        /* If no padding is used, srcLen must be exactly this->size().
+         * Otherwise, srcLen must less or equal to this->size(padding).
+         * Output buffer will contain this->size() bytes, if everything
+         * went well, i.e., publicEncrypt() returned true.
+         */
+        bool publicEncrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
 
-		/* dst must be able to handle this->size() bytes.
-		 * If deciphering went well, privateDecrypt() returns
-		 * the number of bytes deciphered. If something failed,
-		 * privateDecrypt() will return a negative number.
-		 */
-		int privateDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
+        /* dst must be able to handle this->size() bytes.
+         * If deciphering went well, privateDecrypt() returns
+         * the number of bytes deciphered. If something failed,
+         * privateDecrypt() will return a negative number.
+         */
+        int privateDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
 
-		/* No information about srcLen given by the OpenSSL docs,
-		 * but I guess it must be less or equal to this->size(padding).
-		 * Note that only the kRSAP_PKCS1 padding will work here.
-		 * 
-		 * dst must be able to handle this->size() bytes. If it worked,
-		 * privateEncrypt() will return true, and false otherwise.
-		 */
-		bool privateEncrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
+        /* No information about srcLen given by the OpenSSL docs,
+         * but I guess it must be less or equal to this->size(padding).
+         * Note that only the kRSAP_PKCS1 padding will work here.
+         * 
+         * dst must be able to handle this->size() bytes. If it worked,
+         * privateEncrypt() will return true, and false otherwise.
+         */
+        bool privateEncrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
 
-		/* dst must be able to handle this->size() bytes.
-		 * According to OpenSSL's docs, the destination size
-		 * will not exceed this->size() - 11. Also, just like
-		 * with privateEncrypt(), only kRSAP_PKCS1 padding is
-		 * supported.
-		 * 
-		 * Returns the size of the deciphered message, or -1 on error.
-		 */
-		int publicDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
+        /* dst must be able to handle this->size() bytes.
+         * According to OpenSSL's docs, the destination size
+         * will not exceed this->size() - 11. Also, just like
+         * with privateEncrypt(), only kRSAP_PKCS1 padding is
+         * supported.
+         * 
+         * Returns the size of the deciphered message, or -1 on error.
+         */
+        int publicDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding);
 
-		/* alg specifies the algorithm used to generate the message digest md.
-		 * Nothing is said about mdLen in the OpenSSL docs.
-		 * dst will contain at most this->size() bytes.
-		 * dstLen is write-only and will contain the size of dst.
-		 *
-		 * Returns true on successful signing.
-		 */
-		bool sign(RSASignatureAlgorithm alg, const uint8_t *md, uint32_t mdLen, uint8_t *dst, uint32_t *dstLen);
+        /* alg specifies the algorithm used to generate the message digest md.
+         * Nothing is said about mdLen in the OpenSSL docs.
+         * dst will contain at most this->size() bytes.
+         * dstLen is write-only and will contain the size of dst.
+         *
+         * Returns true on successful signing.
+         */
+        bool sign(RSASignatureAlgorithm alg, const uint8_t *md, uint32_t mdLen, uint8_t *dst, uint32_t *dstLen);
 
-		/* alg specifies the algorithm used to generate the message digest md.
-		 * Returns true upon successful verification.
-		 */
-		bool verify(RSASignatureAlgorithm alg, const uint8_t *sigToCheck, uint32_t sigToCheckLen, const uint8_t *md, uint32_t mdLen);
+        /* alg specifies the algorithm used to generate the message digest md.
+         * Returns true upon successful verification.
+         */
+        bool verify(RSASignatureAlgorithm alg, const uint8_t *sigToCheck, uint32_t sigToCheckLen, const uint8_t *md, uint32_t mdLen);
 
-		uint32_t size() const;
-		uint32_t size(RSAPadding padding) const;
+        uint32_t size() const;
+        uint32_t size(RSAPadding padding) const;
 
-	private:
-		void *m_rsa_;
-	};
+    private:
+        void *m_rsa_;
+    };
 }
 
 #endif

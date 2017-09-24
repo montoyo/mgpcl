@@ -26,42 +26,42 @@
 namespace m
 {
 
-	class BasicLogger : public Logger
-	{
-		M_NON_COPYABLE(BasicLogger)
+    class BasicLogger : public Logger
+    {
+        M_NON_COPYABLE(BasicLogger)
 
-	public:
-		BasicLogger() : m_out(STDHandle::HOutput), m_err(STDHandle::HError)
-		{
-			m_useErrStream = true;
-		}
+    public:
+        BasicLogger() : m_out(STDHandle::HOutput), m_err(STDHandle::HError)
+        {
+            m_useErrStream = true;
+        }
 
-		~BasicLogger() override
-		{
-		}
+        ~BasicLogger() override
+        {
+        }
 
-		void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override;
+        void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override;
 
-		bool usesErrorStream() const
-		{
-			return m_useErrStream;
-		}
+        bool usesErrorStream() const
+        {
+            return m_useErrStream;
+        }
 
-		/* This method is not thread safe.
-		 * Please use it at the very beginning of your program,
-		 * before the logger is used by another thread.
-		 */
-		void setUsesErrorStream(bool err)
-		{
-			m_useErrStream = err;
-		}
+        /* This method is not thread safe.
+         * Please use it at the very beginning of your program,
+         * before the logger is used by another thread.
+         */
+        void setUsesErrorStream(bool err)
+        {
+            m_useErrStream = err;
+        }
 
-	private:
-		Mutex m_lock;
-		STDOutputStream m_out;
-		STDOutputStream m_err;
-		bool m_useErrStream;
-	};
+    private:
+        Mutex m_lock;
+        STDOutputStream m_out;
+        STDOutputStream m_err;
+        bool m_useErrStream;
+    };
 
 }
 

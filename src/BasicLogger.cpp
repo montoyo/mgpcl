@@ -22,73 +22,73 @@
 
 void m::BasicLogger::vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst)
 {
-	int fnameLen = 0;
-	int slashPos = 0;
+    int fnameLen = 0;
+    int slashPos = 0;
 
-	while(fname[fnameLen] != 0) {
-		if(fname[fnameLen] == '/' || fname[fnameLen] == '\\')
-			slashPos = fnameLen + 1;
+    while(fname[fnameLen] != 0) {
+        if(fname[fnameLen] == '/' || fname[fnameLen] == '\\')
+            slashPos = fnameLen + 1;
 
-		fnameLen++;
-	}
+        fnameLen++;
+    }
 
-	String str(32);
-	str += '[';
+    String str(32);
+    str += '[';
 
-	switch(level) {
-	case LogLevel::Debug:
-		str += 'd';
-		break;
+    switch(level) {
+    case LogLevel::Debug:
+        str += 'd';
+        break;
 
-	case LogLevel::Info:
-		str += 'i';
-		break;
+    case LogLevel::Info:
+        str += 'i';
+        break;
 
-	case LogLevel::Warning:
-		str += 'W';
-		break;
+    case LogLevel::Warning:
+        str += 'W';
+        break;
 
-	case LogLevel::Error:
-		str += '!';
-		break;
+    case LogLevel::Error:
+        str += '!';
+        break;
 
-	default:
-		str += ' ';
-		break;
-	}
+    default:
+        str += ' ';
+        break;
+    }
 
-	str.append("] [", 3);
+    str.append("] [", 3);
 
-	String tName(Thread::currentThreadName());
-	if(tName.length() > 6) {
-		str.append(tName.raw(), 4);
-		str.append("..] [", 5);
-	} else {
-		str += tName;
-		for(int i = tName.length(); i < 6; i++)
-			str += ' ';
+    String tName(Thread::currentThreadName());
+    if(tName.length() > 6) {
+        str.append(tName.raw(), 4);
+        str.append("..] [", 5);
+    } else {
+        str += tName;
+        for(int i = tName.length(); i < 6; i++)
+            str += ' ';
 
-		str.append("] [", 3);
-	}
+        str.append("] [", 3);
+    }
 
-	str.append(fname + slashPos, fnameLen - slashPos);
-	str += ':';
-	str += String::fromUInteger(static_cast<uint32_t>(line));
-	str.append("] ", 2);
-	str += String::vformat(format, lst);
-	
+    str.append(fname + slashPos, fnameLen - slashPos);
+    str += ':';
+    str += String::fromUInteger(static_cast<uint32_t>(line));
+    str.append("] ", 2);
+    str += String::vformat(format, lst);
+    
 #ifdef MGPCL_WIN
-	str.append("\r\n", 2);
+    str.append("\r\n", 2);
 #else
-	str += '\n';
+    str += '\n';
 #endif
 
-	m_lock.lock();
+    m_lock.lock();
 
-	if(level == LogLevel::Error && m_useErrStream)
-		m_err.write(reinterpret_cast<const uint8_t*>(str.raw()), str.length());
-	else
-		m_out.write(reinterpret_cast<const uint8_t*>(str.raw()), str.length());
+    if(level == LogLevel::Error && m_useErrStream)
+        m_err.write(reinterpret_cast<const uint8_t*>(str.raw()), str.length());
+    else
+        m_out.write(reinterpret_cast<const uint8_t*>(str.raw()), str.length());
 
-	m_lock.unlock();
+    m_lock.unlock();
 }

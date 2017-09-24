@@ -278,8 +278,8 @@ namespace m
                 return true;
 
             case SeekPos::End:
-				if(amount > 0)
-					return false;
+                if(amount > 0)
+                    return false;
 
                 m_pos = m_ptr->size() - static_cast<uint32_t>(-amount);
                 return true;

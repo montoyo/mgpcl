@@ -28,7 +28,7 @@ void m::gui::initialize()
 
 bool m::gui::hasBeenInitialized()
 {
-	return false;
+    return false;
 }
 
 #elif defined(MGPCL_WIN)

@@ -29,10 +29,10 @@
 namespace m
 {
 #ifdef MGPCL_WIN
-	namespace win
-	{
-		bool initIfNeeded();
-		bool getProcessCommandLine(HANDLE proc, String &dst);
-	}
+    namespace win
+    {
+        bool initIfNeeded();
+        bool getProcessCommandLine(HANDLE proc, String &dst);
+    }
 #endif
 }

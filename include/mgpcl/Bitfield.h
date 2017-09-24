@@ -24,158 +24,158 @@
 
 namespace m
 {
-	class Bitfield
-	{
-	public:
-		Bitfield()
-		{
-			m_numBits = 0;
-			m_bits = nullptr;
-		}
+    class Bitfield
+    {
+    public:
+        Bitfield()
+        {
+            m_numBits = 0;
+            m_bits = nullptr;
+        }
 
-		Bitfield(uint32_t nb)
-		{
-			m_numBits = nb;
-			m_bits = new uint32_t[nb >> 5];
-		}
+        Bitfield(uint32_t nb)
+        {
+            m_numBits = nb;
+            m_bits = new uint32_t[nb >> 5];
+        }
 
-		Bitfield(const Bitfield &src)
-		{
-			m_numBits = src.m_numBits;
+        Bitfield(const Bitfield &src)
+        {
+            m_numBits = src.m_numBits;
 
-			if(m_numBits == 0)
-				m_bits = nullptr;
-			else {
-				m_bits = new uint32_t[m_numBits >> 5];
-				Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
-			}
-		}
+            if(m_numBits == 0)
+                m_bits = nullptr;
+            else {
+                m_bits = new uint32_t[m_numBits >> 5];
+                Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
+            }
+        }
 
-		Bitfield(Bitfield &&src)
-		{
-			m_numBits = src.m_numBits;
-			m_bits = src.m_bits;
-			src.m_bits = nullptr;
-		}
+        Bitfield(Bitfield &&src)
+        {
+            m_numBits = src.m_numBits;
+            m_bits = src.m_bits;
+            src.m_bits = nullptr;
+        }
 
-		~Bitfield()
-		{
-			if(m_bits != nullptr)
-				delete[] m_bits;
-		}
+        ~Bitfield()
+        {
+            if(m_bits != nullptr)
+                delete[] m_bits;
+        }
 
-		Bitfield &operator = (const Bitfield &src)
-		{
-			if(m_bits == src.m_bits)
-				return *this;
+        Bitfield &operator = (const Bitfield &src)
+        {
+            if(m_bits == src.m_bits)
+                return *this;
 
-			if(m_bits != nullptr)
-				delete[] m_bits;
+            if(m_bits != nullptr)
+                delete[] m_bits;
 
-			m_numBits = src.m_numBits;
+            m_numBits = src.m_numBits;
 
-			if(m_numBits == 0)
-				m_bits = nullptr;
-			else {
-				m_bits = new uint32_t[m_numBits >> 5];
-				Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
-			}
+            if(m_numBits == 0)
+                m_bits = nullptr;
+            else {
+                m_bits = new uint32_t[m_numBits >> 5];
+                Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
+            }
 
-			return *this;
-		}
+            return *this;
+        }
 
-		Bitfield &operator = (Bitfield &&src)
-		{
-			if(m_bits != nullptr)
-				delete[] m_bits;
+        Bitfield &operator = (Bitfield &&src)
+        {
+            if(m_bits != nullptr)
+                delete[] m_bits;
 
-			m_numBits = src.m_numBits;
-			m_bits = src.m_bits;
-			src.m_bits = nullptr;
-			return *this;
-		}
+            m_numBits = src.m_numBits;
+            m_bits = src.m_bits;
+            src.m_bits = nullptr;
+            return *this;
+        }
 
-		Bitfield &setBitCount(uint32_t bc)
-		{
-			if(m_numBits != bc) {
-				if(m_bits != nullptr)
-					delete[] m_bits;
+        Bitfield &setBitCount(uint32_t bc)
+        {
+            if(m_numBits != bc) {
+                if(m_bits != nullptr)
+                    delete[] m_bits;
 
-				m_numBits = bc;
-				m_bits = new uint32_t[bc >> 5];
-			}
+                m_numBits = bc;
+                m_bits = new uint32_t[bc >> 5];
+            }
 
-			return *this;
-		}
+            return *this;
+        }
 
-		Bitfield &clear()
-		{
-			if(m_bits != nullptr)
-				Mem::zero(m_bits, (m_numBits >> 5) * sizeof(uint32_t));
+        Bitfield &clear()
+        {
+            if(m_bits != nullptr)
+                Mem::zero(m_bits, (m_numBits >> 5) * sizeof(uint32_t));
 
-			return *this;
-		}
+            return *this;
+        }
 
-		Bitfield &setBit(uint32_t bit)
-		{
-			mDebugAssert(bit < m_numBits, "bit out of range");
-			const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
-			const uint32_t b = 1 << (bit & 0x0000001F);
+        Bitfield &setBit(uint32_t bit)
+        {
+            mDebugAssert(bit < m_numBits, "bit out of range");
+            const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
+            const uint32_t b = 1 << (bit & 0x0000001F);
 
-			m_bits[a] |= b;
-			return *this;
-		}
+            m_bits[a] |= b;
+            return *this;
+        }
 
-		Bitfield &setBit(uint32_t bit, bool val)
-		{
-			mDebugAssert(bit < m_numBits, "bit out of range");
-			const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
-			const uint32_t b = 1 << (bit & 0x0000001F);
+        Bitfield &setBit(uint32_t bit, bool val)
+        {
+            mDebugAssert(bit < m_numBits, "bit out of range");
+            const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
+            const uint32_t b = 1 << (bit & 0x0000001F);
 
-			if(val)
-				m_bits[a] |= b;
-			else
-				m_bits[a] &= ~b;
+            if(val)
+                m_bits[a] |= b;
+            else
+                m_bits[a] &= ~b;
 
-			return *this;
-		}
+            return *this;
+        }
 
-		Bitfield &clearBit(uint32_t bit)
-		{
-			mDebugAssert(bit < m_numBits, "bit out of range");
-			const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
-			const uint32_t b = 1 << (bit & 0x0000001F);
+        Bitfield &clearBit(uint32_t bit)
+        {
+            mDebugAssert(bit < m_numBits, "bit out of range");
+            const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
+            const uint32_t b = 1 << (bit & 0x0000001F);
 
-			m_bits[a] &= ~b;
-			return *this;
-		}
+            m_bits[a] &= ~b;
+            return *this;
+        }
 
-		Bitfield &toggleBit(uint32_t bit)
-		{
-			mDebugAssert(bit < m_numBits, "bit out of range");
-			const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
-			const uint32_t b = 1 << (bit & 0x0000001F);
+        Bitfield &toggleBit(uint32_t bit)
+        {
+            mDebugAssert(bit < m_numBits, "bit out of range");
+            const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
+            const uint32_t b = 1 << (bit & 0x0000001F);
 
-			m_bits[a] ^= b;
-			return *this;
-		}
+            m_bits[a] ^= b;
+            return *this;
+        }
 
-		bool bit(uint32_t bit) const
-		{
-			mDebugAssert(bit < m_numBits, "bit out of range");
-			const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
-			const uint32_t b = bit & 0x0000001F;
+        bool bit(uint32_t bit) const
+        {
+            mDebugAssert(bit < m_numBits, "bit out of range");
+            const uint32_t a = (bit & 0xFFFFFFE0) >> 5;
+            const uint32_t b = bit & 0x0000001F;
 
-			return static_cast<bool>((m_bits[a] & (1 << b)) >> b);
-		}
+            return static_cast<bool>((m_bits[a] & (1 << b)) >> b);
+        }
 
-		uint32_t numBits() const
-		{
-			return m_numBits;
-		}
+        uint32_t numBits() const
+        {
+            return m_numBits;
+        }
 
-	private:
-		uint32_t m_numBits;
-		uint32_t *m_bits;
-	};
+    private:
+        uint32_t m_numBits;
+        uint32_t *m_bits;
+    };
 }

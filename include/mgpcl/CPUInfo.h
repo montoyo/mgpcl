@@ -22,69 +22,69 @@
 
 namespace m
 {
-	class CPUInfo
-	{
-	public:
-		bool isValid() const
-		{
-			return m_valid;
-		}
+    class CPUInfo
+    {
+    public:
+        bool isValid() const
+        {
+            return m_valid;
+        }
 
-		bool operator ! () const
-		{
-			return !m_valid;
-		}
+        bool operator ! () const
+        {
+            return !m_valid;
+        }
 
-		//If !isValid(), use this to get the error string
-		String error() const
-		{
-			return m_error;
-		}
+        //If !isValid(), use this to get the error string
+        String error() const
+        {
+            return m_error;
+        }
 
-		const String &name() const
-		{
-			return m_name;
-		}
+        const String &name() const
+        {
+            return m_name;
+        }
 
-		const String &vendor() const
-		{
-			return m_vendor;
-		}
+        const String &vendor() const
+        {
+            return m_vendor;
+        }
 
-		uint32_t numCores() const
-		{
-			return m_cores;
-		}
+        uint32_t numCores() const
+        {
+            return m_cores;
+        }
 
-		//In MHz
-		uint32_t maxFrequency() const
-		{
-			return m_maxFreq;
-		}
+        //In MHz
+        uint32_t maxFrequency() const
+        {
+            return m_maxFreq;
+        }
 
-		static CPUInfo fetch();
+        static CPUInfo fetch();
 
-	private:
-		CPUInfo()
-		{
-			m_valid = true;
-		}
+    private:
+        CPUInfo()
+        {
+            m_valid = true;
+        }
 
-		CPUInfo(const char *err) : m_error(err)
-		{
-			m_valid = false;
-		}
+        CPUInfo(const char *err) : m_error(err)
+        {
+            m_valid = false;
+        }
 
-		CPUInfo(const String &err) : m_error(err)
-		{
-			m_valid = false;
-		}
+        CPUInfo(const String &err) : m_error(err)
+        {
+            m_valid = false;
+        }
 
-		bool m_valid;
-		String m_error;
-		String m_name;
-		String m_vendor;
-		uint32_t m_cores;
-		uint32_t m_maxFreq;
-	};
+        bool m_valid;
+        String m_error;
+        String m_name;
+        String m_vendor;
+        uint32_t m_cores;
+        uint32_t m_maxFreq;
+    };
 }

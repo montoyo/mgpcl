@@ -23,45 +23,45 @@
 namespace m
 {
 
-	enum class SeekPos
-	{
-		Beginning,
-		Relative,
-		End
-	};
+    enum class SeekPos
+    {
+        Beginning,
+        Relative,
+        End
+    };
 
-	enum class RWAction
-	{
-		Reading,
-		Writing
-	};
+    enum class RWAction
+    {
+        Reading,
+        Writing
+    };
 
-	enum class Endianness
-	{
-		Little,
-		Big
-	};
+    enum class Endianness
+    {
+        Little,
+        Big
+    };
 
-	enum class StringSerialization
-	{
-		AppendNullByte,
-		ByteLenAndContent,
-		UShortLenAndContent
-	};
+    enum class StringSerialization
+    {
+        AppendNullByte,
+        ByteLenAndContent,
+        UShortLenAndContent
+    };
 
-	enum class LineEnding
-	{
-		CRLF,   //Windows
-		LFOnly, //Linux
-		CROnly  //Mac
-	};
+    enum class LineEnding
+    {
+        CRLF,   //Windows
+        LFOnly, //Linux
+        CROnly  //Mac
+    };
 
-	enum class STDHandle
-	{
-		HInput,
-		HOutput,
-		HError
-	};
+    enum class STDHandle
+    {
+        HInput,
+        HOutput,
+        HError
+    };
 
 #ifdef MGPCL_WIN
 #define M_OS_LINEENDING ::m::LineEnding::CRLF
@@ -71,27 +71,27 @@ namespace m
 #define M_OS_LINEEND "\n"
 #endif
 
-	enum class LogLevel
-	{
-		Debug,
-		Info,
-		Warning,
-		Error
-	};
+    enum class LogLevel
+    {
+        Debug,
+        Info,
+        Warning,
+        Error
+    };
 
-	enum class Axis
-	{
-		X,
-		Y,
-		Z
-	};
+    enum class Axis
+    {
+        X,
+        Y,
+        Z
+    };
 
-	enum class MouseButton
-	{
-		None,
-		Left,
-		Middle,
-		Right
-	};
+    enum class MouseButton
+    {
+        None,
+        Left,
+        Middle,
+        Right
+    };
 
 }

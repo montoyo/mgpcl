@@ -51,43 +51,43 @@ typedef int SOCKET;
 
 namespace m
 {
-	namespace inet
-	{
-		enum InitError
-		{
-			kIE_NoError = 0,
-			kIE_SystemNotReady,
-			kIE_VersionNotSupported,
-			kIE_LimitReached,
-			kIE_UnknownError
-		};
+    namespace inet
+    {
+        enum InitError
+        {
+            kIE_NoError = 0,
+            kIE_SystemNotReady,
+            kIE_VersionNotSupported,
+            kIE_LimitReached,
+            kIE_UnknownError
+        };
 
-		enum SocketError
-		{
-			kSE_NoError = 0,
-			kSE_WouldBlock,
-			kSE_AddressInUse,
-			kSE_ConnectionRefused,
-			kSE_SocketAlreadyConnected,
-			kSE_TimedOut,
-			kSE_NetworkUnreachable,
-			kSE_UnknownError
-		};
+        enum SocketError
+        {
+            kSE_NoError = 0,
+            kSE_WouldBlock,
+            kSE_AddressInUse,
+            kSE_ConnectionRefused,
+            kSE_SocketAlreadyConnected,
+            kSE_TimedOut,
+            kSE_NetworkUnreachable,
+            kSE_UnknownError
+        };
 
-		M_INET_PREFIX InitError initialize();
-		M_INET_PREFIX void release();
-		M_INET_PREFIX void initSSL();
+        M_INET_PREFIX InitError initialize();
+        M_INET_PREFIX void release();
+        M_INET_PREFIX void initSSL();
 
 #ifdef MGPCL_WIN
-		M_INET_PREFIX SocketError socketError(int err = WSAGetLastError());
+        M_INET_PREFIX SocketError socketError(int err = WSAGetLastError());
 #else
-		M_INET_PREFIX SocketError socketError(int err = errno);
+        M_INET_PREFIX SocketError socketError(int err = errno);
 #endif
 
-		inline void fillTimeval(struct timeval &tv, uint32_t ms)
-		{
-			tv.tv_sec = ms / 1000;
-			tv.tv_usec = (ms % 1000) * 1000;
-		}
-	}
+        inline void fillTimeval(struct timeval &tv, uint32_t ms)
+        {
+            tv.tv_sec = ms / 1000;
+            tv.tv_usec = (ms % 1000) * 1000;
+        }
+    }
 }

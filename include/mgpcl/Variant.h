@@ -25,98 +25,98 @@
 namespace m
 {
 
-	enum class VariantType
-	{
-		Null = 0,
-		Int,
-		Short,
-		Char,
-		UInt,
-		UShort,
-		Byte,
-		Double,
-		Float,
-		String
-	};
+    enum class VariantType
+    {
+        Null = 0,
+        Int,
+        Short,
+        Char,
+        UInt,
+        UShort,
+        Byte,
+        Double,
+        Float,
+        String
+    };
 
-	class MGPCL_PREFIX Variant
-	{
-	public:
-		Variant();
-		Variant(int i);
-		Variant(short i);
-		Variant(char i);
-		Variant(uint32_t i);
-		Variant(uint16_t i);
-		Variant(uint8_t i);
-		Variant(double i);
-		Variant(float i);
-		Variant(const String &i);
-		~Variant();
+    class MGPCL_PREFIX Variant
+    {
+    public:
+        Variant();
+        Variant(int i);
+        Variant(short i);
+        Variant(char i);
+        Variant(uint32_t i);
+        Variant(uint16_t i);
+        Variant(uint8_t i);
+        Variant(double i);
+        Variant(float i);
+        Variant(const String &i);
+        ~Variant();
 
-		int asInt() const;
-		short asShort() const;
-		char asChar() const;
-		uint32_t asUInt() const;
-		uint16_t asUShort() const;
-		uint8_t asByte() const;
-		double asDouble() const;
-		float asFloat() const;
-		const String &asString() const;
+        int asInt() const;
+        short asShort() const;
+        char asChar() const;
+        uint32_t asUInt() const;
+        uint16_t asUShort() const;
+        uint8_t asByte() const;
+        double asDouble() const;
+        float asFloat() const;
+        const String &asString() const;
 
-		Variant &operator = (int i);
-		Variant &operator = (short i);
-		Variant &operator = (char i);
-		Variant &operator = (uint32_t i);
-		Variant &operator = (uint16_t i);
-		Variant &operator = (uint8_t i);
-		Variant &operator = (double i);
-		Variant &operator = (float i);
-		Variant &operator = (const String &i);
+        Variant &operator = (int i);
+        Variant &operator = (short i);
+        Variant &operator = (char i);
+        Variant &operator = (uint32_t i);
+        Variant &operator = (uint16_t i);
+        Variant &operator = (uint8_t i);
+        Variant &operator = (double i);
+        Variant &operator = (float i);
+        Variant &operator = (const String &i);
 
-		Variant &setNull();
+        Variant &setNull();
 
-		VariantType getType() const
-		{
-			return m_type;
-		}
+        VariantType getType() const
+        {
+            return m_type;
+        }
 
-		bool isNull() const
-		{
-			return m_type == VariantType::Null;
-		}
+        bool isNull() const
+        {
+            return m_type == VariantType::Null;
+        }
 
-	private:
-		void destroy();
+    private:
+        void destroy();
 
-		template<typename T> const T &getRef(VariantType type) const
-		{
-			if(type != m_type)
-				abort();
+        template<typename T> const T &getRef(VariantType type) const
+        {
+            if(type != m_type)
+                abort();
 
-			return *reinterpret_cast<T*>(m_value);
-		}
+            return *reinterpret_cast<T*>(m_value);
+        }
 
-		template<typename T> void allocate(VariantType type, const T &val)
-		{
-			m_type = type;
-			m_value = new uint8_t[sizeof(T)];
-			new(m_value) T(val);
-		}
+        template<typename T> void allocate(VariantType type, const T &val)
+        {
+            m_type = type;
+            m_value = new uint8_t[sizeof(T)];
+            new(m_value) T(val);
+        }
 
-		template<typename T> Variant &set(VariantType type, const T &val)
-		{
-			if(type != m_type) {
-				destroy();
-				allocate<T>(type, val);
-			} else
-				*reinterpret_cast<T*>(m_value) = val;
+        template<typename T> Variant &set(VariantType type, const T &val)
+        {
+            if(type != m_type) {
+                destroy();
+                allocate<T>(type, val);
+            } else
+                *reinterpret_cast<T*>(m_value) = val;
 
-			return *this;
-		}
+            return *this;
+        }
 
-		VariantType m_type;
-		uint8_t *m_value;
-	};
+        VariantType m_type;
+        uint8_t *m_value;
+    };
 
 }

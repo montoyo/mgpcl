@@ -24,38 +24,38 @@
 
 namespace m
 {
-	namespace Mem
-	{
-		inline void *copy(void *dst, const void *src, size_t sz)
-		{
-			return memcpy(dst, src, sz);
-		}
+    namespace Mem
+    {
+        inline void *copy(void *dst, const void *src, size_t sz)
+        {
+            return memcpy(dst, src, sz);
+        }
 
-		inline void *move(void *dst, const void *src, size_t sz)
-		{
-			return memmove(dst, src, sz);
-		}
+        inline void *move(void *dst, const void *src, size_t sz)
+        {
+            return memmove(dst, src, sz);
+        }
 
-		inline int cmp(const void *a, const void *b, size_t sz)
-		{
-			return memcmp(a, b, sz);
-		}
+        inline int cmp(const void *a, const void *b, size_t sz)
+        {
+            return memcmp(a, b, sz);
+        }
 
-		inline void *zero(void *dst, size_t sz)
-		{
-			return memset(dst, 0, sz);
-		}
+        inline void *zero(void *dst, size_t sz)
+        {
+            return memset(dst, 0, sz);
+        }
 
-		template<typename T> T &zero(T &obj)
-		{
-			return *static_cast<T*>(memset(&obj, 0, sizeof(T)));
-		}
+        template<typename T> T &zero(T &obj)
+        {
+            return *static_cast<T*>(memset(&obj, 0, sizeof(T)));
+        }
 
         //Only allocate; does not call constructors.
-		template<typename T> T *alloc(size_t cnt)
-		{
-			return reinterpret_cast<T*>(new char[sizeof(T) * cnt]);
-		}
+        template<typename T> T *alloc(size_t cnt)
+        {
+            return reinterpret_cast<T*>(new char[sizeof(T) * cnt]);
+        }
 
         //Only frees allocated memory; does not call destructors
         template<typename T> void del(T *ptr)
@@ -63,7 +63,7 @@ namespace m
             delete[] reinterpret_cast<uint8_t*>(ptr);
         }
 
-		//Cleverly copies an array of cnt Ts into another
+        //Cleverly copies an array of cnt Ts into another
         template<typename T> T *copyT(T *dst, const T *src, size_t cnt)
         {
             if(std::is_trivially_copyable<T>::value)
@@ -90,5 +90,5 @@ namespace m
             return dst;
         }
 
-	}
+    }
 }

@@ -31,230 +31,230 @@
 
 namespace m
 {
-	class STDOutputStream : public OutputStream
-	{
-	public:
-		STDOutputStream()
-		{
+    class STDOutputStream : public OutputStream
+    {
+    public:
+        STDOutputStream()
+        {
 #ifdef MGPCL_WIN
-			m_handle = INVALID_HANDLE_VALUE;
+            m_handle = INVALID_HANDLE_VALUE;
 #else
-			m_fd = -1;
+            m_fd = -1;
 #endif
-		}
+        }
 
-		STDOutputStream(STDHandle h)
-		{
-			setHandle(h);
-		}
+        STDOutputStream(STDHandle h)
+        {
+            setHandle(h);
+        }
 
-		~STDOutputStream() override
-		{
-		}
+        ~STDOutputStream() override
+        {
+        }
 
-		bool setHandle(STDHandle h)
-		{
+        bool setHandle(STDHandle h)
+        {
 #ifdef MGPCL_WIN
-			switch(h) {
-			case STDHandle::HInput:
-				m_handle = GetStdHandle(STD_INPUT_HANDLE);
-				break;
+            switch(h) {
+            case STDHandle::HInput:
+                m_handle = GetStdHandle(STD_INPUT_HANDLE);
+                break;
 
-			case STDHandle::HOutput:
-				m_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-				break;
+            case STDHandle::HOutput:
+                m_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+                break;
 
-			case STDHandle::HError:
-				m_handle = GetStdHandle(STD_ERROR_HANDLE);
-				break;
+            case STDHandle::HError:
+                m_handle = GetStdHandle(STD_ERROR_HANDLE);
+                break;
 
-			default:
-				m_handle = INVALID_HANDLE_VALUE;
-				break;
-			}
+            default:
+                m_handle = INVALID_HANDLE_VALUE;
+                break;
+            }
 
-			return m_handle != INVALID_HANDLE_VALUE;
+            return m_handle != INVALID_HANDLE_VALUE;
 #else
-			switch(h) {
-			case STDHandle::HInput:
-				m_fd = STDIN_FILENO;
-				break;
+            switch(h) {
+            case STDHandle::HInput:
+                m_fd = STDIN_FILENO;
+                break;
 
-			case STDHandle::HOutput:
-				m_fd = STDOUT_FILENO;
-				break;
+            case STDHandle::HOutput:
+                m_fd = STDOUT_FILENO;
+                break;
 
-			case STDHandle::HError:
-				m_fd = STDERR_FILENO;
-				break;
+            case STDHandle::HError:
+                m_fd = STDERR_FILENO;
+                break;
 
-			default:
-				m_fd = -1;
-				break;
-			}
+            default:
+                m_fd = -1;
+                break;
+            }
 
-			return m_fd >= 0;
+            return m_fd >= 0;
 #endif
-		}
+        }
 
-		int write(const uint8_t *src, int sz) override
-		{
-			mDebugAssert(sz >= 0, "cannot write a negative amount of bytes");
-
-#ifdef MGPCL_WIN
-			mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
-
-			DWORD ret;
-			return WriteFile(m_handle, src, static_cast<DWORD>(sz), &ret, nullptr) == FALSE ? -1 : static_cast<int>(ret);
-#else
-			mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
-			return static_cast<int>(::write(m_fd, src, static_cast<size_t>(sz)));
-#endif
-		}
-
-		uint64_t pos() override
-		{
-			return 0;
-		}
-
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return false;
-		}
-
-		bool seekSupported() const override
-		{
-			return false;
-		}
-
-		bool flush() override
-		{
-#ifdef MGPCL_WIN
-			mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
-			return FlushFileBuffers(m_handle) != FALSE;
-#else
-			mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
-			return fsync(m_fd) == 0;
-#endif
-		}
-
-		void close() override
-		{
-		}
-
-	private:
-#ifdef MGPCL_WIN
-		HANDLE m_handle;
-#else
-		int m_fd;
-#endif
-	};
-
-	class STDInputStream : public InputStream
-	{
-		STDInputStream()
-		{
-#ifdef MGPCL_WIN
-			m_handle = INVALID_HANDLE_VALUE;
-#else
-			m_fd = -1;
-#endif
-		}
-
-		STDInputStream(STDHandle h)
-		{
-			setHandle(h);
-		}
-
-		~STDInputStream() override
-		{
-		}
-
-		bool setHandle(STDHandle h)
-		{
-#ifdef MGPCL_WIN
-			switch(h) {
-			case STDHandle::HInput:
-				m_handle = GetStdHandle(STD_INPUT_HANDLE);
-				break;
-
-			case STDHandle::HOutput:
-				m_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-				break;
-
-			case STDHandle::HError:
-				m_handle = GetStdHandle(STD_ERROR_HANDLE);
-				break;
-
-			default:
-				m_handle = INVALID_HANDLE_VALUE;
-				break;
-			}
-
-			return m_handle != INVALID_HANDLE_VALUE;
-#else
-			switch(h) {
-			case STDHandle::HInput:
-				m_fd = STDIN_FILENO;
-				break;
-
-			case STDHandle::HOutput:
-				m_fd = STDOUT_FILENO;
-				break;
-
-			case STDHandle::HError:
-				m_fd = STDERR_FILENO;
-				break;
-
-			default:
-				m_fd = -1;
-				break;
-			}
-
-			return m_fd >= 0;
-#endif
-		}
-
-		int read(uint8_t *src, int sz) override
-		{
-			mDebugAssert(sz >= 0, "cannot read a negative amount of bytes");
+        int write(const uint8_t *src, int sz) override
+        {
+            mDebugAssert(sz >= 0, "cannot write a negative amount of bytes");
 
 #ifdef MGPCL_WIN
-			mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
+            mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
 
-			DWORD ret;
-			return ReadFile(m_handle, src, static_cast<DWORD>(sz), &ret, nullptr) == FALSE ? -1 : static_cast<int>(ret);
+            DWORD ret;
+            return WriteFile(m_handle, src, static_cast<DWORD>(sz), &ret, nullptr) == FALSE ? -1 : static_cast<int>(ret);
 #else
-			mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
-			return static_cast<int>(::write(m_fd, src, static_cast<size_t>(sz)));
+            mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
+            return static_cast<int>(::write(m_fd, src, static_cast<size_t>(sz)));
 #endif
-		}
+        }
 
-		uint64_t pos() override
-		{
-			return 0;
-		}
+        uint64_t pos() override
+        {
+            return 0;
+        }
 
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return false;
-		}
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return false;
+        }
 
-		bool seekSupported() const override
-		{
-			return false;
-		}
+        bool seekSupported() const override
+        {
+            return false;
+        }
 
-		void close() override
-		{
-		}
-
-	private:
+        bool flush() override
+        {
 #ifdef MGPCL_WIN
-		HANDLE m_handle;
+            mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
+            return FlushFileBuffers(m_handle) != FALSE;
 #else
-		int m_fd;
+            mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
+            return fsync(m_fd) == 0;
 #endif
-	};
+        }
+
+        void close() override
+        {
+        }
+
+    private:
+#ifdef MGPCL_WIN
+        HANDLE m_handle;
+#else
+        int m_fd;
+#endif
+    };
+
+    class STDInputStream : public InputStream
+    {
+        STDInputStream()
+        {
+#ifdef MGPCL_WIN
+            m_handle = INVALID_HANDLE_VALUE;
+#else
+            m_fd = -1;
+#endif
+        }
+
+        STDInputStream(STDHandle h)
+        {
+            setHandle(h);
+        }
+
+        ~STDInputStream() override
+        {
+        }
+
+        bool setHandle(STDHandle h)
+        {
+#ifdef MGPCL_WIN
+            switch(h) {
+            case STDHandle::HInput:
+                m_handle = GetStdHandle(STD_INPUT_HANDLE);
+                break;
+
+            case STDHandle::HOutput:
+                m_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+                break;
+
+            case STDHandle::HError:
+                m_handle = GetStdHandle(STD_ERROR_HANDLE);
+                break;
+
+            default:
+                m_handle = INVALID_HANDLE_VALUE;
+                break;
+            }
+
+            return m_handle != INVALID_HANDLE_VALUE;
+#else
+            switch(h) {
+            case STDHandle::HInput:
+                m_fd = STDIN_FILENO;
+                break;
+
+            case STDHandle::HOutput:
+                m_fd = STDOUT_FILENO;
+                break;
+
+            case STDHandle::HError:
+                m_fd = STDERR_FILENO;
+                break;
+
+            default:
+                m_fd = -1;
+                break;
+            }
+
+            return m_fd >= 0;
+#endif
+        }
+
+        int read(uint8_t *src, int sz) override
+        {
+            mDebugAssert(sz >= 0, "cannot read a negative amount of bytes");
+
+#ifdef MGPCL_WIN
+            mDebugAssert(m_handle != INVALID_HANDLE_VALUE, "stdoutputstream is invalid");
+
+            DWORD ret;
+            return ReadFile(m_handle, src, static_cast<DWORD>(sz), &ret, nullptr) == FALSE ? -1 : static_cast<int>(ret);
+#else
+            mDebugAssert(m_fd < 0, "stdoutputstream is invalid");
+            return static_cast<int>(::write(m_fd, src, static_cast<size_t>(sz)));
+#endif
+        }
+
+        uint64_t pos() override
+        {
+            return 0;
+        }
+
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return false;
+        }
+
+        bool seekSupported() const override
+        {
+            return false;
+        }
+
+        void close() override
+        {
+        }
+
+    private:
+#ifdef MGPCL_WIN
+        HANDLE m_handle;
+#else
+        int m_fd;
+#endif
+    };
 
 }

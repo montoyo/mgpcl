@@ -206,17 +206,17 @@ namespace m
             Matrix4<T> trans;
             trans.loadIdentity();
 
-			trans.m_data[0][0] = T(1) - T(2) * (q.y() * q.y() + q.z() * q.z());
-			trans.m_data[0][1] = T(2) * (q.x() * q.y() + q.z() * q.w());
-			trans.m_data[0][2] = T(2) * (q.x() * q.z() - q.y() * q.w());
+            trans.m_data[0][0] = T(1) - T(2) * (q.y() * q.y() + q.z() * q.z());
+            trans.m_data[0][1] = T(2) * (q.x() * q.y() + q.z() * q.w());
+            trans.m_data[0][2] = T(2) * (q.x() * q.z() - q.y() * q.w());
 
-			trans.m_data[1][0] = T(2) * (q.x() * q.y() - q.z() * q.w());
-			trans.m_data[1][1] = T(1) - T(2) * (q.x() * q.x() + q.z() * q.z());
-			trans.m_data[1][2] = T(2) * (q.y() * q.z() + q.x() * q.w());
+            trans.m_data[1][0] = T(2) * (q.x() * q.y() - q.z() * q.w());
+            trans.m_data[1][1] = T(1) - T(2) * (q.x() * q.x() + q.z() * q.z());
+            trans.m_data[1][2] = T(2) * (q.y() * q.z() + q.x() * q.w());
 
-			trans.m_data[2][0] = T(2) * (q.x() * q.z() + q.y() * q.w());
-			trans.m_data[2][1] = T(2) * (q.y() * q.z() - q.x() * q.w());
-			trans.m_data[2][2] = T(1) - T(2) * (q.x() * q.x() + q.y() * q.y());
+            trans.m_data[2][0] = T(2) * (q.x() * q.z() + q.y() * q.w());
+            trans.m_data[2][1] = T(2) * (q.y() * q.z() - q.x() * q.w());
+            trans.m_data[2][2] = T(1) - T(2) * (q.x() * q.x() + q.y() * q.y());
 
             (*this) *= trans;
             return *this;
@@ -279,161 +279,161 @@ namespace m
             m_data[col][row] = val;
         }
 
-		Matrix4<T> inverted() const
-		{
-			//WARNING: Probably very slow!!
-			Matrix4<T> ret;
-			ret.loadIdentity();
+        Matrix4<T> inverted() const
+        {
+            //WARNING: Probably very slow!!
+            Matrix4<T> ret;
+            ret.loadIdentity();
 
-			Matrix4<T> me(*this);
+            Matrix4<T> me(*this);
 
-			for(int x = 0; x < 4; x++) {
-				int y = x;
-				while(y < 4 && me.m_data[x][y] == T(0))
-					y++;
+            for(int x = 0; x < 4; x++) {
+                int y = x;
+                while(y < 4 && me.m_data[x][y] == T(0))
+                    y++;
 
-				if(x != y) {
-					for(int i = 0; i < 4; i++) {
-						swap(me.m_data[i][x], me.m_data[i][y]);
-						swap(ret.m_data[i][x], ret.m_data[i][y]);
-					}
-				}
+                if(x != y) {
+                    for(int i = 0; i < 4; i++) {
+                        swap(me.m_data[i][x], me.m_data[i][y]);
+                        swap(ret.m_data[i][x], ret.m_data[i][y]);
+                    }
+                }
 
-				for(y = 0; y < 4; y++) {
-					if(x == y) {
-						T f = me.m_data[x][y];
+                for(y = 0; y < 4; y++) {
+                    if(x == y) {
+                        T f = me.m_data[x][y];
 
-						for(int i = 0; i < 4; i++) {
-							me.m_data[i][y] /= f;
-							ret.m_data[i][y] /= f;
-						}
-					} else if(me.m_data[x][y] != 0) {
-						T f = -me.m_data[x][y] / me.m_data[x][x];
+                        for(int i = 0; i < 4; i++) {
+                            me.m_data[i][y] /= f;
+                            ret.m_data[i][y] /= f;
+                        }
+                    } else if(me.m_data[x][y] != 0) {
+                        T f = -me.m_data[x][y] / me.m_data[x][x];
 
-						for(int i = 0; i < 4; i++) {
-							me.m_data[i][y] += f * me.m_data[i][x];
-							ret.m_data[i][y] += f * ret.m_data[i][x];
-						}
-					}
-				}
-			}
+                        for(int i = 0; i < 4; i++) {
+                            me.m_data[i][y] += f * me.m_data[i][x];
+                            ret.m_data[i][y] += f * ret.m_data[i][x];
+                        }
+                    }
+                }
+            }
 
-			return ret;
-		}
+            return ret;
+        }
 
-		Vector3<T> multiply(const Vector3<T> &src, T win, T &wout) const
-		{
-			Vector3<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0] * win);
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1] * win);
-			ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2] * win);
-			wout  =  m_data[0][3] * src.x() + m_data[1][3] * src.y() + m_data[2][3] * src.z() + m_data[3][3] * win;
+        Vector3<T> multiply(const Vector3<T> &src, T win, T &wout) const
+        {
+            Vector3<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0] * win);
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1] * win);
+            ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2] * win);
+            wout  =  m_data[0][3] * src.x() + m_data[1][3] * src.y() + m_data[2][3] * src.z() + m_data[3][3] * win;
 
-			return ret;
-		}
-		
-		Vector3<T> multiply(const Vector3<T> &src, T win) const
-		{
-			Vector3<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0] * win);
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1] * win);
-			ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2] * win);
+            return ret;
+        }
+        
+        Vector3<T> multiply(const Vector3<T> &src, T win) const
+        {
+            Vector3<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0] * win);
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1] * win);
+            ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2] * win);
 
-			return ret;
-		}
-		
-		Vector3<T> multiplyEx(const Vector3<T> &src, T &wout) const
-		{
-			Vector3<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z());
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z());
-			ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z());
-			wout  =  m_data[0][3] * src.x() + m_data[1][3] * src.y() + m_data[2][3] * src.z();
+            return ret;
+        }
+        
+        Vector3<T> multiplyEx(const Vector3<T> &src, T &wout) const
+        {
+            Vector3<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z());
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z());
+            ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z());
+            wout  =  m_data[0][3] * src.x() + m_data[1][3] * src.y() + m_data[2][3] * src.z();
 
-			return ret;
-		}
+            return ret;
+        }
 
-		Matrix4<T> &operator *= (const Matrix4<T> &src)
-		{
-			T tmp[4][4];
+        Matrix4<T> &operator *= (const Matrix4<T> &src)
+        {
+            T tmp[4][4];
 
-			for(int x = 0; x < 4; x++) {
-				tmp[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2] + m_data[3][0] * src.m_data[x][3];
-				tmp[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2] + m_data[3][1] * src.m_data[x][3];
-				tmp[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2] + m_data[3][2] * src.m_data[x][3];
-				tmp[x][3] = m_data[0][3] * src.m_data[x][0] + m_data[1][3] * src.m_data[x][1] + m_data[2][3] * src.m_data[x][2] + m_data[3][3] * src.m_data[x][3];
-			}
+            for(int x = 0; x < 4; x++) {
+                tmp[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2] + m_data[3][0] * src.m_data[x][3];
+                tmp[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2] + m_data[3][1] * src.m_data[x][3];
+                tmp[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2] + m_data[3][2] * src.m_data[x][3];
+                tmp[x][3] = m_data[0][3] * src.m_data[x][0] + m_data[1][3] * src.m_data[x][1] + m_data[2][3] * src.m_data[x][2] + m_data[3][3] * src.m_data[x][3];
+            }
 
-			Mem::copy(m_data, tmp, 4 * 4 * sizeof(float));
-			return *this;
-		}
+            Mem::copy(m_data, tmp, 4 * 4 * sizeof(float));
+            return *this;
+        }
 
-		Matrix4<T> operator * (const Matrix4<T> &src) const
-		{
-			Matrix4<T> ret;
+        Matrix4<T> operator * (const Matrix4<T> &src) const
+        {
+            Matrix4<T> ret;
 
-			for(int x = 0; x < 4; x++) {
-				ret.m_data[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2] + m_data[3][0] * src.m_data[x][3];
-				ret.m_data[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2] + m_data[3][1] * src.m_data[x][3];
-				ret.m_data[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2] + m_data[3][2] * src.m_data[x][3];
-				ret.m_data[x][3] = m_data[0][3] * src.m_data[x][0] + m_data[1][3] * src.m_data[x][1] + m_data[2][3] * src.m_data[x][2] + m_data[3][3] * src.m_data[x][3];
-			}
+            for(int x = 0; x < 4; x++) {
+                ret.m_data[x][0] = m_data[0][0] * src.m_data[x][0] + m_data[1][0] * src.m_data[x][1] + m_data[2][0] * src.m_data[x][2] + m_data[3][0] * src.m_data[x][3];
+                ret.m_data[x][1] = m_data[0][1] * src.m_data[x][0] + m_data[1][1] * src.m_data[x][1] + m_data[2][1] * src.m_data[x][2] + m_data[3][1] * src.m_data[x][3];
+                ret.m_data[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2] + m_data[3][2] * src.m_data[x][3];
+                ret.m_data[x][3] = m_data[0][3] * src.m_data[x][0] + m_data[1][3] * src.m_data[x][1] + m_data[2][3] * src.m_data[x][2] + m_data[3][3] * src.m_data[x][3];
+            }
 
-			return ret;
-		}
+            return ret;
+        }
 
-		Vector3<T> operator * (const Vector3<T> &src) const
-		{
-			Vector3<T> ret;
-			ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0]);
-			ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1]);
-			ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2]);
+        Vector3<T> operator * (const Vector3<T> &src) const
+        {
+            Vector3<T> ret;
+            ret.setX(m_data[0][0] * src.x() + m_data[1][0] * src.y() + m_data[2][0] * src.z() + m_data[3][0]);
+            ret.setY(m_data[0][1] * src.x() + m_data[1][1] * src.y() + m_data[2][1] * src.z() + m_data[3][1]);
+            ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z() + m_data[3][2]);
 
-			return ret;
-		}
+            return ret;
+        }
 
-		static Matrix4<T> perspective(T angle, T ratio, T near_, T far_)
-		{
-			Matrix4<T> ret;
+        static Matrix4<T> perspective(T angle, T ratio, T near_, T far_)
+        {
+            Matrix4<T> ret;
 
-			float f = T(1) / Math::tan(angle);
-			M_SET_ROW_OF(&ret, 0,   f / ratio, T(0), T(0),  T(0));
-			M_SET_ROW_OF(&ret, 1,   T(0),      f,    T(0),  T(0));
-			M_SET_ROW_OF(&ret, 2,   T(0),      T(0), (near_ + far_) / (near_ - far_), (T(2) * near_ * far_) / (near_ - far_));
-			M_SET_ROW_OF(&ret, 3,   T(0),      T(0), T(-1), T(0));
+            float f = T(1) / Math::tan(angle);
+            M_SET_ROW_OF(&ret, 0,   f / ratio, T(0), T(0),  T(0));
+            M_SET_ROW_OF(&ret, 1,   T(0),      f,    T(0),  T(0));
+            M_SET_ROW_OF(&ret, 2,   T(0),      T(0), (near_ + far_) / (near_ - far_), (T(2) * near_ * far_) / (near_ - far_));
+            M_SET_ROW_OF(&ret, 3,   T(0),      T(0), T(-1), T(0));
 
-			return ret;
-		}
+            return ret;
+        }
 
-		static Matrix4<T> ortho(T left, T bottom, T right, T top)
-		{
-			Matrix4<T> ret;
-			ret.loadIdentity();
+        static Matrix4<T> ortho(T left, T bottom, T right, T top)
+        {
+            Matrix4<T> ret;
+            ret.loadIdentity();
 
-			ret.m_data[0][0] = T(2) / (right - left);
-			ret.m_data[1][1] = T(2) / (top - bottom);
-			ret.m_data[2][2] = T(-1);
-			ret.m_data[3][0] = -((right + left) / (right - left));
-			ret.m_data[3][1] = -((top + bottom) / (top - bottom));
+            ret.m_data[0][0] = T(2) / (right - left);
+            ret.m_data[1][1] = T(2) / (top - bottom);
+            ret.m_data[2][2] = T(-1);
+            ret.m_data[3][0] = -((right + left) / (right - left));
+            ret.m_data[3][1] = -((top + bottom) / (top - bottom));
 
-			return ret;
-		}
+            return ret;
+        }
 
-		static Matrix4<T> ortho(T left, T bottom, T right, T top, T near_, T far_)
-		{
-			Matrix4<T> ret;
-			ret.loadIdentity();
+        static Matrix4<T> ortho(T left, T bottom, T right, T top, T near_, T far_)
+        {
+            Matrix4<T> ret;
+            ret.loadIdentity();
 
-			ret.m_data[0][0] = T(2) / (right - left);
-			ret.m_data[1][1] = T(2) / (top - bottom);
-			ret.m_data[2][2] = T(-2) / (far_ - near_);
-			ret.m_data[3][0] = -((right + left) / (right - left));
-			ret.m_data[3][1] = -((top + bottom) / (top - bottom));
-			ret.m_data[3][2] = -((far_ + near_) / (far_ - near_));
+            ret.m_data[0][0] = T(2) / (right - left);
+            ret.m_data[1][1] = T(2) / (top - bottom);
+            ret.m_data[2][2] = T(-2) / (far_ - near_);
+            ret.m_data[3][0] = -((right + left) / (right - left));
+            ret.m_data[3][1] = -((top + bottom) / (top - bottom));
+            ret.m_data[3][2] = -((far_ + near_) / (far_ - near_));
 
-			return ret;
-		}
-		
+            return ret;
+        }
+        
     private:
         static void swap(T &a, T &b)
         {

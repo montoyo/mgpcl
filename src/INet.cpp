@@ -33,102 +33,102 @@
 m::inet::InitError m::inet::initialize()
 {
 #ifdef MGPCL_WIN
-	WSADATA wsa;
-	Mem::zero(&wsa, sizeof(WSADATA));
+    WSADATA wsa;
+    Mem::zero(&wsa, sizeof(WSADATA));
 
-	wsa.wVersion = MAKEWORD(2, 2);
-	int err = WSAStartup(MAKEWORD(2, 2), &wsa);
+    wsa.wVersion = MAKEWORD(2, 2);
+    int err = WSAStartup(MAKEWORD(2, 2), &wsa);
 
-	if(err == 0)
-		return kIE_NoError;
-	else if(err == WSASYSNOTREADY)
-		return kIE_SystemNotReady;
-	else if(err == WSAVERNOTSUPPORTED)
-		return kIE_VersionNotSupported;
-	else if(err == WSAEPROCLIM)
-		return kIE_LimitReached;
-	else
-		return kIE_UnknownError; //WSAEINPROGRESS and WSAEFAULT should never happen
+    if(err == 0)
+        return kIE_NoError;
+    else if(err == WSASYSNOTREADY)
+        return kIE_SystemNotReady;
+    else if(err == WSAVERNOTSUPPORTED)
+        return kIE_VersionNotSupported;
+    else if(err == WSAEPROCLIM)
+        return kIE_LimitReached;
+    else
+        return kIE_UnknownError; //WSAEINPROGRESS and WSAEFAULT should never happen
 #else
-	return kIE_NoError;
+    return kIE_NoError;
 #endif
 }
 
 void m::inet::release()
 {
 #ifdef MGPCL_WIN
-	WSACleanup();
+    WSACleanup();
 #endif
 }
 
 m::inet::SocketError m::inet::socketError(int err)
 {
 #ifdef MGPCL_WIN
-	switch(err) {
-	case WSAEWOULDBLOCK:
-		return kSE_WouldBlock;
+    switch(err) {
+    case WSAEWOULDBLOCK:
+        return kSE_WouldBlock;
 
-	case WSAEADDRINUSE:
-		return kSE_AddressInUse;
+    case WSAEADDRINUSE:
+        return kSE_AddressInUse;
 
-	case WSAECONNREFUSED:
-		return kSE_ConnectionRefused;
+    case WSAECONNREFUSED:
+        return kSE_ConnectionRefused;
 
-	case WSAEISCONN:
-		return kSE_SocketAlreadyConnected;
+    case WSAEISCONN:
+        return kSE_SocketAlreadyConnected;
 
-	case WSAETIMEDOUT:
-		return kSE_TimedOut;
+    case WSAETIMEDOUT:
+        return kSE_TimedOut;
 
-	case WSAENETDOWN:
-	case WSAENETRESET:
-	case WSAENETUNREACH:
-		return kSE_NetworkUnreachable;
+    case WSAENETDOWN:
+    case WSAENETRESET:
+    case WSAENETUNREACH:
+        return kSE_NetworkUnreachable;
 
-	default:
-		return kSE_UnknownError;
-	}
+    default:
+        return kSE_UnknownError;
+    }
 #else
-	switch(err) {
+    switch(err) {
 #if EWOULDBLOCK != EAGAIN
-	case EAGAIN:
+    case EAGAIN:
 #endif
 
-	case EWOULDBLOCK:
-	case EINPROGRESS:
-		return kSE_WouldBlock;
+    case EWOULDBLOCK:
+    case EINPROGRESS:
+        return kSE_WouldBlock;
 
-	case EADDRINUSE:
-		return kSE_AddressInUse;
+    case EADDRINUSE:
+        return kSE_AddressInUse;
 
-	case ECONNREFUSED:
-		return kSE_ConnectionRefused;
+    case ECONNREFUSED:
+        return kSE_ConnectionRefused;
 
-	case EISCONN:
-		return kSE_SocketAlreadyConnected;
+    case EISCONN:
+        return kSE_SocketAlreadyConnected;
 
-	case ETIMEDOUT:
-		return kSE_TimedOut;
+    case ETIMEDOUT:
+        return kSE_TimedOut;
 
-	case ENETDOWN:
-	case ENETUNREACH:
-		return kSE_NetworkUnreachable;
+    case ENETDOWN:
+    case ENETUNREACH:
+        return kSE_NetworkUnreachable;
 
-	default:
-		return kSE_UnknownError;
-	}
+    default:
+        return kSE_UnknownError;
+    }
 #endif
 }
 
 void m::inet::initSSL()
 {
 #ifndef MGPCL_NO_SSL
-	SSL_library_init();
-	SSL_load_error_strings();
-	ERR_load_BIO_strings();
-	ERR_load_crypto_strings();
-	ERR_load_PEM_strings();
-	ERR_load_X509_strings();
-	OpenSSL_add_all_algorithms();
+    SSL_library_init();
+    SSL_load_error_strings();
+    ERR_load_BIO_strings();
+    ERR_load_crypto_strings();
+    ERR_load_PEM_strings();
+    ERR_load_X509_strings();
+    OpenSSL_add_all_algorithms();
 #endif
 }

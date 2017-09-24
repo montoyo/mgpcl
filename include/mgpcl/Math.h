@@ -32,65 +32,65 @@ namespace m
             return std::sin(ang);
         }
 
-		template<typename T> T cos(T ang)
-		{
-			return std::cos(ang);
-		}
+        template<typename T> T cos(T ang)
+        {
+            return std::cos(ang);
+        }
 
-		template<typename T> T tan(T ang)
-		{
-			return std::tan(ang);
-		}
+        template<typename T> T tan(T ang)
+        {
+            return std::tan(ang);
+        }
 
-		template<typename T> T sqrt(T x)
-		{
-			return std::sqrt(x);
-		}
+        template<typename T> T sqrt(T x)
+        {
+            return std::sqrt(x);
+        }
 
-		template<typename T> T asin(T x)
-		{
-			return std::asin(x);
-		}
+        template<typename T> T asin(T x)
+        {
+            return std::asin(x);
+        }
 
-		template<typename T> T acos(T x)
-		{
-			return std::acos(x);
-		}
+        template<typename T> T acos(T x)
+        {
+            return std::acos(x);
+        }
 
-		template<typename T> T atan(T x)
-		{
-			return std::atan(x);
-		}
+        template<typename T> T atan(T x)
+        {
+            return std::atan(x);
+        }
 
-		template<typename T> T atan2(T y, T x)
-		{
-			return std::atan2(y, x);
-		}
+        template<typename T> T atan2(T y, T x)
+        {
+            return std::atan2(y, x);
+        }
 
-		template<typename T> T pow(T x, T p)
-		{
-			return std::pow(x, p);
-		}
+        template<typename T> T pow(T x, T p)
+        {
+            return std::pow(x, p);
+        }
 
-		template<typename T> T maximum(T a, T b)
-		{
-			return a > b ? a : b;
-		}
+        template<typename T> T maximum(T a, T b)
+        {
+            return a > b ? a : b;
+        }
 
-		template<typename T> T minimum(T a, T b)
-		{
-			return a < b ? a : b;
-		}
+        template<typename T> T minimum(T a, T b)
+        {
+            return a < b ? a : b;
+        }
 
-		template<typename T> T clamp(T x, T xmin, T xmax)
-		{
-			if(x < xmin)
-				return xmin;
-			else if(x > xmax)
-				return xmax;
-			else
-				return x;
-		}
+        template<typename T> T clamp(T x, T xmin, T xmax)
+        {
+            if(x < xmin)
+                return xmin;
+            else if(x > xmax)
+                return xmax;
+            else
+                return x;
+        }
     }
 }
 

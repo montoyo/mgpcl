@@ -62,9 +62,9 @@ namespace m
             return m_z;
         }
 
-		Vector2<T> xy()
+        Vector2<T> xy()
         {
-			return Vector2<T>(m_x, m_y);
+            return Vector2<T>(m_x, m_y);
         }
 
         void setX(T val)
@@ -156,31 +156,31 @@ namespace m
                                 m_x * src.m_y - m_y * src.m_x);
         }
 
-		//NOTE: the normal has to be normalized!
-		Vector3<T> reflect(const Vector3<T> &normal) const
+        //NOTE: the normal has to be normalized!
+        Vector3<T> reflect(const Vector3<T> &normal) const
         {
-			return *this - normal * (T(2.0) * dot(normal));
+            return *this - normal * (T(2.0) * dot(normal));
         }
 
-		//NOTE: this has to be normalized!
-		Vector2<T> unwrapSphere() const
+        //NOTE: this has to be normalized!
+        Vector2<T> unwrapSphere() const
         {
-			T u = T(0.5) + Math::atan2<T>(m_z, m_x) / (T(2.0) * T(M_PI));
-			T v = T(0.5) - Math::asin<T>(m_y) / T(M_PI);
+            T u = T(0.5) + Math::atan2<T>(m_z, m_x) / (T(2.0) * T(M_PI));
+            T v = T(0.5) - Math::asin<T>(m_y) / T(M_PI);
 
-			if(u < T(0.0))
-				u = -u;
+            if(u < T(0.0))
+                u = -u;
 
-			if(v < T(0.0))
-				v = -v;
+            if(v < T(0.0))
+                v = -v;
 
-			if(u >= T(1.0))
-				u -= floor(u);
+            if(u >= T(1.0))
+                u -= floor(u);
 
-			if(v >= T(1.0))
-				v -= floor(v);
+            if(v >= T(1.0))
+                v -= floor(v);
 
-			return Vector2<T>(u, v);
+            return Vector2<T>(u, v);
         }
 
         Vector3<T> &normalize()

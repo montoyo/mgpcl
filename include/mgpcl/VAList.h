@@ -22,9 +22,9 @@
 
 namespace m
 {
-	typedef struct tagVAList
-	{
-		//Fix x86_64 "bug" with pointers to va_list
-		va_list list;
-	} VAList;
+    typedef struct tagVAList
+    {
+        //Fix x86_64 "bug" with pointers to va_list
+        va_list list;
+    } VAList;
 }

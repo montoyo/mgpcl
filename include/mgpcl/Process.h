@@ -34,314 +34,314 @@
 
 namespace m
 {
-	class Process;
+    class Process;
 
-	class ProcessInfo
-	{
-		friend class Process;
+    class ProcessInfo
+    {
+        friend class Process;
 
-	public:
-		const String &commandName() const
-		{
-			return m_cmdName;
-		}
+    public:
+        const String &commandName() const
+        {
+            return m_cmdName;
+        }
 
-		uint32_t pid() const
-		{
-			return m_pid;
-		}
+        uint32_t pid() const
+        {
+            return m_pid;
+        }
 
-		bool commandLine(String &dst) const;
+        bool commandLine(String &dst) const;
 
-	private:
-		ProcessInfo()
-		{
-		}
+    private:
+        ProcessInfo()
+        {
+        }
 
-		ProcessInfo(const String &n, uint32_t pid) : m_cmdName(n)
-		{
-			m_pid = pid;
-		}
+        ProcessInfo(const String &n, uint32_t pid) : m_cmdName(n)
+        {
+            m_pid = pid;
+        }
 
-		ProcessInfo(String &&n, uint32_t pid) : m_cmdName(n)
-		{
-			m_pid = pid;
-		}
+        ProcessInfo(String &&n, uint32_t pid) : m_cmdName(n)
+        {
+            m_pid = pid;
+        }
 
-		String m_cmdName;
-		uint32_t m_pid;
-	};
+        String m_cmdName;
+        uint32_t m_pid;
+    };
 
-	class PipeInputStream;
-	class PipeOutputStream;
+    class PipeInputStream;
+    class PipeOutputStream;
 
-	class ProcessPipe
-	{
-		friend class Process;
-		friend class PipeInputStream;
-		friend class PipeOutputStream;
+    class ProcessPipe
+    {
+        friend class Process;
+        friend class PipeInputStream;
+        friend class PipeOutputStream;
 
-	public:
-		enum PipeDirection
-		{
-			kPPD_None = 0,
-			kPPD_ChildInput, //STDIN
-			kPPD_ChildOutput //STDOUT, STDERR
-		};
+    public:
+        enum PipeDirection
+        {
+            kPPD_None = 0,
+            kPPD_ChildInput, //STDIN
+            kPPD_ChildOutput //STDOUT, STDERR
+        };
 
-		ProcessPipe();
-		bool create(PipeDirection dir);
-		void closeChildPipe();
-		void destroy();
+        ProcessPipe();
+        bool create(PipeDirection dir);
+        void closeChildPipe();
+        void destroy();
 
-	private:
-		PipeDirection m_dir;
-
-#ifdef MGPCL_WIN
-		HANDLE m_rd;
-		HANDLE m_wr;
-#else
-		int m_fds[2]; //0 = read, 1 = write
-#endif
-	};
-
-	enum ProcessPipeID
-	{
-		kPPI_StdIn = 0,
-		kPPI_StdOut,
-		kPPI_StdErr,
-		kPPI_Count
-	};
-
-	class ProcessPipes
-	{
-	public:
-		ProcessPipes();
-
-		bool createPipes();
-		void closeChildPipes();
-		void addRef();
-		void releaseRef();
-
-		ProcessPipe &operator[] (ProcessPipeID ppid)
-		{
-			return m_pipes[ppid];
-		}
-
-	private:
-		~ProcessPipes()
-		{
-		}
-
-		Atomic m_refs;
-		ProcessPipe m_pipes[kPPI_Count];
-	};
-
-	class PipeInputStream : public InputStream
-	{
-		M_NON_COPYABLE(PipeInputStream)
-
-	public:
-		PipeInputStream(ProcessPipes *handles, ProcessPipeID pid);
-		PipeInputStream(PipeInputStream &&src);
-		~PipeInputStream() override;
-
-		int read(uint8_t *dst, int sz) override;
-		uint64_t pos() override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
-		bool seekSupported() const override;
-		void close() override;
-
-		PipeInputStream &operator = (PipeInputStream &&src);
-
-	private:
-		PipeInputStream()
-		{
-		}
-
-		ProcessPipes *m_handles;
-		ProcessPipeID m_pipe;
-		uint64_t m_pos;
-	};
-
-	class PipeOutputStream : public OutputStream
-	{
-		M_NON_COPYABLE(PipeOutputStream)
-
-	public:
-		PipeOutputStream(ProcessPipes *handles, ProcessPipeID pid);
-		PipeOutputStream(PipeOutputStream &&src);
-		~PipeOutputStream() override;
-
-		int write(const uint8_t *src, int sz) override;
-		uint64_t pos() override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
-		bool seekSupported() const override;
-		bool flush() override;
-		void close() override;
-
-		PipeOutputStream &operator = (PipeOutputStream &&src);
-
-	private:
-		PipeOutputStream()
-		{
-		}
-
-		ProcessPipes *m_handles;
-		ProcessPipeID m_pipe;
-		uint64_t m_pos;
-	};
-
-	class Process
-	{
-		M_NON_COPYABLE(Process)
-
-	public:
-#ifdef MGPCL_WIN
-		typedef HashMap<String, String, StringLowerHasher> EnvMap;
-#else
-		typedef HashMap<String, String> EnvMap;
-#endif
-
-		Process();
-		~Process();
-		Process &start();
-		Process &waitFor();
-		bool isRunning() const;
-		int exitCode();
-
-		Process &setWorkingDirectory(const String &wd)
-		{
-			m_workingDir = wd;
-			return *this;
-		}
-
-		Process &setExecutable(const String &exe)
-		{
-			m_exe = exe;
-			return *this;
-		}
-
-		Process &pushArg(const String &a)
-		{
-			m_args.add(a);
-			return *this;
-		}
-
-		Process &clearArgs()
-		{
-			m_args.clear();
-			return *this;
-		}
-
-		Process &pushArgs(std::initializer_list<String> lst)
-		{
-			for(const String &s : lst)
-				m_args.add(s);
-
-			return *this;
-		}
-
-		Process &setEnv(const String &key, const String &val)
-		{
-			m_env[key] = val;
-			return *this;
-		}
-
-		Process &redirectSTDIO(bool redir = true)
-		{
-			m_redirSTD = redir;
-			return *this;
-		}
-
-		bool doesRedirectSTDIO() const
-		{
-			return m_redirSTD;
-		}
-
-		String cenv(const String &key) const
-		{
-			//Child Env != (Parent) Env
-			return m_env[key];
-		}
-
-		const String &workingDirectory() const
-		{
-			return m_workingDir;
-		}
-
-		const String &executable() const
-		{
-			return m_workingDir;
-		}
-
-		const String &arg(int id) const
-		{
-			return m_args[id];
-		}
-
-		int argCount() const
-		{
-			return m_args.size();
-		}
-
-		uint32_t pid() const
-		{
-			return m_pid;
-		}
-
-		bool hasStarted() const
-		{
-#ifdef MGPCL_WIN
-			return m_process != INVALID_HANDLE_VALUE;
-#else
-			return m_started;
-#endif
-		}
-
-		template<class RefCnt> SharedPtr<PipeOutputStream, RefCnt> stdIn()
-		{
-			if(!m_redirSTD || !hasStarted())
-				return SharedPtr<PipeOutputStream, RefCnt>();
-
-			return SharedPtr<PipeOutputStream, RefCnt>(new PipeOutputStream(m_handles, kPPI_StdIn));
-		}
-
-		template<class RefCnt> SharedPtr<PipeInputStream, RefCnt> stdOut()
-		{
-			if(!m_redirSTD || !hasStarted())
-				return SharedPtr<PipeInputStream, RefCnt>();
-
-			return SharedPtr<PipeInputStream, RefCnt>(new PipeInputStream(m_handles, kPPI_StdOut));
-		}
-
-		template<class RefCnt> SharedPtr<PipeInputStream, RefCnt> stdErr()
-		{
-			if(!m_redirSTD || !hasStarted())
-				return SharedPtr<PipeInputStream, RefCnt>();
-
-			return SharedPtr<PipeInputStream, RefCnt>(new PipeInputStream(m_handles, kPPI_StdErr));
-		}
-
-		static String env(const String &var); //Parent env = this process' env
-		static bool enumerateProcesses(List<ProcessInfo> &lst);
-
-	private:
-		String m_workingDir;
-		String m_exe;
-		List<String> m_args;
-		EnvMap m_env;
-		uint32_t m_pid;
-		bool m_redirSTD;
-
-		ProcessPipes *m_handles;
+    private:
+        PipeDirection m_dir;
 
 #ifdef MGPCL_WIN
-		HANDLE m_process;
+        HANDLE m_rd;
+        HANDLE m_wr;
 #else
-		bool m_started;
-		bool m_finished;
-		int m_retCode;
+        int m_fds[2]; //0 = read, 1 = write
 #endif
-	};
+    };
+
+    enum ProcessPipeID
+    {
+        kPPI_StdIn = 0,
+        kPPI_StdOut,
+        kPPI_StdErr,
+        kPPI_Count
+    };
+
+    class ProcessPipes
+    {
+    public:
+        ProcessPipes();
+
+        bool createPipes();
+        void closeChildPipes();
+        void addRef();
+        void releaseRef();
+
+        ProcessPipe &operator[] (ProcessPipeID ppid)
+        {
+            return m_pipes[ppid];
+        }
+
+    private:
+        ~ProcessPipes()
+        {
+        }
+
+        Atomic m_refs;
+        ProcessPipe m_pipes[kPPI_Count];
+    };
+
+    class PipeInputStream : public InputStream
+    {
+        M_NON_COPYABLE(PipeInputStream)
+
+    public:
+        PipeInputStream(ProcessPipes *handles, ProcessPipeID pid);
+        PipeInputStream(PipeInputStream &&src);
+        ~PipeInputStream() override;
+
+        int read(uint8_t *dst, int sz) override;
+        uint64_t pos() override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        bool seekSupported() const override;
+        void close() override;
+
+        PipeInputStream &operator = (PipeInputStream &&src);
+
+    private:
+        PipeInputStream()
+        {
+        }
+
+        ProcessPipes *m_handles;
+        ProcessPipeID m_pipe;
+        uint64_t m_pos;
+    };
+
+    class PipeOutputStream : public OutputStream
+    {
+        M_NON_COPYABLE(PipeOutputStream)
+
+    public:
+        PipeOutputStream(ProcessPipes *handles, ProcessPipeID pid);
+        PipeOutputStream(PipeOutputStream &&src);
+        ~PipeOutputStream() override;
+
+        int write(const uint8_t *src, int sz) override;
+        uint64_t pos() override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        bool seekSupported() const override;
+        bool flush() override;
+        void close() override;
+
+        PipeOutputStream &operator = (PipeOutputStream &&src);
+
+    private:
+        PipeOutputStream()
+        {
+        }
+
+        ProcessPipes *m_handles;
+        ProcessPipeID m_pipe;
+        uint64_t m_pos;
+    };
+
+    class Process
+    {
+        M_NON_COPYABLE(Process)
+
+    public:
+#ifdef MGPCL_WIN
+        typedef HashMap<String, String, StringLowerHasher> EnvMap;
+#else
+        typedef HashMap<String, String> EnvMap;
+#endif
+
+        Process();
+        ~Process();
+        Process &start();
+        Process &waitFor();
+        bool isRunning() const;
+        int exitCode();
+
+        Process &setWorkingDirectory(const String &wd)
+        {
+            m_workingDir = wd;
+            return *this;
+        }
+
+        Process &setExecutable(const String &exe)
+        {
+            m_exe = exe;
+            return *this;
+        }
+
+        Process &pushArg(const String &a)
+        {
+            m_args.add(a);
+            return *this;
+        }
+
+        Process &clearArgs()
+        {
+            m_args.clear();
+            return *this;
+        }
+
+        Process &pushArgs(std::initializer_list<String> lst)
+        {
+            for(const String &s : lst)
+                m_args.add(s);
+
+            return *this;
+        }
+
+        Process &setEnv(const String &key, const String &val)
+        {
+            m_env[key] = val;
+            return *this;
+        }
+
+        Process &redirectSTDIO(bool redir = true)
+        {
+            m_redirSTD = redir;
+            return *this;
+        }
+
+        bool doesRedirectSTDIO() const
+        {
+            return m_redirSTD;
+        }
+
+        String cenv(const String &key) const
+        {
+            //Child Env != (Parent) Env
+            return m_env[key];
+        }
+
+        const String &workingDirectory() const
+        {
+            return m_workingDir;
+        }
+
+        const String &executable() const
+        {
+            return m_workingDir;
+        }
+
+        const String &arg(int id) const
+        {
+            return m_args[id];
+        }
+
+        int argCount() const
+        {
+            return m_args.size();
+        }
+
+        uint32_t pid() const
+        {
+            return m_pid;
+        }
+
+        bool hasStarted() const
+        {
+#ifdef MGPCL_WIN
+            return m_process != INVALID_HANDLE_VALUE;
+#else
+            return m_started;
+#endif
+        }
+
+        template<class RefCnt> SharedPtr<PipeOutputStream, RefCnt> stdIn()
+        {
+            if(!m_redirSTD || !hasStarted())
+                return SharedPtr<PipeOutputStream, RefCnt>();
+
+            return SharedPtr<PipeOutputStream, RefCnt>(new PipeOutputStream(m_handles, kPPI_StdIn));
+        }
+
+        template<class RefCnt> SharedPtr<PipeInputStream, RefCnt> stdOut()
+        {
+            if(!m_redirSTD || !hasStarted())
+                return SharedPtr<PipeInputStream, RefCnt>();
+
+            return SharedPtr<PipeInputStream, RefCnt>(new PipeInputStream(m_handles, kPPI_StdOut));
+        }
+
+        template<class RefCnt> SharedPtr<PipeInputStream, RefCnt> stdErr()
+        {
+            if(!m_redirSTD || !hasStarted())
+                return SharedPtr<PipeInputStream, RefCnt>();
+
+            return SharedPtr<PipeInputStream, RefCnt>(new PipeInputStream(m_handles, kPPI_StdErr));
+        }
+
+        static String env(const String &var); //Parent env = this process' env
+        static bool enumerateProcesses(List<ProcessInfo> &lst);
+
+    private:
+        String m_workingDir;
+        String m_exe;
+        List<String> m_args;
+        EnvMap m_env;
+        uint32_t m_pid;
+        bool m_redirSTD;
+
+        ProcessPipes *m_handles;
+
+#ifdef MGPCL_WIN
+        HANDLE m_process;
+#else
+        bool m_started;
+        bool m_finished;
+        int m_retCode;
+#endif
+    };
 }

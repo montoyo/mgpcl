@@ -20,28 +20,28 @@
 #pragma once
 
 #define M_DECLARE_NIFTY_COUNTER(name) class _ncc_##name \
-	{ \
-	public: \
-		_ncc_##name(); \
-		~_ncc_##name(); \
-	};
+    { \
+    public: \
+        _ncc_##name(); \
+        ~_ncc_##name(); \
+    };
 
 #define M_SPAWN_NIFTY_COUNTER(name) static _ncc_##name _ncv_##name;
 #define M_DEFINE_NIFTY_COUNTER(name) static int _nci_##name; \
-	static void _ncf_ctor_##name(); \
-	static void _ncf_dtor_##name(); \
-	\
-	_ncc_##name::_ncc_##name() \
-	{ \
-		if(_nci_##name++ == 0) \
-			_ncf_ctor_##name(); \
-	} \
-	\
-	_ncc_##name::~_ncc_##name() \
-	{ \
-		if(--_nci_##name == 0) \
-			_ncf_dtor_##name(); \
-	}
+    static void _ncf_ctor_##name(); \
+    static void _ncf_dtor_##name(); \
+    \
+    _ncc_##name::_ncc_##name() \
+    { \
+        if(_nci_##name++ == 0) \
+            _ncf_ctor_##name(); \
+    } \
+    \
+    _ncc_##name::~_ncc_##name() \
+    { \
+        if(--_nci_##name == 0) \
+            _ncf_dtor_##name(); \
+    }
 
 #define M_NIFTY_COUNTER_CTOR(name) static void _ncf_ctor_##name()
 #define M_NIFTY_COUNTER_DTOR(name) static void _ncf_dtor_##name()
@@ -49,28 +49,28 @@
 //========================== HOW TO USE: ==========================
 //
 //1. At the beginning of your header, include me:
-//		#include <mgpcl/NiftyCounter.h>
+//        #include <mgpcl/NiftyCounter.h>
 //
 //2. At the end of your header, add:
-//		M_DECLARE_NIFTY_COUNTER(MyThing)
-//		#ifndef MY_THING_SOURCE
-//		M_SPAWN_NIFTY_COUNTER(MyThing)
-//		#endif
+//        M_DECLARE_NIFTY_COUNTER(MyThing)
+//        #ifndef MY_THING_SOURCE
+//        M_SPAWN_NIFTY_COUNTER(MyThing)
+//        #endif
 //
 //3. At the beginning of your source, add:
-//		#define MY_THING_SOURCE
-//		#include "your_header.h"
+//        #define MY_THING_SOURCE
+//        #include "your_header.h"
 //
-//		... additional includes ...
-//		
-//		M_DEFINE_NIFTY_COUNTER(MyThing)
-//		M_NIFTY_COUNTER_CTOR(MyThing)
-//		{
-//			//Do whatever initialization you need to do here
-//		}
+//        ... additional includes ...
+//        
+//        M_DEFINE_NIFTY_COUNTER(MyThing)
+//        M_NIFTY_COUNTER_CTOR(MyThing)
+//        {
+//            //Do whatever initialization you need to do here
+//        }
 //
-//		M_NIFTY_COUNTER_DTOR(MyThing)
-//		{
-//			//Do whatever destruction you need to do here
-//		}
+//        M_NIFTY_COUNTER_DTOR(MyThing)
+//        {
+//            //Do whatever destruction you need to do here
+//        }
 

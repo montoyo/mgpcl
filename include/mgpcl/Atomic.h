@@ -26,122 +26,122 @@
 
 namespace m
 {
-	class MGPCL_PREFIX Atomic
-	{
-	public:
-		Atomic()
-		{
-			m_data = 0;
-		}
+    class MGPCL_PREFIX Atomic
+    {
+    public:
+        Atomic()
+        {
+            m_data = 0;
+        }
 
-		Atomic(long val)
-		{
-			m_data = val;
-		}
+        Atomic(long val)
+        {
+            m_data = val;
+        }
 
-		/*
-		 * Increments the atomic number.
-		 * Returns true if it's now equals to zero.
-		 *
-		 */
-		bool increment()
-		{
-			return InterlockedIncrement(&m_data) == 0;
-		}
+        /*
+         * Increments the atomic number.
+         * Returns true if it's now equals to zero.
+         *
+         */
+        bool increment()
+        {
+            return InterlockedIncrement(&m_data) == 0;
+        }
 
-		/*
-		 * Decrements the atomic number.
-		 * Returns true if it's now equals to zero.
-		 *
-		 */
-		bool decrement()
-		{
-			return InterlockedDecrement(&m_data) == 0;
-		}
+        /*
+         * Decrements the atomic number.
+         * Returns true if it's now equals to zero.
+         *
+         */
+        bool decrement()
+        {
+            return InterlockedDecrement(&m_data) == 0;
+        }
 
-		long get()
-		{
-			long ret;
+        long get()
+        {
+            long ret;
 
-			do {
-				ret = m_data;
-			} while(InterlockedCompareExchange(&m_data, ret, ret) != ret);
+            do {
+                ret = m_data;
+            } while(InterlockedCompareExchange(&m_data, ret, ret) != ret);
 
-			return ret;
-		}
+            return ret;
+        }
 
-		void set(long val)
-		{
-			InterlockedExchange(&m_data, val);
-		}
+        void set(long val)
+        {
+            InterlockedExchange(&m_data, val);
+        }
 
-	private:
-		volatile LONG m_data;
-	};
+    private:
+        volatile LONG m_data;
+    };
 }
 
 #else
 
 namespace m
 {
-	class MGPCL_PREFIX Atomic
-	{
-	public:
-		Atomic()
-		{
-			m_data = 0;
-		}
+    class MGPCL_PREFIX Atomic
+    {
+    public:
+        Atomic()
+        {
+            m_data = 0;
+        }
 
-		Atomic(long val)
-		{
-			m_data = val;
-		}
+        Atomic(long val)
+        {
+            m_data = val;
+        }
 
-		/*
-		* Increments the atomic number.
-		* Returns true if it's now equals to zero.
-		*
-		*/
-		bool increment()
-		{
-			return __sync_add_and_fetch(&m_data, 1) == 0;
-		}
+        /*
+        * Increments the atomic number.
+        * Returns true if it's now equals to zero.
+        *
+        */
+        bool increment()
+        {
+            return __sync_add_and_fetch(&m_data, 1) == 0;
+        }
 
-		/*
-		* Decrements the atomic number.
-		* Returns true if it's now equals to zero.
-		*
-		*/
-		bool decrement()
-		{
-			return __sync_sub_and_fetch(&m_data, 1) == 0;
-		}
+        /*
+        * Decrements the atomic number.
+        * Returns true if it's now equals to zero.
+        *
+        */
+        bool decrement()
+        {
+            return __sync_sub_and_fetch(&m_data, 1) == 0;
+        }
 
-		long get()
-		{
-			long ret;
+        long get()
+        {
+            long ret;
 
-			do {
-				ret = m_data;
-			} while(!__sync_bool_compare_and_swap(&m_data, ret, ret));
+            do {
+                ret = m_data;
+            } while(!__sync_bool_compare_and_swap(&m_data, ret, ret));
 
-			return ret;
-		}
+            return ret;
+        }
 
-		void set(long val)
-		{
-			/*long old;
+        void set(long val)
+        {
+            /*long old;
 
-			do {
-				old = m_data;
-			} while(!__sync_bool_compare_and_swap(&m_data, old, val));*/
+            do {
+                old = m_data;
+            } while(!__sync_bool_compare_and_swap(&m_data, old, val));*/
 
-			__sync_lock_test_and_set(&m_data, val);
-		}
+            __sync_lock_test_and_set(&m_data, val);
+        }
 
-	private:
-		volatile long m_data;
-	};
+    private:
+        volatile long m_data;
+    };
 }
 
 #endif

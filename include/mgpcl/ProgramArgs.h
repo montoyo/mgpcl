@@ -44,12 +44,12 @@ namespace m
         kAE_Required
     };
 
-	enum ArgParseError
-	{
-		kAPE_NoError = 0,
-		kAPE_ArgError,
-		kAPE_UnknownArgFound
-	};
+    enum ArgParseError
+    {
+        kAPE_NoError = 0,
+        kAPE_ArgError,
+        kAPE_UnknownArgFound
+    };
 
     class ProgramArgs;
     class ArgDescriptor;
@@ -72,7 +72,7 @@ namespace m
             return m_parent != nullptr;
         }
 
-		//TODO: assert idx is in range!
+        //TODO: assert idx is in range!
         const String &asString(int idx = 0) const
         {
             return m_values[idx];
@@ -133,48 +133,48 @@ namespace m
     private:
         ArgValue()
         {
-			//Never used
-			std::abort();
+            //Never used
+            std::abort();
         }
 
         ArgValue(const ArgValue &src)
         {
-			//Never used
-			std::abort();
+            //Never used
+            std::abort();
         }
 
         ArgValue(ArgValue &&src)
         {
-	        //Never used
-			std::abort();
+            //Never used
+            std::abort();
         }
 
         ArgValue(ArgDescriptor *parent)
         {
             m_parent = parent;
             m_values = nullptr;
-			m_refs = 0;
+            m_refs = 0;
         }
 
-		void addRef()
+        void addRef()
         {
-			m_refs++;
+            m_refs++;
         }
 
-		void removeRef()
+        void removeRef()
         {
-			if(--m_refs <= 0)
-				delete this;
+            if(--m_refs <= 0)
+                delete this;
         }
 
-		void allocate(int cnt = 1)
+        void allocate(int cnt = 1)
         {
-			m_values = reinterpret_cast<String*>(new uint8_t[sizeof(String) * cnt]);
+            m_values = reinterpret_cast<String*>(new uint8_t[sizeof(String) * cnt]);
         }
 
         ArgDescriptor *m_parent;
         String *m_values;
-		int m_refs;
+        int m_refs;
     };
 
     class ArgDescriptor
@@ -221,9 +221,9 @@ namespace m
             return m_names[idx];
         }
 
-		int nameCount() const
+        int nameCount() const
         {
-			return m_names.size();
+            return m_names.size();
         }
 
         bool isOptional() const
@@ -258,10 +258,10 @@ namespace m
 
         int valueCount() const
         {
-			if(m_values.isEmpty())
-				return m_default == nullptr ? 0 : 1;
-			else
-				return m_values.size();
+            if(m_values.isEmpty())
+                return m_default == nullptr ? 0 : 1;
+            else
+                return m_values.size();
         }
 
         int subvalueCount() const
@@ -271,10 +271,10 @@ namespace m
 
         const ArgValue &value(int idx = 0) const
         {
-			if(m_values.isEmpty() && m_default != nullptr)
-				return *m_default;
-			else
-				return *m_values[idx];
+            if(m_values.isEmpty() && m_default != nullptr)
+                return *m_default;
+            else
+                return *m_values[idx];
         }
 
         ArgError lastError() const
@@ -282,78 +282,78 @@ namespace m
             return m_lastErr;
         }
 
-		String errorString() const;
+        String errorString() const;
 
         bool matches(const String &name) const;
 
-		bool isSet() const
-		{
-			//A switch always have a boolean value
-			return m_type == kAT_Switch ? m_values[0]->asBool() : !m_values.isEmpty();
-		}
+        bool isSet() const
+        {
+            //A switch always have a boolean value
+            return m_type == kAT_Switch ? m_values[0]->asBool() : !m_values.isEmpty();
+        }
 
-		ArgDescriptor &setDefault(const String &a);
-		ArgDescriptor &setDefault(const String &a, const String &b);
-		ArgDescriptor &setDefault(const String &a, const String &b, const String &c);
+        ArgDescriptor &setDefault(const String &a);
+        ArgDescriptor &setDefault(const String &a, const String &b);
+        ArgDescriptor &setDefault(const String &a, const String &b, const String &c);
 
-		ArgDescriptor &setDefault(int val)
-		{
-			return setDefault(String::fromInteger(val));
-		}
+        ArgDescriptor &setDefault(int val)
+        {
+            return setDefault(String::fromInteger(val));
+        }
 
-		ArgDescriptor &setDefault(float val)
-		{
-			return setDefault(String::fromDouble(static_cast<double>(val)));
-		}
+        ArgDescriptor &setDefault(float val)
+        {
+            return setDefault(String::fromDouble(static_cast<double>(val)));
+        }
 
-		ArgDescriptor &setDefault(double val)
-		{
-			return setDefault(String::fromDouble(val));
-		}
+        ArgDescriptor &setDefault(double val)
+        {
+            return setDefault(String::fromDouble(val));
+        }
 
-		template<typename T> ArgDescriptor &setDefault(const Vector2<T> &val)
-		{
-			static_assert(std::is_arithmetic<T>::value, "not a valid type");
+        template<typename T> ArgDescriptor &setDefault(const Vector2<T> &val)
+        {
+            static_assert(std::is_arithmetic<T>::value, "not a valid type");
 
-			if(std::is_integral<T>::value)
-				return setDefault(String::fromInteger(static_cast<int>(val.x())), String::fromInteger(static_cast<int>(val.y())));
-			else
-				return setDefault(String::fromDouble(static_cast<double>(val.x())), String::fromDouble(static_cast<double>(val.y())));
-		}
+            if(std::is_integral<T>::value)
+                return setDefault(String::fromInteger(static_cast<int>(val.x())), String::fromInteger(static_cast<int>(val.y())));
+            else
+                return setDefault(String::fromDouble(static_cast<double>(val.x())), String::fromDouble(static_cast<double>(val.y())));
+        }
 
-		template<typename T> ArgDescriptor &setDefault(const Vector3<T> &val)
-		{
-			static_assert(std::is_arithmetic<T>::value, "not a valid type");
+        template<typename T> ArgDescriptor &setDefault(const Vector3<T> &val)
+        {
+            static_assert(std::is_arithmetic<T>::value, "not a valid type");
 
-			if(std::is_integral<T>::value)
-				return setDefault(String::fromInteger(static_cast<int>(val.x())), String::fromInteger(static_cast<int>(val.y())), String::fromInteger(static_cast<int>(val.z())));
-			else
-				return setDefault(String::fromDouble(static_cast<double>(val.x())), String::fromDouble(static_cast<double>(val.y())), String::fromDouble(static_cast<double>(val.z())));
-		}
+            if(std::is_integral<T>::value)
+                return setDefault(String::fromInteger(static_cast<int>(val.x())), String::fromInteger(static_cast<int>(val.y())), String::fromInteger(static_cast<int>(val.z())));
+            else
+                return setDefault(String::fromDouble(static_cast<double>(val.x())), String::fromDouble(static_cast<double>(val.y())), String::fromDouble(static_cast<double>(val.z())));
+        }
 
     private:
-		ArgDescriptor()
-		{
-			//Never used
-			std::abort();
-		}
+        ArgDescriptor()
+        {
+            //Never used
+            std::abort();
+        }
 
-		ArgDescriptor(const ArgDescriptor &src)
-		{
-			//Never used
-			std::abort();
-		}
+        ArgDescriptor(const ArgDescriptor &src)
+        {
+            //Never used
+            std::abort();
+        }
 
-		ArgDescriptor(ArgDescriptor &&src)
-		{
-			//Never used
-			std::abort();
-		}
+        ArgDescriptor(ArgDescriptor &&src)
+        {
+            //Never used
+            std::abort();
+        }
 
         ArgDescriptor(ArgType t, const String &name);
-		~ArgDescriptor();
+        ~ArgDescriptor();
         ArgValue *parse(int *argc, const char ***argv);
-		void clearValues();
+        void clearValues();
 
         ArgError m_lastErr;
         ArgType m_type;
@@ -363,7 +363,7 @@ namespace m
 
         List<String> m_names;
         List<ArgValue*> m_values; //Ref counted
-		ArgValue *m_default;
+        ArgValue *m_default;
         String m_help;
     };
 
@@ -380,10 +380,10 @@ namespace m
             m_argc = 0;
             m_argv = nullptr;
             m_err = nullptr;
-			m_remainingIdx = -1;
-			m_acceptsRem = true;
-			m_helpSwitch = nullptr;
-			m_lastErr = kAPE_NoError;
+            m_remainingIdx = -1;
+            m_acceptsRem = true;
+            m_helpSwitch = nullptr;
+            m_lastErr = kAPE_NoError;
         }
 
         ProgramArgs(int argc, const char **argv)
@@ -391,10 +391,10 @@ namespace m
             m_argc = argc;
             m_argv = argv;
             m_err = nullptr;
-			m_remainingIdx = -1;
-			m_acceptsRem = true;
-			m_helpSwitch = nullptr;
-			m_lastErr = kAPE_NoError;
+            m_remainingIdx = -1;
+            m_acceptsRem = true;
+            m_helpSwitch = nullptr;
+            m_lastErr = kAPE_NoError;
         }
 
         ~ProgramArgs();
@@ -407,8 +407,8 @@ namespace m
 
         ArgDescriptor *argByName(const String &name);
         ArgDescriptor &add(const String &name, ArgType t);
-		ArgDescriptor &addHelpSwitch(const String &name); //Cannot have multiple help switches, previous will be overidden
-		ArgParseError parse();
+        ArgDescriptor &addHelpSwitch(const String &name); //Cannot have multiple help switches, previous will be overidden
+        ArgParseError parse();
 
         int valueCount() const
         {
@@ -425,66 +425,66 @@ namespace m
             return m_err;
         }
 
-		String executablePath() const
+        String executablePath() const
         {
-			return m_argc > 0 ? String(m_argv[0]) : String();
+            return m_argc > 0 ? String(m_argv[0]) : String();
         }
 
-		bool hasRemainingArgs() const
+        bool hasRemainingArgs() const
         {
-			return m_remainingIdx >= 0;
+            return m_remainingIdx >= 0;
         }
 
-		int remainingArgsBegin() const
+        int remainingArgsBegin() const
         {
-			return m_remainingIdx;
+            return m_remainingIdx;
         }
 
-		const String &helpHeader() const
+        const String &helpHeader() const
         {
-			return m_helpHdr;
+            return m_helpHdr;
         }
 
-		void setHelpHeader(const String &str)
+        void setHelpHeader(const String &str)
         {
-			m_helpHdr = str;
+            m_helpHdr = str;
         }
 
-		void setAcceptsRemainingArgs(bool a)
+        void setAcceptsRemainingArgs(bool a)
         {
-			m_acceptsRem = a;
+            m_acceptsRem = a;
         }
 
-		bool acceptsRemainingArgs() const
+        bool acceptsRemainingArgs() const
         {
-			return m_acceptsRem;
+            return m_acceptsRem;
         }
 
-		const String &unrecongnizedArgument() const
+        const String &unrecongnizedArgument() const
         {
-			return m_unrecognized;
+            return m_unrecognized;
         }
 
-		ArgParseError lastError() const
+        ArgParseError lastError() const
         {
-			return m_lastErr;
+            return m_lastErr;
         }
 
-		String errorString() const;
-		void printHelp() const;
+        String errorString() const;
+        void printHelp() const;
 
     private:
         int m_argc;
         const char **m_argv;
-		int m_remainingIdx;
-		bool m_acceptsRem;
+        int m_remainingIdx;
+        bool m_acceptsRem;
         ArgDescriptor *m_err; //Just a ref
-		ArgDescriptor *m_helpSwitch; //Just a ref
+        ArgDescriptor *m_helpSwitch; //Just a ref
         List<ArgDescriptor*> m_descr; //ProgramArgs cares about ArgDescriptor allocation/deallocation
         List<ArgValue*> m_args; //Ref counted
-		String m_helpHdr;
-		String m_unrecognized;
-		ArgParseError m_lastErr;
+        String m_helpHdr;
+        String m_unrecognized;
+        ArgParseError m_lastErr;
     };
 
 }

@@ -23,42 +23,42 @@
 
 namespace m
 {
-	class MGPCL_PREFIX RefCounter
-	{
-	public:
-		RefCounter()
-		{
-			m_refs = 0;
-		}
+    class MGPCL_PREFIX RefCounter
+    {
+    public:
+        RefCounter()
+        {
+            m_refs = 0;
+        }
 
-		void addRef()
-		{
-			m_refs++;
-		}
+        void addRef()
+        {
+            m_refs++;
+        }
 
-		bool releaseRef()
-		{
-			return --m_refs == 0;
-		}
+        bool releaseRef()
+        {
+            return --m_refs == 0;
+        }
 
-	private:
-		long m_refs;
-	};
+    private:
+        long m_refs;
+    };
 
-	class MGPCL_PREFIX AtomicRefCounter
-	{
-	public:
-		void addRef()
-		{
-			m_refs.increment();
-		}
+    class MGPCL_PREFIX AtomicRefCounter
+    {
+    public:
+        void addRef()
+        {
+            m_refs.increment();
+        }
 
-		bool releaseRef()
-		{
-			return m_refs.decrement();
-		}
+        bool releaseRef()
+        {
+            return m_refs.decrement();
+        }
 
-	private:
-		Atomic m_refs;
-	};
+    private:
+        Atomic m_refs;
+    };
 }

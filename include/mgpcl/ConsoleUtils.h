@@ -29,42 +29,42 @@
 
 namespace m
 {
-	enum ConsoleColor
-	{
-		kCC_Black = 0,
-		kCC_Blue,
-		kCC_Green,
-		kCC_WeirdBlue,
-		kCC_WeirdBrown,
-		kCC_WeirdPurple,
-		kCC_WeirdGreen,
-		kCC_LightGray,
-		kCC_Gray,
-		kCC_LightBlue,
-		kCC_LightGreen, //Matrix green
-		kCC_Cyan,
-		kCC_Red,
-		kCC_Pink,
-		kCC_Yellow,
-		kCC_White
-	};
+    enum ConsoleColor
+    {
+        kCC_Black = 0,
+        kCC_Blue,
+        kCC_Green,
+        kCC_WeirdBlue,
+        kCC_WeirdBrown,
+        kCC_WeirdPurple,
+        kCC_WeirdGreen,
+        kCC_LightGray,
+        kCC_Gray,
+        kCC_LightBlue,
+        kCC_LightGreen, //Matrix green
+        kCC_Cyan,
+        kCC_Red,
+        kCC_Pink,
+        kCC_Yellow,
+        kCC_White
+    };
 
-	namespace console
-	{
-		M_CUTILS_PREFIX void setTitle(const String &title);
-		M_CUTILS_PREFIX void setTextColor(ConsoleColor cc);
-		M_CUTILS_PREFIX void setBackgroundColor(ConsoleColor cc);
-		M_CUTILS_PREFIX void setColor(ConsoleColor fg, ConsoleColor bg);
-		M_CUTILS_PREFIX Vector2i getSize();
-		M_CUTILS_PREFIX Vector2i getCursorPos();
-		M_CUTILS_PREFIX void setCursorPos(int x, int y);
-		M_CUTILS_PREFIX void clearLastLine();
-		M_CUTILS_PREFIX void clear();
-		M_CUTILS_PREFIX void resetColor();
+    namespace console
+    {
+        M_CUTILS_PREFIX void setTitle(const String &title);
+        M_CUTILS_PREFIX void setTextColor(ConsoleColor cc);
+        M_CUTILS_PREFIX void setBackgroundColor(ConsoleColor cc);
+        M_CUTILS_PREFIX void setColor(ConsoleColor fg, ConsoleColor bg);
+        M_CUTILS_PREFIX Vector2i getSize();
+        M_CUTILS_PREFIX Vector2i getCursorPos();
+        M_CUTILS_PREFIX void setCursorPos(int x, int y);
+        M_CUTILS_PREFIX void clearLastLine();
+        M_CUTILS_PREFIX void clear();
+        M_CUTILS_PREFIX void resetColor();
 
-		inline void setCursorPos(const Vector2i &pos)
-		{
-			setCursorPos(pos.x(), pos.y());
-		}
-	}
+        inline void setCursorPos(const Vector2i &pos)
+        {
+            setCursorPos(pos.x(), pos.y());
+        }
+    }
 }

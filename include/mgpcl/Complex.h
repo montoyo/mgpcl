@@ -222,7 +222,7 @@ namespace m
     private:
         T m_a;
         T m_b;
-	};
+    };
 
 }
 

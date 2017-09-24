@@ -30,211 +30,211 @@
 
 namespace m
 {
-	
-	class HTTPCookie
-	{
-	public:
-		HTTPCookie()
-		{
-			m_expiry = std::numeric_limits<time_t>::max();
-			m_maxAge = ~0;
-			m_secure = false;
-			m_httpOnly = false;
-			m_sessionLocal = true;
-			m_creation = Date::unixTime();
-		}
+    
+    class HTTPCookie
+    {
+    public:
+        HTTPCookie()
+        {
+            m_expiry = std::numeric_limits<time_t>::max();
+            m_maxAge = ~0;
+            m_secure = false;
+            m_httpOnly = false;
+            m_sessionLocal = true;
+            m_creation = Date::unixTime();
+        }
 
-		bool parse(const String &hdr); //Parses from header string
-		bool isValid(time_t now) const;
-		bool isSuitableFor(const URL &u) const;
-		void serialize(DataSerializer &s) const;
-		void deserialize(DataDeserializer &s);
+        bool parse(const String &hdr); //Parses from header string
+        bool isValid(time_t now) const;
+        bool isSuitableFor(const URL &u) const;
+        void serialize(DataSerializer &s) const;
+        void deserialize(DataDeserializer &s);
 
-		const String &name() const
-		{
-			return m_name;
-		}
+        const String &name() const
+        {
+            return m_name;
+        }
 
-		void setName(const String &name)
-		{
-			m_name = name;
-		}
+        void setName(const String &name)
+        {
+            m_name = name;
+        }
 
-		const String &value() const
-		{
-			return m_value;
-		}
+        const String &value() const
+        {
+            return m_value;
+        }
 
-		void setValue(const String &value)
-		{
-			m_value = value;
-		}
+        void setValue(const String &value)
+        {
+            m_value = value;
+        }
 
-		const String &domain() const
-		{
-			return m_domain;
-		}
+        const String &domain() const
+        {
+            return m_domain;
+        }
 
-		void setDomain(const String &domain)
-		{
-			m_domain = domain;
-		}
+        void setDomain(const String &domain)
+        {
+            m_domain = domain;
+        }
 
-		const String &path() const
-		{
-			return m_path;
-		}
+        const String &path() const
+        {
+            return m_path;
+        }
 
-		void setPath(const String &path)
-		{
-			m_path = path;
-		}
+        void setPath(const String &path)
+        {
+            m_path = path;
+        }
 
-		time_t expiry() const
-		{
-			return m_expiry;
-		}
+        time_t expiry() const
+        {
+            return m_expiry;
+        }
 
-		void setExpiry(time_t expiry)
-		{
-			m_expiry = expiry;
-		}
+        void setExpiry(time_t expiry)
+        {
+            m_expiry = expiry;
+        }
 
-		uint32_t maxAge() const
-		{
-			return m_maxAge;
-		}
+        uint32_t maxAge() const
+        {
+            return m_maxAge;
+        }
 
-		void setMaxAge(uint32_t maxAge)
-		{
-			m_maxAge = maxAge;
-		}
+        void setMaxAge(uint32_t maxAge)
+        {
+            m_maxAge = maxAge;
+        }
 
-		bool isSecure() const
-		{
-			return m_secure;
-		}
+        bool isSecure() const
+        {
+            return m_secure;
+        }
 
-		void setSecure(bool secure)
-		{
-			m_secure = secure;
-		}
+        void setSecure(bool secure)
+        {
+            m_secure = secure;
+        }
 
-		bool isHttpOnly() const
-		{
-			return m_httpOnly;
-		}
+        bool isHttpOnly() const
+        {
+            return m_httpOnly;
+        }
 
-		void setHttpOnly(bool httpOnly)
-		{
-			m_httpOnly = httpOnly;
-		}
+        void setHttpOnly(bool httpOnly)
+        {
+            m_httpOnly = httpOnly;
+        }
 
-		time_t creationTime() const
-		{
-			return m_creation;
-		}
+        time_t creationTime() const
+        {
+            return m_creation;
+        }
 
-		void setCreationTime(time_t ct)
-		{
-			m_creation = ct;
-		}
+        void setCreationTime(time_t ct)
+        {
+            m_creation = ct;
+        }
 
-		bool isSessionLocal() const
-		{
-			return m_sessionLocal;
-		}
+        bool isSessionLocal() const
+        {
+            return m_sessionLocal;
+        }
 
-		void setSessionLocal(bool sl)
-		{
-			m_sessionLocal = sl;
-		}
+        void setSessionLocal(bool sl)
+        {
+            m_sessionLocal = sl;
+        }
 
-		bool isValid() const
-		{
-			return !m_name.isEmpty();
-		}
+        bool isValid() const
+        {
+            return !m_name.isEmpty();
+        }
 
-		bool operator ! () const
+        bool operator ! () const
         {
             return m_name.isEmpty();
         }
 
-	private:
-		time_t m_creation;
-		String m_name;
-		String m_value;
+    private:
+        time_t m_creation;
+        String m_name;
+        String m_value;
 
-		time_t m_expiry;
-		uint32_t m_maxAge;
-		String m_domain;
-		String m_path;
-		bool m_secure;
-		bool m_httpOnly;
-		bool m_sessionLocal;
-	};
+        time_t m_expiry;
+        uint32_t m_maxAge;
+        String m_domain;
+        String m_path;
+        bool m_secure;
+        bool m_httpOnly;
+        bool m_sessionLocal;
+    };
 
-	class HTTPCookieJar
-	{
-	public:
-		typedef HashMap<String, HTTPCookie>::Iterator Iterator;
-		typedef HashMap<String, HTTPCookie>::Pair Pair;
+    class HTTPCookieJar
+    {
+    public:
+        typedef HashMap<String, HTTPCookie>::Iterator Iterator;
+        typedef HashMap<String, HTTPCookie>::Pair Pair;
 
-		HTTPCookie cookie(const String &name)
-		{
-			return m_content[name];
-		}
+        HTTPCookie cookie(const String &name)
+        {
+            return m_content[name];
+        }
 
-		const String &cookieValue(const String &name)
-		{
-			return m_content[name].value();
-		}
+        const String &cookieValue(const String &name)
+        {
+            return m_content[name].value();
+        }
 
-		String cookieValue(const String &name) const
-		{
-			if(m_content.hasKey(name))
-				return m_content.get(name).value();
-			else
-				return String();
-		}
+        String cookieValue(const String &name) const
+        {
+            if(m_content.hasKey(name))
+                return m_content.get(name).value();
+            else
+                return String();
+        }
 
-		bool hasCookie(const String &name) const
-		{
-			return m_content.hasKey(name);
-		}
+        bool hasCookie(const String &name) const
+        {
+            return m_content.hasKey(name);
+        }
 
-		void putCookie(const HTTPCookie &c)
-		{
-			m_content[c.name()] = c;
-		}
+        void putCookie(const HTTPCookie &c)
+        {
+            m_content[c.name()] = c;
+        }
 
-		Iterator begin()
-		{
-			return m_content.begin();
-		}
+        Iterator begin()
+        {
+            return m_content.begin();
+        }
 
-		Iterator end()
-		{
-			return m_content.end();
-		}
+        Iterator end()
+        {
+            return m_content.end();
+        }
 
-		void clear()
-		{
-			m_content.clear();
-		}
+        void clear()
+        {
+            m_content.clear();
+        }
 
-		bool isEmpty() const
-		{
-			return m_content.isEmpty();
-		}
+        bool isEmpty() const
+        {
+            return m_content.isEmpty();
+        }
 
-		bool parseAndPutCookie(const String &data);
-		void serialize(DataSerializer &s);
-		void deserialize(DataDeserializer &s);
+        bool parseAndPutCookie(const String &data);
+        void serialize(DataSerializer &s);
+        void deserialize(DataDeserializer &s);
 
-	private:
-		HashMap<String, HTTPCookie> m_content;
-	};
+    private:
+        HashMap<String, HTTPCookie> m_content;
+    };
 
 }
 

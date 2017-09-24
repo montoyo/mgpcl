@@ -24,49 +24,49 @@
 
 namespace m
 {
-	class MGPCL_PREFIX InputStream
-	{
-	public:
-		virtual ~InputStream() {}
-		virtual int read(uint8_t *dst, int sz) = 0;
-		virtual uint64_t pos() = 0;
-		virtual bool seek(int amount, SeekPos sp = SeekPos::Beginning) = 0;
-		virtual bool seekSupported() const = 0;
+    class MGPCL_PREFIX InputStream
+    {
+    public:
+        virtual ~InputStream() {}
+        virtual int read(uint8_t *dst, int sz) = 0;
+        virtual uint64_t pos() = 0;
+        virtual bool seek(int amount, SeekPos sp = SeekPos::Beginning) = 0;
+        virtual bool seekSupported() const = 0;
 
-		virtual void close() = 0;
-	};
+        virtual void close() = 0;
+    };
 
-	class MGPCL_PREFIX OutputStream
-	{
-	public:
-		virtual ~OutputStream() {}
-		virtual int write(const uint8_t *src, int sz) = 0;
-		virtual uint64_t pos() = 0;
-		virtual bool seek(int amount, SeekPos sp = SeekPos::Beginning) = 0;
-		virtual bool seekSupported() const = 0;
-		virtual bool flush() = 0;
+    class MGPCL_PREFIX OutputStream
+    {
+    public:
+        virtual ~OutputStream() {}
+        virtual int write(const uint8_t *src, int sz) = 0;
+        virtual uint64_t pos() = 0;
+        virtual bool seek(int amount, SeekPos sp = SeekPos::Beginning) = 0;
+        virtual bool seekSupported() const = 0;
+        virtual bool flush() = 0;
 
-		virtual void close() = 0;
-	};
+        virtual void close() = 0;
+    };
 
-	class MGPCL_PREFIX IOException
-	{
-	public:
-		IOException(RWAction action) throw()
-		{
-			m_action = action;
-		}
+    class MGPCL_PREFIX IOException
+    {
+    public:
+        IOException(RWAction action) throw()
+        {
+            m_action = action;
+        }
 
-		const char *what() const throw()
-		{
-			return m_action == RWAction::Reading ? "failed to read data" : "failed to write data";
-		}
+        const char *what() const throw()
+        {
+            return m_action == RWAction::Reading ? "failed to read data" : "failed to write data";
+        }
 
-	private:
-		IOException()
-		{	
-		}
+    private:
+        IOException()
+        {    
+        }
 
-		RWAction m_action;
-	};
+        RWAction m_action;
+    };
 }

@@ -43,16 +43,16 @@ m::ArgDescriptor::ArgDescriptor(ArgType t, const String &n)
     m_unique = true;
     m_names.add(n);
     m_lastErr = kAE_NoError;
-	m_default = nullptr;
+    m_default = nullptr;
 }
 
 m::ArgDescriptor::~ArgDescriptor()
 {
-	for(ArgValue *v : m_values)
-		v->removeRef();
+    for(ArgValue *v : m_values)
+        v->removeRef();
 
-	if(m_default != nullptr)
-		m_default->removeRef();
+    if(m_default != nullptr)
+        m_default->removeRef();
 }
 
 bool m::ArgDescriptor::matches(const String &name) const
@@ -79,7 +79,7 @@ m::ArgValue *m::ArgDescriptor::parse(int *argc, const char ***argv)
     }
 
     ArgValue *ret = new ArgValue(this);
-	ret->allocate(needed);
+    ret->allocate(needed);
 
     if(m_type == kAT_Switch)
         new(ret->m_values) String("true");
@@ -101,8 +101,8 @@ m::ArgValue *m::ArgDescriptor::parse(int *argc, const char ***argv)
     }
 
     //Everything went fine
-	m_values.add(ret);
-	ret->addRef();
+    m_values.add(ret);
+    ret->addRef();
 
     *argc -= needed;
     *argv += needed;
@@ -111,89 +111,89 @@ m::ArgValue *m::ArgDescriptor::parse(int *argc, const char ***argv)
 
 m::ArgDescriptor &m::ArgDescriptor::setDefault(const String &a)
 {
-	if(m_default != nullptr)
-		m_default->removeRef();
+    if(m_default != nullptr)
+        m_default->removeRef();
 
-	mAssert(m_type == kAT_Single, "invalid default value");
+    mAssert(m_type == kAT_Single, "invalid default value");
 
-	m_default = new ArgValue(this);
-	m_default->allocate();
-	new(m_default->m_values) String(a);
+    m_default = new ArgValue(this);
+    m_default->allocate();
+    new(m_default->m_values) String(a);
 
-	m_default->addRef();
-	return *this;
+    m_default->addRef();
+    return *this;
 }
 
 m::ArgDescriptor &m::ArgDescriptor::setDefault(const String &a, const String &b)
 {
-	if(m_default != nullptr)
-		m_default->removeRef();
+    if(m_default != nullptr)
+        m_default->removeRef();
 
-	mAssert(m_type == kAT_Dual, "invalid default value");
+    mAssert(m_type == kAT_Dual, "invalid default value");
 
-	m_default = new ArgValue(this);
-	m_default->allocate(2);
-	new(m_default->m_values + 0) String(a);
-	new(m_default->m_values + 1) String(b);
+    m_default = new ArgValue(this);
+    m_default->allocate(2);
+    new(m_default->m_values + 0) String(a);
+    new(m_default->m_values + 1) String(b);
 
-	m_default->addRef();
-	return *this;
+    m_default->addRef();
+    return *this;
 }
 
 m::ArgDescriptor &m::ArgDescriptor::setDefault(const String &a, const String &b, const String &c)
 {
-	if(m_default != nullptr)
-		m_default->removeRef();
+    if(m_default != nullptr)
+        m_default->removeRef();
 
-	mAssert(m_type == kAT_Triple, "invalid default value");
+    mAssert(m_type == kAT_Triple, "invalid default value");
 
-	m_default = new ArgValue(this);
-	m_default->allocate(3);
-	new(m_default->m_values + 0) String(a);
-	new(m_default->m_values + 1) String(b);
-	new(m_default->m_values + 2) String(c);
+    m_default = new ArgValue(this);
+    m_default->allocate(3);
+    new(m_default->m_values + 0) String(a);
+    new(m_default->m_values + 1) String(b);
+    new(m_default->m_values + 2) String(c);
 
-	m_default->addRef();
-	return *this;
+    m_default->addRef();
+    return *this;
 }
 
 void m::ArgDescriptor::clearValues()
 {
-	for(ArgValue *v : m_values)
-		v->removeRef();
+    for(ArgValue *v : m_values)
+        v->removeRef();
 
-	m_values.cleanup();
+    m_values.cleanup();
 }
 
 m::String m::ArgDescriptor::errorString() const
 {
-	switch(m_lastErr) {
-	case kAE_NoError:
-		return String("No error");
+    switch(m_lastErr) {
+    case kAE_NoError:
+        return String("No error");
 
-	case kAE_MissingValues:
-		return String(m_type == kAT_Single ? "Missing value" : "Missing values");
+    case kAE_MissingValues:
+        return String(m_type == kAT_Single ? "Missing value" : "Missing values");
 
-	case kAE_NotNumeric:
-		return String("One or more value has an invalid numeric format");
+    case kAE_NotNumeric:
+        return String("One or more value has an invalid numeric format");
 
-	case kAE_AlreadySet:
-		return String("Multiple instances of this argument found");
+    case kAE_AlreadySet:
+        return String("Multiple instances of this argument found");
 
-	case kAE_Required:
-		return String("This argument is required and wasn't set");
+    case kAE_Required:
+        return String("This argument is required and wasn't set");
 
-	default:
-		return String("Unknown error");
-	}
+    default:
+        return String("Unknown error");
+    }
 }
 
 /*************************************** ProgramArgs ***************************************/
 
 m::ProgramArgs::~ProgramArgs()
 {
-	for(ArgValue *v : m_args)
-		v->removeRef();
+    for(ArgValue *v : m_args)
+        v->removeRef();
 
     for(ArgDescriptor *d: m_descr)
         delete d;
@@ -219,11 +219,11 @@ m::ArgDescriptor &m::ProgramArgs::add(const String &n, ArgType t)
 
 m::ArgDescriptor &m::ProgramArgs::addHelpSwitch(const String &name)
 {
-	ArgDescriptor *ret = new ArgDescriptor(kAT_Switch, name);
-	m_descr.add(ret);
+    ArgDescriptor *ret = new ArgDescriptor(kAT_Switch, name);
+    m_descr.add(ret);
 
-	m_helpSwitch = ret;
-	return *ret;
+    m_helpSwitch = ret;
+    return *ret;
 }
 
 m::ArgParseError m::ProgramArgs::parse()
@@ -232,16 +232,16 @@ m::ArgParseError m::ProgramArgs::parse()
     const char **argv = m_argv + 1;
 
     //Cleanup existing args & error
-	for(ArgDescriptor *ad : m_descr)
-		ad->clearValues();
+    for(ArgDescriptor *ad : m_descr)
+        ad->clearValues();
 
-	for(ArgValue *v : m_args)
-		v->removeRef();
+    for(ArgValue *v : m_args)
+        v->removeRef();
 
     m_args.cleanup();
     m_err = nullptr;
-	m_remainingIdx = -1;
-	m_unrecognized.clear();
+    m_remainingIdx = -1;
+    m_unrecognized.clear();
 
     //Parse from descriptors
     bool argFound = true;
@@ -254,113 +254,113 @@ m::ArgParseError m::ProgramArgs::parse()
             ArgValue *v = d->parse(&argc, &argv);
             if(v == nullptr) {
                 m_err = d;
-				m_lastErr = kAPE_ArgError;
+                m_lastErr = kAPE_ArgError;
 
                 return kAPE_ArgError; //Something wrong happened.
             }
 
             m_args.add(v);
-			v->addRef();
+            v->addRef();
         }
     }
 
     //Make sure everyone has its value
     for(ArgDescriptor *d: m_descr) {
-		if(d->m_type == kAT_Switch && d->m_values.isEmpty()) {
-			ArgValue *av = new ArgValue(d);
-			av->allocate();
-			new(av->m_values) String("false");
+        if(d->m_type == kAT_Switch && d->m_values.isEmpty()) {
+            ArgValue *av = new ArgValue(d);
+            av->allocate();
+            new(av->m_values) String("false");
 
-			av->addRef(); //Ref will be destroyed by ArgDescriptor
-			d->m_values.add(av);
-		} if(!d->isSatisfied()) {
+            av->addRef(); //Ref will be destroyed by ArgDescriptor
+            d->m_values.add(av);
+        } if(!d->isSatisfied()) {
             d->m_lastErr = kAE_Required;
 
             m_err = d;
-			m_lastErr = kAPE_ArgError;
+            m_lastErr = kAPE_ArgError;
             return kAPE_ArgError;
         }
     }
 
     //Append remaining arguments
-	if(argc > 0) {
-		if(!m_acceptsRem) {
-			m_unrecognized = *argv;
-			m_lastErr = kAPE_UnknownArgFound;
-			return kAPE_UnknownArgFound;
-		}
+    if(argc > 0) {
+        if(!m_acceptsRem) {
+            m_unrecognized = *argv;
+            m_lastErr = kAPE_UnknownArgFound;
+            return kAPE_UnknownArgFound;
+        }
 
-		m_remainingIdx = m_args.size();
-	}
+        m_remainingIdx = m_args.size();
+    }
 
     while(argc > 0) {
         ArgValue *v = new ArgValue(nullptr); //No parent
-		v->allocate();
+        v->allocate();
         new(v->m_values) String(*argv);
 
         //Append value & next arg
         m_args.add(v);
-		v->addRef();
+        v->addRef();
 
         argc--;
         argv++;
     }
 
-	//Print help if needed
-	if(m_helpSwitch != nullptr && m_helpSwitch->isSet())
-		printHelp();
+    //Print help if needed
+    if(m_helpSwitch != nullptr && m_helpSwitch->isSet())
+        printHelp();
 
-	m_lastErr = kAPE_NoError;
+    m_lastErr = kAPE_NoError;
     return kAPE_NoError;
 }
 
 void m::ProgramArgs::printHelp() const
 {
-	int maxlen = 0;
-	String *descr = new String[m_descr.size()];
+    int maxlen = 0;
+    String *descr = new String[m_descr.size()];
 
-	for(int i = 0; i < m_descr.size(); i++) {
-		descr[i] = m_descr[i]->name();
-		for(int j = 1; j < m_descr[i]->nameCount(); j++) {
-			descr[i] += ", ";
-			descr[i] += m_descr[i]->name(j);
-		}
+    for(int i = 0; i < m_descr.size(); i++) {
+        descr[i] = m_descr[i]->name();
+        for(int j = 1; j < m_descr[i]->nameCount(); j++) {
+            descr[i] += ", ";
+            descr[i] += m_descr[i]->name(j);
+        }
 
-		descr[i] += ": ";
-		if(descr[i].length() > maxlen)
-			maxlen = descr[i].length();
-	}
+        descr[i] += ": ";
+        if(descr[i].length() > maxlen)
+            maxlen = descr[i].length();
+    }
 
-	if(!m_helpHdr.isEmpty())
-		std::cout << m_helpHdr.raw() << std::endl << std::endl;
+    if(!m_helpHdr.isEmpty())
+        std::cout << m_helpHdr.raw() << std::endl << std::endl;
 
-	for(int i = 0; i < m_descr.size(); i++) {
-		int delta = maxlen - descr[i].length();
-		std::cout << descr[i].raw();
+    for(int i = 0; i < m_descr.size(); i++) {
+        int delta = maxlen - descr[i].length();
+        std::cout << descr[i].raw();
 
-		for(int j = 0; j < delta; j++)
-			std::cout << ' ';
+        for(int j = 0; j < delta; j++)
+            std::cout << ' ';
 
-		std::cout << m_descr[i]->helpText().raw() << std::endl;
-	}
+        std::cout << m_descr[i]->helpText().raw() << std::endl;
+    }
 
-	delete[] descr;
+    delete[] descr;
 }
 
 m::String m::ProgramArgs::errorString() const
 {
-	if(m_lastErr == kAPE_NoError)
-		return String("No error");
-	else if(m_lastErr == kAPE_UnknownArgFound)
-		return String("Found unrecognized argument ") + m_unrecognized;
-	else if(m_lastErr == kAPE_ArgError) {
-		String ret("Argument \"");
-		ret += m_err->name();
-		ret += "\" errored: ";
-		ret += m_err->errorString();
+    if(m_lastErr == kAPE_NoError)
+        return String("No error");
+    else if(m_lastErr == kAPE_UnknownArgFound)
+        return String("Found unrecognized argument ") + m_unrecognized;
+    else if(m_lastErr == kAPE_ArgError) {
+        String ret("Argument \"");
+        ret += m_err->name();
+        ret += "\" errored: ";
+        ret += m_err->errorString();
 
-		return ret;
-	}
+        return ret;
+    }
 
-	return String("Unknown error");
+    return String("Unknown error");
 }

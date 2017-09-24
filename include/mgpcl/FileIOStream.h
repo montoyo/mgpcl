@@ -31,70 +31,70 @@
 
 namespace m
 {
-	class MGPCL_PREFIX FileInputStream : public InputStream
-	{
-	public:
-		enum OpenError
-		{
-			kOE_Success = 0,
-			kOE_FileNotFound,
-			kOE_Unknown
-		};
+    class MGPCL_PREFIX FileInputStream : public InputStream
+    {
+    public:
+        enum OpenError
+        {
+            kOE_Success = 0,
+            kOE_FileNotFound,
+            kOE_Unknown
+        };
 
-		FileInputStream();
-		FileInputStream(const String &fname);
-		~FileInputStream() override;
+        FileInputStream();
+        FileInputStream(const String &fname);
+        ~FileInputStream() override;
 
-		OpenError open(const String &fname);
-		int read(uint8_t *dst, int sz) override;
-		uint64_t pos() override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
-		void close() override;
+        OpenError open(const String &fname);
+        int read(uint8_t *dst, int sz) override;
+        uint64_t pos() override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        void close() override;
 
-		bool seekSupported() const override
-		{
-			return true;
-		}
+        bool seekSupported() const override
+        {
+            return true;
+        }
 
-	private:
+    private:
 #ifdef MGPCL_WIN
-		HANDLE m_file;
+        HANDLE m_file;
 #else
         int m_file;
 #endif
-	};
+    };
 
-	class MGPCL_PREFIX FileOutputStream : public OutputStream
-	{
-	public:
-		enum OpenMode
-		{
-			kOM_Normal = 0,
-			kOM_Truncate,
-			kOM_AtEnd
-		};
+    class MGPCL_PREFIX FileOutputStream : public OutputStream
+    {
+    public:
+        enum OpenMode
+        {
+            kOM_Normal = 0,
+            kOM_Truncate,
+            kOM_AtEnd
+        };
 
-		FileOutputStream();
-		FileOutputStream(const String &fname, OpenMode mode);
-		~FileOutputStream() override;
+        FileOutputStream();
+        FileOutputStream(const String &fname, OpenMode mode);
+        ~FileOutputStream() override;
 
-		bool open(const String &fname, OpenMode mode);
-		int write(const uint8_t *src, int sz) override;
-		uint64_t pos() override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
-		bool flush() override;
-		void close() override;
+        bool open(const String &fname, OpenMode mode);
+        int write(const uint8_t *src, int sz) override;
+        uint64_t pos() override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        bool flush() override;
+        void close() override;
 
-		bool seekSupported() const override
-		{
-			return true;
-		}
+        bool seekSupported() const override
+        {
+            return true;
+        }
 
-	private:
+    private:
 #ifdef MGPCL_WIN
-		HANDLE m_file;
+        HANDLE m_file;
 #else
         int m_file;
 #endif
-	};
+    };
 }

@@ -24,83 +24,83 @@
 
 namespace m
 {
-	
-	template<class RefCnt> class TTextOutputStream : public OutputStream, public TextSerializer
-	{
-	public:
-		TTextOutputStream()
-		{
-		}
+    
+    template<class RefCnt> class TTextOutputStream : public OutputStream, public TextSerializer
+    {
+    public:
+        TTextOutputStream()
+        {
+        }
 
-		TTextOutputStream(SharedPtr<OutputStream, RefCnt> child) : m_child(child)
-		{
-		}
+        TTextOutputStream(SharedPtr<OutputStream, RefCnt> child) : m_child(child)
+        {
+        }
 
-		TTextOutputStream(SharedPtr<OutputStream, RefCnt> child, LineEnding le) : TextSerializer(le), m_child(child)
-		{
-		}
+        TTextOutputStream(SharedPtr<OutputStream, RefCnt> child, LineEnding le) : TextSerializer(le), m_child(child)
+        {
+        }
 
-		int write(const uint8_t *src, int sz) override
-		{
-			return m_child->write(src, sz);
-		}
+        int write(const uint8_t *src, int sz) override
+        {
+            return m_child->write(src, sz);
+        }
 
-		uint64_t pos() override
-		{
-			return m_child->pos();
-		}
+        uint64_t pos() override
+        {
+            return m_child->pos();
+        }
 
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return m_child->seek(amount, sp);
-		}
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return m_child->seek(amount, sp);
+        }
 
-		bool seekSupported() const override
-		{
-			return m_child->seekSupported();
-		}
+        bool seekSupported() const override
+        {
+            return m_child->seekSupported();
+        }
 
-		bool flush() override
-		{
-			return m_child->flush();
-		}
+        bool flush() override
+        {
+            return m_child->flush();
+        }
 
-		void close() override
-		{
-			return m_child->close();
-		}
+        void close() override
+        {
+            return m_child->close();
+        }
 
-		SharedPtr<OutputStream, RefCnt> child() const
-		{
-			return m_child;
-		}
+        SharedPtr<OutputStream, RefCnt> child() const
+        {
+            return m_child;
+        }
 
-		void setChild(SharedPtr<OutputStream, RefCnt> child)
-		{
-			m_child = child;
-		}
+        void setChild(SharedPtr<OutputStream, RefCnt> child)
+        {
+            m_child = child;
+        }
 
-	protected:
-		void tsWrite(const char *txt, int len) override
-		{
-			while(len > 0) {
-				int ret = m_child->write(reinterpret_cast<const uint8_t*>(txt), len);
-				if(ret <= 0)
-					return;
+    protected:
+        void tsWrite(const char *txt, int len) override
+        {
+            while(len > 0) {
+                int ret = m_child->write(reinterpret_cast<const uint8_t*>(txt), len);
+                if(ret <= 0)
+                    return;
 
-				txt += ret;
-				len -= ret;
-			}
-		}
+                txt += ret;
+                len -= ret;
+            }
+        }
 
-	private:
-		SharedPtr<OutputStream, RefCnt> m_child;
-	};
+    private:
+        SharedPtr<OutputStream, RefCnt> m_child;
+    };
 
-	template<class RefCnt> class TTextInputStream : public InputStream, public TextDeserializer
-	{
-	public:
-		TTextInputStream()
+    template<class RefCnt> class TTextInputStream : public InputStream, public TextDeserializer
+    {
+    public:
+        TTextInputStream()
         {
         }
 
@@ -108,61 +108,61 @@ namespace m
         {
         }
 
-		int read(uint8_t *dst, int sz) override
-		{
-			return m_child->read(dst, sz);
-		}
+        int read(uint8_t *dst, int sz) override
+        {
+            return m_child->read(dst, sz);
+        }
 
-		uint64_t pos() override
-		{
-			return m_child->pos();
-		}
-		
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return m_child->seek(amount, sp);
-		}
-		
-		bool seekSupported() const override
-		{
-			return m_child->seekSupported();
-		}
-		
-		void close() override
-		{
-			m_child->close();
-		}
+        uint64_t pos() override
+        {
+            return m_child->pos();
+        }
+        
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return m_child->seek(amount, sp);
+        }
+        
+        bool seekSupported() const override
+        {
+            return m_child->seekSupported();
+        }
+        
+        void close() override
+        {
+            m_child->close();
+        }
 
-		SharedPtr<InputStream, RefCnt> child() const
-		{
-			return m_child;
-		}
+        SharedPtr<InputStream, RefCnt> child() const
+        {
+            return m_child;
+        }
 
-		void setChild(SharedPtr<InputStream, RefCnt> child)
-		{
-			m_child = child;
-		}
+        void setChild(SharedPtr<InputStream, RefCnt> child)
+        {
+            m_child = child;
+        }
 
-	protected:
-		void tsRead(char *dst, int len) override
-		{
-			while(len > 0) {
-				int rd = m_child->read(reinterpret_cast<uint8_t*>(dst), len);
-				if(rd <= 0)
-					return;
+    protected:
+        void tsRead(char *dst, int len) override
+        {
+            while(len > 0) {
+                int rd = m_child->read(reinterpret_cast<uint8_t*>(dst), len);
+                if(rd <= 0)
+                    return;
 
-				dst += rd;
-				len -= rd;
-			}
-		}
+                dst += rd;
+                len -= rd;
+            }
+        }
 
-	private:
-		SharedPtr<InputStream, RefCnt> m_child;
-	};
+    private:
+        SharedPtr<InputStream, RefCnt> m_child;
+    };
 
-	typedef TTextOutputStream<RefCounter> TextOutputStream;
-	typedef TTextOutputStream<AtomicRefCounter> MTTextOutputStream;
-	typedef TTextInputStream<RefCounter> TextInputStream;
-	typedef TTextInputStream<AtomicRefCounter> MTTextInputStream;
+    typedef TTextOutputStream<RefCounter> TextOutputStream;
+    typedef TTextOutputStream<AtomicRefCounter> MTTextOutputStream;
+    typedef TTextInputStream<RefCounter> TextInputStream;
+    typedef TTextInputStream<AtomicRefCounter> MTTextInputStream;
 
 }

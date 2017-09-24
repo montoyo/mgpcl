@@ -26,88 +26,88 @@
 
 static m::MsgBoxResult msgBox(const m::String &text, const m::String &title, m::MsgBoxButtons buttons, UINT type)
 {
-	switch(buttons) {
-	case m::kMBB_Ok:
-		type |= MB_OK;
-		break;
+    switch(buttons) {
+    case m::kMBB_Ok:
+        type |= MB_OK;
+        break;
 
-	case m::kMBB_OkCancel:
-		type |= MB_OKCANCEL;
-		break;
+    case m::kMBB_OkCancel:
+        type |= MB_OKCANCEL;
+        break;
 
-	case m::kMBB_AbortRetryIgnore:
-		type |= MB_ABORTRETRYIGNORE;
-		break;
+    case m::kMBB_AbortRetryIgnore:
+        type |= MB_ABORTRETRYIGNORE;
+        break;
 
-	case m::kMBB_YesNoCancel:
-		type |= MB_YESNOCANCEL;
-		break;
+    case m::kMBB_YesNoCancel:
+        type |= MB_YESNOCANCEL;
+        break;
 
-	case m::kMBB_YesNo:
-		type |= MB_YESNO;
-		break;
+    case m::kMBB_YesNo:
+        type |= MB_YESNO;
+        break;
 
-	case m::kMBB_RetryCancel:
-		type |= MB_RETRYCANCEL;
-		break;
+    case m::kMBB_RetryCancel:
+        type |= MB_RETRYCANCEL;
+        break;
 
-	case m::kMBB_CancelTryAgainContinue:
-		type |= MB_CANCELTRYCONTINUE;
-		break;
+    case m::kMBB_CancelTryAgainContinue:
+        type |= MB_CANCELTRYCONTINUE;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	int ret = MessageBox(nullptr, text.raw(), title.raw(), type);
-	switch(ret) {
-	case IDABORT:
-		return m::kMBR_Abort;
-		
-	case IDCANCEL:
-		return m::kMBR_Cancel;
+    int ret = MessageBox(nullptr, text.raw(), title.raw(), type);
+    switch(ret) {
+    case IDABORT:
+        return m::kMBR_Abort;
+        
+    case IDCANCEL:
+        return m::kMBR_Cancel;
 
-	case IDCONTINUE:
-		return m::kMBR_Continue;
+    case IDCONTINUE:
+        return m::kMBR_Continue;
 
-	case IDIGNORE:
-		return m::kMBR_Ignore;
+    case IDIGNORE:
+        return m::kMBR_Ignore;
 
-	case IDYES:
-		return m::kMBR_Yes;
+    case IDYES:
+        return m::kMBR_Yes;
 
-	case IDNO:
-		return m::kMBR_No;
+    case IDNO:
+        return m::kMBR_No;
 
-	case IDTRYAGAIN:
-		return m::kMBR_TryAgain;
+    case IDTRYAGAIN:
+        return m::kMBR_TryAgain;
 
-	case IDOK:
-		return m::kMBR_Ok;
+    case IDOK:
+        return m::kMBR_Ok;
 
-	default:
-		return m::kMBR_MsgBoxError;
-	}
+    default:
+        return m::kMBR_MsgBoxError;
+    }
 }
 
 m::MsgBoxResult m::msgBox::info(const String &text, const String &title, MsgBoxButtons buttons)
 {
-	return ::msgBox(text, title, buttons, MB_ICONINFORMATION);
+    return ::msgBox(text, title, buttons, MB_ICONINFORMATION);
 }
 
 m::MsgBoxResult m::msgBox::warning(const String &text, const String &title, MsgBoxButtons buttons)
 {
-	return ::msgBox(text, title, buttons, MB_ICONWARNING);
+    return ::msgBox(text, title, buttons, MB_ICONWARNING);
 }
 
 m::MsgBoxResult m::msgBox::error(const String &text, const String &title, MsgBoxButtons buttons)
 {
-	return ::msgBox(text, title, buttons, MB_ICONEXCLAMATION);
+    return ::msgBox(text, title, buttons, MB_ICONEXCLAMATION);
 }
 
 m::MsgBoxResult m::msgBox::question(const String &text, const String &title, MsgBoxButtons buttons)
 {
-	return ::msgBox(text, title, buttons, MB_ICONQUESTION);
+    return ::msgBox(text, title, buttons, MB_ICONQUESTION);
 }
 
 #else
@@ -186,9 +186,9 @@ static m::MsgBoxResult msgBox(const m::String &text, const m::String &title, m::
     gtk_widget_destroy(dialog);
     g_object_unref(dialog);
 
-	//Run message loop for a while, to close this window
-	while(gtk_events_pending())
-		gtk_main_iteration();
+    //Run message loop for a while, to close this window
+    while(gtk_events_pending())
+        gtk_main_iteration();
 
     switch(buttons) {
         case m::kMBB_Ok:
@@ -260,7 +260,7 @@ static m::MsgBoxResult msgBox(const m::String &text, const m::String &title, m::
 
 m::MsgBoxResult m::msgBox::info(const String &text, const String &title, MsgBoxButtons buttons)
 {
-	return ::msgBox(text, title, buttons, "dialog-information");
+    return ::msgBox(text, title, buttons, "dialog-information");
 }
 
 m::MsgBoxResult m::msgBox::warning(const String &text, const String &title, MsgBoxButtons buttons)

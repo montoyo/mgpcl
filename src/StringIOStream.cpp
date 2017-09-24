@@ -21,126 +21,126 @@
 
 int m::StringOStream::write(const uint8_t *src, int sz)
 {
-	mDebugAssert(sz >= 0, "cannot write negative amount of bytes");
+    mDebugAssert(sz >= 0, "cannot write negative amount of bytes");
 
-	if(m_pos >= m_data.length()) {
-		m_data.append(reinterpret_cast<const char*>(src), sz);
-		m_pos += sz;
-	} else if(m_insert) {
-		m_data.insert(m_pos, reinterpret_cast<const char*>(src), sz);
-		m_pos += sz;
-	} else {
-		int rep = m_data.length() - m_pos;
-		if(rep > sz)
-			rep = sz;
+    if(m_pos >= m_data.length()) {
+        m_data.append(reinterpret_cast<const char*>(src), sz);
+        m_pos += sz;
+    } else if(m_insert) {
+        m_data.insert(m_pos, reinterpret_cast<const char*>(src), sz);
+        m_pos += sz;
+    } else {
+        int rep = m_data.length() - m_pos;
+        if(rep > sz)
+            rep = sz;
 
-		Mem::copy(m_data.begin(), src, rep);
-		sz -= rep;
+        Mem::copy(m_data.begin(), src, rep);
+        sz -= rep;
 
-		if(sz > 0)
-			m_data.append(reinterpret_cast<const char*>(src + rep), sz);
-	}
+        if(sz > 0)
+            m_data.append(reinterpret_cast<const char*>(src + rep), sz);
+    }
 
-	return sz;
+    return sz;
 }
 
 bool m::StringOStream::seek(int amount, SeekPos sp)
 {
-	switch(sp) {
-	case SeekPos::Beginning:
-		mDebugAssert(amount < 0, "cannot seek negative amount from beginning");
-		m_pos = amount;
-		break;
+    switch(sp) {
+    case SeekPos::Beginning:
+        mDebugAssert(amount < 0, "cannot seek negative amount from beginning");
+        m_pos = amount;
+        break;
 
-	case SeekPos::Relative:
-		if(amount == 0)
-			return true;
-		else if(amount > 0)
-			m_pos += amount;
-		else {
-			//Negative
-			amount = -amount;
-			if(amount > m_pos)
-				return false;
+    case SeekPos::Relative:
+        if(amount == 0)
+            return true;
+        else if(amount > 0)
+            m_pos += amount;
+        else {
+            //Negative
+            amount = -amount;
+            if(amount > m_pos)
+                return false;
 
-			m_pos -= amount;
-		}
-		break;
+            m_pos -= amount;
+        }
+        break;
 
-	case SeekPos::End:
-		if(amount >= 0)
-			m_pos = m_data.length() + amount;
-		else {
-			//Negative
-			amount = -amount;
-			if(amount > m_data.length())
-				return false;
+    case SeekPos::End:
+        if(amount >= 0)
+            m_pos = m_data.length() + amount;
+        else {
+            //Negative
+            amount = -amount;
+            if(amount > m_data.length())
+                return false;
 
-			m_pos = m_data.length() - amount;
-		}
+            m_pos = m_data.length() - amount;
+        }
 
-		break;
+        break;
 
-	default:
-		return false;
-	}
+    default:
+        return false;
+    }
 
-	if(m_pos > m_data.length())
-		m_data.append(m_fill, m_pos - m_data.length());
+    if(m_pos > m_data.length())
+        m_data.append(m_fill, m_pos - m_data.length());
 
-	return true;
+    return true;
 }
 
 int m::StringIStream::read(uint8_t *dst, int sz)
 {
-	mDebugAssert(sz >= 0, "cannot read a negative amount of bytes");
-	int rem = m_data.length() - m_pos;
-	if(rem > sz)
-		rem = sz;
+    mDebugAssert(sz >= 0, "cannot read a negative amount of bytes");
+    int rem = m_data.length() - m_pos;
+    if(rem > sz)
+        rem = sz;
 
-	Mem::copy(dst, m_data.begin() + m_pos, rem);
-	m_pos += rem;
-	return rem;
+    Mem::copy(dst, m_data.begin() + m_pos, rem);
+    m_pos += rem;
+    return rem;
 }
 
 bool m::StringIStream::seek(int amount, SeekPos sp)
 {
-	switch(sp) {
-	case SeekPos::Beginning:
-		mDebugAssert(amount >= 0, "cannot seek backwards from the beginning");
-		if(amount > m_data.length())
-			return false;
+    switch(sp) {
+    case SeekPos::Beginning:
+        mDebugAssert(amount >= 0, "cannot seek backwards from the beginning");
+        if(amount > m_data.length())
+            return false;
 
-		m_pos = amount;
-		return true;
+        m_pos = amount;
+        return true;
 
-	case SeekPos::Relative:
-		if(amount >= 0) {
-			if(m_pos + amount > m_data.length())
-				return false;
+    case SeekPos::Relative:
+        if(amount >= 0) {
+            if(m_pos + amount > m_data.length())
+                return false;
 
-			m_pos += amount;
-		} else {
-			amount = -amount;
-			if(amount > m_pos)
-				return false;
+            m_pos += amount;
+        } else {
+            amount = -amount;
+            if(amount > m_pos)
+                return false;
 
-			m_pos -= amount;
-		}
+            m_pos -= amount;
+        }
 
-		return true;
+        return true;
 
-	case SeekPos::End:
-		if(amount > 0)
-			return false;
-		
-		amount = -amount;
-		if(amount > m_data.length())
-			return false;
+    case SeekPos::End:
+        if(amount > 0)
+            return false;
+        
+        amount = -amount;
+        if(amount > m_data.length())
+            return false;
 
-		m_pos = m_data.length() - amount;
-		return true;
-	}
+        m_pos = m_data.length() - amount;
+        return true;
+    }
 
-	return false;
+    return false;
 }

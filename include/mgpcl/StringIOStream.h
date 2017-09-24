@@ -23,141 +23,141 @@
 
 namespace m
 {
-	class StringOStream : public OutputStream
-	{
-	public:
-		StringOStream()
-		{
-			m_pos = 0;
-			m_fill = ' ';
-			m_insert = false;
-		}
+    class StringOStream : public OutputStream
+    {
+    public:
+        StringOStream()
+        {
+            m_pos = 0;
+            m_fill = ' ';
+            m_insert = false;
+        }
 
-		~StringOStream() override
-		{
-		}
+        ~StringOStream() override
+        {
+        }
 
-		int write(const uint8_t *dst, int sz) override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        int write(const uint8_t *dst, int sz) override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
 
-		uint64_t pos() override
-		{
-			return static_cast<uint64_t>(m_pos);
-		}
+        uint64_t pos() override
+        {
+            return static_cast<uint64_t>(m_pos);
+        }
 
-		bool seekSupported() const override
-		{
-			return true;
-		}
+        bool seekSupported() const override
+        {
+            return true;
+        }
 
-		bool flush() override
-		{
-			return true;
-		}
+        bool flush() override
+        {
+            return true;
+        }
 
-		void close() override
-		{
-		}
+        void close() override
+        {
+        }
 
-		const String &data() const
-		{
-			return m_data;
-		}
+        const String &data() const
+        {
+            return m_data;
+        }
 
-		void clear()
-		{
-			m_data.clear();
-		}
-		
-		void cleanup()
-		{
-			m_data.cleanup();
-		}
+        void clear()
+        {
+            m_data.clear();
+        }
+        
+        void cleanup()
+        {
+            m_data.cleanup();
+        }
 
-		bool isEmpty() const
-		{
-			return m_data.isEmpty();
-		}
+        bool isEmpty() const
+        {
+            return m_data.isEmpty();
+        }
 
-		void setInserts(bool i)
-		{
-			m_insert = i;
-		}
+        void setInserts(bool i)
+        {
+            m_insert = i;
+        }
 
-		void setReplaces(bool r)
-		{
-			m_insert = !r;
-		}
+        void setReplaces(bool r)
+        {
+            m_insert = !r;
+        }
 
-		void setFillCharacter(char f)
-		{
-			m_fill = f;
-		}
+        void setFillCharacter(char f)
+        {
+            m_fill = f;
+        }
 
-		bool inserts() const
-		{
-			return m_insert;
-		}
+        bool inserts() const
+        {
+            return m_insert;
+        }
 
-		bool replaces() const
-		{
-			return !m_insert;
-		}
+        bool replaces() const
+        {
+            return !m_insert;
+        }
 
-		char fillCharacter() const
-		{
-			return m_fill;
-		}
+        char fillCharacter() const
+        {
+            return m_fill;
+        }
 
-	private:
-		String m_data;
-		int m_pos;
-		bool m_insert;
-		char m_fill;
-	};
+    private:
+        String m_data;
+        int m_pos;
+        bool m_insert;
+        char m_fill;
+    };
 
-	class StringIStream : public InputStream
-	{
-	public:
-		StringIStream()
-		{
-			m_pos = 0;
-		}
+    class StringIStream : public InputStream
+    {
+    public:
+        StringIStream()
+        {
+            m_pos = 0;
+        }
 
-		StringIStream(const String &src) : m_data(src)
-		{
-			m_pos = 0;
-		}
+        StringIStream(const String &src) : m_data(src)
+        {
+            m_pos = 0;
+        }
 
-		~StringIStream() override
-		{
-		}
+        ~StringIStream() override
+        {
+        }
 
-		int read(uint8_t *dst, int sz) override;
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
+        int read(uint8_t *dst, int sz) override;
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
 
-		uint64_t pos() override
-		{
-			return static_cast<uint64_t>(m_pos);
-		}
+        uint64_t pos() override
+        {
+            return static_cast<uint64_t>(m_pos);
+        }
 
-		bool seekSupported() const override
-		{
-			return true;
-		}
+        bool seekSupported() const override
+        {
+            return true;
+        }
 
-		void close() override
-		{
-		}
+        void close() override
+        {
+        }
 
-		const String &data() const
-		{
-			return m_data;
-		}
+        const String &data() const
+        {
+            return m_data;
+        }
 
-	private:
-		String m_data;
-		int m_pos;
-	};
+    private:
+        String m_data;
+        int m_pos;
+    };
 
 }

@@ -26,101 +26,101 @@
 
 namespace m
 {
-	class Logger
-	{
-	public:
-		virtual ~Logger()
-		{
-		}
+    class Logger
+    {
+    public:
+        virtual ~Logger()
+        {
+        }
 
-		virtual void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) = 0;
+        virtual void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) = 0;
 
-		void log(LogLevel level, const char *fname, int line, const char *format, ...)
-		{
-			VAList lst;
-			va_start(lst.list, format);
-			vlog(level, fname, line, format, &lst);
-			va_end(lst.list);
-		}
+        void log(LogLevel level, const char *fname, int line, const char *format, ...)
+        {
+            VAList lst;
+            va_start(lst.list, format);
+            vlog(level, fname, line, format, &lst);
+            va_end(lst.list);
+        }
 
-		void debug(const char *fname, int line, const char *format, ...)
-		{
-			VAList lst;
-			va_start(lst.list, format);
-			vlog(LogLevel::Debug, fname, line, format, &lst);
-			va_end(lst.list);
-		}
+        void debug(const char *fname, int line, const char *format, ...)
+        {
+            VAList lst;
+            va_start(lst.list, format);
+            vlog(LogLevel::Debug, fname, line, format, &lst);
+            va_end(lst.list);
+        }
 
-		void info(const char *fname, int line, const char *format, ...)
-		{
-			VAList lst;
-			va_start(lst.list, format);
-			vlog(LogLevel::Info, fname, line, format, &lst);
-			va_end(lst.list);
-		}
+        void info(const char *fname, int line, const char *format, ...)
+        {
+            VAList lst;
+            va_start(lst.list, format);
+            vlog(LogLevel::Info, fname, line, format, &lst);
+            va_end(lst.list);
+        }
 
-		void warning(const char *fname, int line, const char *format, ...)
-		{
-			VAList lst;
-			va_start(lst.list, format);
-			vlog(LogLevel::Warning, fname, line, format, &lst);
-			va_end(lst.list);
-		}
+        void warning(const char *fname, int line, const char *format, ...)
+        {
+            VAList lst;
+            va_start(lst.list, format);
+            vlog(LogLevel::Warning, fname, line, format, &lst);
+            va_end(lst.list);
+        }
 
-		void error(const char *fname, int line, const char *format, ...)
-		{
-			VAList lst;
-			va_start(lst.list, format);
-			vlog(LogLevel::Error, fname, line, format, &lst);
-			va_end(lst.list);
-		}
+        void error(const char *fname, int line, const char *format, ...)
+        {
+            VAList lst;
+            va_start(lst.list, format);
+            vlog(LogLevel::Error, fname, line, format, &lst);
+            va_end(lst.list);
+        }
 
-		/* BASIC LOGGER SINGLETONING SYSTEM
-		 * 
-		 * At startup, Logger::instance() is always null.
-		 * You have to set it up manually, with, for instance,
-		 * BasicLogger which will print into the console.
-		 * 
-		 * Note the presence of the 'mlogger' macro, which is
-		 * basically a shortcut for '*Logger::instance()'
-		 * 
-		 * This is not thread safe, in order to improve speed.
-		 * This shouldn't be a problem since most of the time,
-		 * the program's logger is set at startup, before any
-		 * other thread is started.
-		 * 
-		 * Also note this is YOUR job to care about the destruction
-		 * of the logger. If Logger::instance() is not null, you can
-		 * do something like 'delete Logger::setLoggerInstance(newLogger)'.
-		 */
+        /* BASIC LOGGER SINGLETONING SYSTEM
+         * 
+         * At startup, Logger::instance() is always null.
+         * You have to set it up manually, with, for instance,
+         * BasicLogger which will print into the console.
+         * 
+         * Note the presence of the 'mlogger' macro, which is
+         * basically a shortcut for '*Logger::instance()'
+         * 
+         * This is not thread safe, in order to improve speed.
+         * This shouldn't be a problem since most of the time,
+         * the program's logger is set at startup, before any
+         * other thread is started.
+         * 
+         * Also note this is YOUR job to care about the destruction
+         * of the logger. If Logger::instance() is not null, you can
+         * do something like 'delete Logger::setLoggerInstance(newLogger)'.
+         */
 
-		static Logger *instance()
-		{
-			return m_instance;
-		}
+        static Logger *instance()
+        {
+            return m_instance;
+        }
 
-		static Logger *setLoggerInstance(Logger *newl)
-		{
-			Logger *ret = m_instance;
-			m_instance = newl;
+        static Logger *setLoggerInstance(Logger *newl)
+        {
+            Logger *ret = m_instance;
+            m_instance = newl;
 
-			return ret;
-		}
+            return ret;
+        }
 
-	private:
-		static Logger *m_instance;
-	};
+    private:
+        static Logger *m_instance;
+    };
 
-	class NullLogger : public Logger
-	{
-	public:
-		virtual ~NullLogger()
-		{
-		}
+    class NullLogger : public Logger
+    {
+    public:
+        virtual ~NullLogger()
+        {
+        }
 
-		void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override
-		{
-		}
-	};
+        void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override
+        {
+        }
+    };
 
 }

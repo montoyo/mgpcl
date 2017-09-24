@@ -24,95 +24,95 @@
 
 namespace m
 {
-	class NetLogger : public Logger, public SlotCapable
-	{
-		M_NON_COPYABLE(NetLogger)
+    class NetLogger : public Logger, public SlotCapable
+    {
+        M_NON_COPYABLE(NetLogger)
 
-	public:
-		NetLogger()
-		{
-			m_connErr = kSCE_NoError;
-			m_filter = ~uint32_t(0);
-			m_attempts = 3;
+    public:
+        NetLogger()
+        {
+            m_connErr = kSCE_NoError;
+            m_filter = ~uint32_t(0);
+            m_attempts = 3;
 
-			m_cli.setConnectionTimeout(1000);
-			m_cli.onPacketAvailable.connect(this, &NetLogger::onPacketReceived);
-		}
+            m_cli.setConnectionTimeout(1000);
+            m_cli.onPacketAvailable.connect(this, &NetLogger::onPacketReceived);
+        }
 
-		NetLogger(const String &addr)
-		{
-			m_attempts = 3;
-			m_connErr = kSCE_NoError;
-			m_filter = ~uint32_t(0);
+        NetLogger(const String &addr)
+        {
+            m_attempts = 3;
+            m_connErr = kSCE_NoError;
+            m_filter = ~uint32_t(0);
 
-			m_cli.setConnectionTimeout(1000);
-			m_cli.onPacketAvailable.connect(this, &NetLogger::onPacketReceived);
-			connect(addr);
-		}
+            m_cli.setConnectionTimeout(1000);
+            m_cli.onPacketAvailable.connect(this, &NetLogger::onPacketReceived);
+            connect(addr);
+        }
 
-		void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override;
-		bool connect(const String &ip);
+        void vlog(LogLevel level, const char *fname, int line, const char *format, VAList *lst) override;
+        bool connect(const String &ip);
 
-		bool isEnabled(LogLevel lvl)
-		{
-			m_lock.lockFor(RWAction::Reading);
-			volatile uint32_t filter = m_filter;
-			m_lock.releaseFor(RWAction::Reading);
+        bool isEnabled(LogLevel lvl)
+        {
+            m_lock.lockFor(RWAction::Reading);
+            volatile uint32_t filter = m_filter;
+            m_lock.releaseFor(RWAction::Reading);
 
-			return (filter & (1 << static_cast<uint32_t>(lvl))) != 0;
-		}
+            return (filter & (1 << static_cast<uint32_t>(lvl))) != 0;
+        }
 
-		void disconnect()
-		{
-			m_cli.stop();
-		}
+        void disconnect()
+        {
+            m_cli.stop();
+        }
 
-		bool isRunning()
-		{
-			return m_cli.isRunning();
-		}
+        bool isRunning()
+        {
+            return m_cli.isRunning();
+        }
 
-		inet::SocketError lastError()
-		{
-			return m_cli.lastError();
-		}
+        inet::SocketError lastError()
+        {
+            return m_cli.lastError();
+        }
 
-		SocketConnectionError connectionError() const
-		{
-			return m_connErr;
-		}
+        SocketConnectionError connectionError() const
+        {
+            return m_connErr;
+        }
 
-		bool tryAutoStartSubprocess(bool cod = true) const;
+        bool tryAutoStartSubprocess(bool cod = true) const;
 
-		int connectionTimeout() const
-		{
-			return m_cli.connectionTimeout();
-		}
+        int connectionTimeout() const
+        {
+            return m_cli.connectionTimeout();
+        }
 
-		void setConnectionTimeout(int to)
-		{
-			m_cli.setConnectionTimeout(to);
-		}
+        void setConnectionTimeout(int to)
+        {
+            m_cli.setConnectionTimeout(to);
+        }
 
-		int maxConnectionAttempts() const
-		{
-			return m_attempts;
-		}
+        int maxConnectionAttempts() const
+        {
+            return m_attempts;
+        }
 
-		void setMaxConnectionAttempts(int a)
-		{
-			m_attempts = a;
-		}
+        void setMaxConnectionAttempts(int a)
+        {
+            m_attempts = a;
+        }
 
-	private:
-		TCPClient m_cli;
-		SocketConnectionError m_connErr;
+    private:
+        TCPClient m_cli;
+        SocketConnectionError m_connErr;
 
-		bool startSubprocess(const String &jar, bool cod) const;
-		bool onPacketReceived(TCPClient *cli);
+        bool startSubprocess(const String &jar, bool cod) const;
+        bool onPacketReceived(TCPClient *cli);
 
-		int m_attempts;
-		ReadWriteLock m_lock;
-		volatile uint32_t m_filter;
-	};
+        int m_attempts;
+        ReadWriteLock m_lock;
+        volatile uint32_t m_filter;
+    };
 }

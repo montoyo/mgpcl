@@ -21,8 +21,8 @@
 
 m::ReadWriteLock::ReadWriteLock()
 {
-	m_reads = 0;
-	m_writing = false;
+    m_reads = 0;
+    m_writing = false;
 }
 
 m::ReadWriteLock::~ReadWriteLock()
@@ -31,60 +31,60 @@ m::ReadWriteLock::~ReadWriteLock()
 
 void m::ReadWriteLock::lockFor(RWAction t)
 {
-	switch(t) {
-	case RWAction::Reading:
-		m_lock.lock();
-		while(m_writing)
-			m_write.wait(m_lock);
+    switch(t) {
+    case RWAction::Reading:
+        m_lock.lock();
+        while(m_writing)
+            m_write.wait(m_lock);
 
-		m_reads++;
-		m_lock.unlock();
-		break;
+        m_reads++;
+        m_lock.unlock();
+        break;
 
-	case RWAction::Writing:
-		m_lock.lock();
-		while(m_reads > 0)
-			m_read.wait(m_lock);
+    case RWAction::Writing:
+        m_lock.lock();
+        while(m_reads > 0)
+            m_read.wait(m_lock);
 
-		while(m_writing)
-			m_write.wait(m_lock);
+        while(m_writing)
+            m_write.wait(m_lock);
 
-		m_writing = true;
-		m_lock.unlock();
-		break;
-	}
+        m_writing = true;
+        m_lock.unlock();
+        break;
+    }
 }
 
 void m::ReadWriteLock::releaseFor(RWAction t)
 {
-	switch(t) {
-	case RWAction::Reading:
-		m_lock.lock();
-		if(--m_reads == 0)
-			m_read.signalAll();
+    switch(t) {
+    case RWAction::Reading:
+        m_lock.lock();
+        if(--m_reads == 0)
+            m_read.signalAll();
 
-		m_lock.unlock();
-		break;
+        m_lock.unlock();
+        break;
 
-	case RWAction::Writing:
-		m_lock.lock();
-		m_writing = false;
-		m_write.signalAll();
-		m_lock.unlock();
-		break;
-	}
+    case RWAction::Writing:
+        m_lock.lock();
+        m_writing = false;
+        m_write.signalAll();
+        m_lock.unlock();
+        break;
+    }
 }
 
 bool m::ReadWriteLock::tryLockForWriting()
 {
-	bool ret = true;
+    bool ret = true;
 
-	m_lock.lock();
-	if(m_reads > 0 || m_writing)
-		ret = false;
-	else
-		m_writing = true;
+    m_lock.lock();
+    if(m_reads > 0 || m_writing)
+        ret = false;
+    else
+        m_writing = true;
 
-	m_lock.unlock();
-	return ret;
+    m_lock.unlock();
+    return ret;
 }

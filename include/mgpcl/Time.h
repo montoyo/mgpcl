@@ -30,27 +30,27 @@
 
 namespace m
 {
-	namespace time
-	{
-		inline void sleepMs(uint32_t ms)
-		{
+    namespace time
+    {
+        inline void sleepMs(uint32_t ms)
+        {
 #ifdef MGPCL_WIN
-			Sleep(ms);
+            Sleep(ms);
 #else
             usleep(ms * 1000);
 #endif
-		}
+        }
 
-		MGPCL_PREFIX void initTime();
-		MGPCL_PREFIX double getTimeMs();
+        MGPCL_PREFIX void initTime();
+        MGPCL_PREFIX double getTimeMs();
 
 #ifdef MGPCL_WIN
-		inline uint32_t getTimeMsUInt()
-		{
-			return GetTickCount();
-		}
+        inline uint32_t getTimeMsUInt()
+        {
+            return GetTickCount();
+        }
 #else
-		uint32_t getTimeMsUInt();
+        uint32_t getTimeMsUInt();
 #endif
-	}
+    }
 }

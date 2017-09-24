@@ -5,6 +5,7 @@
 /x64/
 /LineCounter.jar
 /CodeStats.jar
+/fix_tabs.sh
 /test/test.png
 /net-logger/.idea/
 /net-logger/.gradle/

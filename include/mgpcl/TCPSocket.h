@@ -25,292 +25,292 @@
 
 namespace m
 {
-	enum SocketConnectionError
-	{
-		kSCE_NoError = 0,		//Everything went fine
-		kSCE_NotInitialized,	//Forgot to call TCPSocket::initialize()
-		kSCE_TimedOut,			//connectionTimeout elapsed
-		kSCE_SocketError,		//Use TCPSocket::lastError() for more info
-		kSCE_SSLError,			//Only for SSLSocket
-		kSCE_UnknownError		//Dunno what happened
-	};
-	
-	class Socket
-	{
-	public:
-		Socket()
-		{
-			m_connTimeout = 10000;
-			m_readTimeout = 2000;
-			m_writeTimeout = 2000;
-		}
+    enum SocketConnectionError
+    {
+        kSCE_NoError = 0,        //Everything went fine
+        kSCE_NotInitialized,    //Forgot to call TCPSocket::initialize()
+        kSCE_TimedOut,            //connectionTimeout elapsed
+        kSCE_SocketError,        //Use TCPSocket::lastError() for more info
+        kSCE_SSLError,            //Only for SSLSocket
+        kSCE_UnknownError        //Dunno what happened
+    };
+    
+    class Socket
+    {
+    public:
+        Socket()
+        {
+            m_connTimeout = 10000;
+            m_readTimeout = 2000;
+            m_writeTimeout = 2000;
+        }
 
-		virtual ~Socket()
-		{
-		}
+        virtual ~Socket()
+        {
+        }
 
-		virtual bool initialize() = 0;
-		virtual SocketConnectionError connect(const IPv4Address &addr) = 0;
-		virtual int receive(uint8_t *dst, int sz) = 0;
-		virtual int send(const uint8_t *src, int sz) = 0;
-		virtual void close() = 0;
-		virtual bool isValid() const = 0;
+        virtual bool initialize() = 0;
+        virtual SocketConnectionError connect(const IPv4Address &addr) = 0;
+        virtual int receive(uint8_t *dst, int sz) = 0;
+        virtual int send(const uint8_t *src, int sz) = 0;
+        virtual void close() = 0;
+        virtual bool isValid() const = 0;
         virtual bool operator ! () const = 0;
-		virtual inet::SocketError lastError() const = 0;
+        virtual inet::SocketError lastError() const = 0;
 
-		void setConnectionTimeout(int val)
-		{
-			m_connTimeout = val;
-		}
+        void setConnectionTimeout(int val)
+        {
+            m_connTimeout = val;
+        }
 
-		void setAcceptTimeout(int val)
-		{
-			m_connTimeout = val;
-		}
+        void setAcceptTimeout(int val)
+        {
+            m_connTimeout = val;
+        }
 
-		void setReadTimeout(int val)
-		{
-			m_readTimeout = val;
-		}
+        void setReadTimeout(int val)
+        {
+            m_readTimeout = val;
+        }
 
-		void setWriteTimeout(int val)
-		{
-			m_writeTimeout = val;
-		}
+        void setWriteTimeout(int val)
+        {
+            m_writeTimeout = val;
+        }
 
-		int connectionTimeout() const
-		{
-			return m_connTimeout;
-		}
+        int connectionTimeout() const
+        {
+            return m_connTimeout;
+        }
 
-		int acceptTimeout() const
-		{
-			return m_connTimeout;
-		}
+        int acceptTimeout() const
+        {
+            return m_connTimeout;
+        }
 
-		int readTimeout() const
-		{
-			return m_readTimeout;
-		}
+        int readTimeout() const
+        {
+            return m_readTimeout;
+        }
 
-		int writeTimeout() const
-		{
-			return m_writeTimeout;
-		}
+        int writeTimeout() const
+        {
+            return m_writeTimeout;
+        }
 
-		template<class RefCnt> SharedPtr<InputStream, RefCnt> inputStream();
-		template<class RefCnt> SharedPtr<OutputStream, RefCnt> outputStream();
+        template<class RefCnt> SharedPtr<InputStream, RefCnt> inputStream();
+        template<class RefCnt> SharedPtr<OutputStream, RefCnt> outputStream();
 
-	protected:
-		int m_connTimeout;
-		int m_readTimeout;
-		int m_writeTimeout;
-	};
+    protected:
+        int m_connTimeout;
+        int m_readTimeout;
+        int m_writeTimeout;
+    };
 
-	class TCPSocket : public Socket
-	{
-	public:
-		TCPSocket()
-		{
-			m_lastErr = inet::kSE_NoError;
-			m_sock = INVALID_SOCKET;
-		}
+    class TCPSocket : public Socket
+    {
+    public:
+        TCPSocket()
+        {
+            m_lastErr = inet::kSE_NoError;
+            m_sock = INVALID_SOCKET;
+        }
 
-		TCPSocket(TCPSocket &&src) : Socket(src)
-		{
-			m_lastErr = src.m_lastErr;
-			m_sock = src.m_sock;
-			src.m_sock = INVALID_SOCKET;
-		}
+        TCPSocket(TCPSocket &&src) : Socket(src)
+        {
+            m_lastErr = src.m_lastErr;
+            m_sock = src.m_sock;
+            src.m_sock = INVALID_SOCKET;
+        }
 
-		~TCPSocket()
-		{
-			if(m_sock != INVALID_SOCKET)
-				closesocket(m_sock);
-		}
+        ~TCPSocket()
+        {
+            if(m_sock != INVALID_SOCKET)
+                closesocket(m_sock);
+        }
 
-		void close() override
-		{
-			if(m_sock != INVALID_SOCKET) {
-				closesocket(m_sock);
-				m_sock = INVALID_SOCKET;
-			}
-		}
+        void close() override
+        {
+            if(m_sock != INVALID_SOCKET) {
+                closesocket(m_sock);
+                m_sock = INVALID_SOCKET;
+            }
+        }
 
-		TCPSocket &operator = (TCPSocket &&src);
+        TCPSocket &operator = (TCPSocket &&src);
 
-		bool initialize() override;
-		SocketConnectionError connect(const IPv4Address &addr) override;
-		bool bind(const IPv4Address &addr);
-		bool listen(int backlog = SOMAXCONN);
+        bool initialize() override;
+        SocketConnectionError connect(const IPv4Address &addr) override;
+        bool bind(const IPv4Address &addr);
+        bool listen(int backlog = SOMAXCONN);
 
-		/*
-		 * Use client.isValid() to check if it worked (or the '!' operator)
-		 * If the resulting socket is invalid, use server.lastError()
-		 * in order to determine what's going on. If it's inet::kSE_NoError,
-		 * then accept() timed out.
-		 */
-		TCPSocket accept(IPv4Address &addr);
+        /*
+         * Use client.isValid() to check if it worked (or the '!' operator)
+         * If the resulting socket is invalid, use server.lastError()
+         * in order to determine what's going on. If it's inet::kSE_NoError,
+         * then accept() timed out.
+         */
+        TCPSocket accept(IPv4Address &addr);
 
-		int receive(uint8_t *dst, int sz) override;
-		int send(const uint8_t *src, int sz) override;
+        int receive(uint8_t *dst, int sz) override;
+        int send(const uint8_t *src, int sz) override;
 
-		bool isValid() const override
-		{
-			return m_sock != INVALID_SOCKET;
-		}
+        bool isValid() const override
+        {
+            return m_sock != INVALID_SOCKET;
+        }
 
-		bool operator ! () const override
-		{
-			return m_sock == INVALID_SOCKET;
-		}
+        bool operator ! () const override
+        {
+            return m_sock == INVALID_SOCKET;
+        }
 
-		inet::SocketError lastError() const override
-		{
-			return m_lastErr;
-		}
+        inet::SocketError lastError() const override
+        {
+            return m_lastErr;
+        }
 
-		SOCKET raw()
-		{
-			//Not const because you can do whatever you want with this
-			return m_sock;
-		}
+        SOCKET raw()
+        {
+            //Not const because you can do whatever you want with this
+            return m_sock;
+        }
 
-	private:
-		TCPSocket(SOCKET s, int c, int r, int w)
-		{
-			m_lastErr = inet::kSE_NoError;
-			m_sock = s;
-			m_connTimeout = c;
-			m_readTimeout = r;
-			m_writeTimeout = w;
-		}
+    private:
+        TCPSocket(SOCKET s, int c, int r, int w)
+        {
+            m_lastErr = inet::kSE_NoError;
+            m_sock = s;
+            m_connTimeout = c;
+            m_readTimeout = r;
+            m_writeTimeout = w;
+        }
 
-		TCPSocket(const TCPSocket &src)
-		{
-		}
+        TCPSocket(const TCPSocket &src)
+        {
+        }
 
-		inet::SocketError m_lastErr;
-		SOCKET m_sock;
-	};
+        inet::SocketError m_lastErr;
+        SOCKET m_sock;
+    };
 
-	class SocketIStream : public InputStream
-	{
-		friend class Socket;
+    class SocketIStream : public InputStream
+    {
+        friend class Socket;
 
-	public:
-		~SocketIStream() override
-		{
-		}
+    public:
+        ~SocketIStream() override
+        {
+        }
 
-		int read(uint8_t *dst, int sz) override
-		{
-			return m_ptr->receive(dst, sz);
-		}
+        int read(uint8_t *dst, int sz) override
+        {
+            return m_ptr->receive(dst, sz);
+        }
 
-		uint64_t pos() override
-		{
-			return 0;
-		}
+        uint64_t pos() override
+        {
+            return 0;
+        }
 
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return false;
-		}
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return false;
+        }
 
-		bool seekSupported() const override
-		{
-			return false;
-		}
+        bool seekSupported() const override
+        {
+            return false;
+        }
 
-		void close() override
-		{
-		}
+        void close() override
+        {
+        }
 
-		Socket *socket()
-		{
-			return m_ptr;
-		}
+        Socket *socket()
+        {
+            return m_ptr;
+        }
 
-	private:
-		SocketIStream()
-		{
-			std::abort();
-		}
+    private:
+        SocketIStream()
+        {
+            std::abort();
+        }
 
-		SocketIStream(Socket *sock)
-		{
-			m_ptr = sock;
-		}
+        SocketIStream(Socket *sock)
+        {
+            m_ptr = sock;
+        }
 
-		Socket *m_ptr;
-	};
+        Socket *m_ptr;
+    };
 
-	class SocketOStream : public OutputStream
-	{
-		friend class Socket;
+    class SocketOStream : public OutputStream
+    {
+        friend class Socket;
 
-	public:
-		~SocketOStream() override
-		{
-		}
+    public:
+        ~SocketOStream() override
+        {
+        }
 
-		int write(const uint8_t *src, int sz) override
-		{
-			return m_ptr->send(src, sz);
-		}
+        int write(const uint8_t *src, int sz) override
+        {
+            return m_ptr->send(src, sz);
+        }
 
-		uint64_t pos() override
-		{
-			return 0;
-		}
+        uint64_t pos() override
+        {
+            return 0;
+        }
 
-		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
-		{
-			return false;
-		}
+        bool seek(int amount, SeekPos sp = SeekPos::Beginning) override
+        {
+            return false;
+        }
 
-		bool seekSupported() const override
-		{
-			return false;
-		}
+        bool seekSupported() const override
+        {
+            return false;
+        }
 
-		bool flush() override
-		{
-			return true;
-		}
+        bool flush() override
+        {
+            return true;
+        }
 
-		void close() override
-		{
-		}
+        void close() override
+        {
+        }
 
-		Socket *socket()
-		{
-			return m_ptr;
-		}
+        Socket *socket()
+        {
+            return m_ptr;
+        }
 
-	private:
-		SocketOStream()
-		{
-			std::abort();
-		}
+    private:
+        SocketOStream()
+        {
+            std::abort();
+        }
 
-		SocketOStream(Socket *sock)
-		{
-			m_ptr = sock;
-		}
+        SocketOStream(Socket *sock)
+        {
+            m_ptr = sock;
+        }
 
-		Socket *m_ptr;
-	};
+        Socket *m_ptr;
+    };
 
-	template<class RefCnt> SharedPtr<InputStream, RefCnt> Socket::inputStream()
-	{
-		return SharedPtr<InputStream, RefCnt>(new SocketIStream(this));
-	}
+    template<class RefCnt> SharedPtr<InputStream, RefCnt> Socket::inputStream()
+    {
+        return SharedPtr<InputStream, RefCnt>(new SocketIStream(this));
+    }
 
-	template<class RefCnt> SharedPtr<OutputStream, RefCnt> Socket::outputStream()
-	{
-		return SharedPtr<OutputStream, RefCnt>(new SocketOStream(this));
-	}
+    template<class RefCnt> SharedPtr<OutputStream, RefCnt> Socket::outputStream()
+    {
+        return SharedPtr<OutputStream, RefCnt>(new SocketOStream(this));
+    }
 
 }

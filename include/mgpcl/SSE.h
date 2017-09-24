@@ -2,12 +2,12 @@
 #include "Config.h"
 
 /*
-	SSE math utility functions by Julien Pommier
-	Stolen from http://gruntthepeon.free.fr/ssemath/
-	Modified by montoyo to fit nicely within MGPCL
+    SSE math utility functions by Julien Pommier
+    Stolen from http://gruntthepeon.free.fr/ssemath/
+    Modified by montoyo to fit nicely within MGPCL
 
-	Only formatting, namespaces, casts and some other
-	details were modified. Algorithms were not modified.
+    Only formatting, namespaces, casts and some other
+    details were modified. Algorithms were not modified.
 */
 
 /* SIMD (SSE1+MMX or SSE2) implementation of sin, cos, exp and log
@@ -182,8 +182,8 @@ namespace m
     }
 }
 
-_PS_CONST(exp_hi,	88.3762626647949f);
-_PS_CONST(exp_lo,	-88.3762626647949f);
+_PS_CONST(exp_hi,    88.3762626647949f);
+_PS_CONST(exp_lo,    -88.3762626647949f);
 
 _PS_CONST(cephes_LOG2EF, 1.44269504088896341f);
 _PS_CONST(cephes_exp_C1, 0.693359375f);
@@ -200,7 +200,7 @@ namespace m
 {
     namespace sse
     {
-		inline M128 exp_ps(M128 x)
+        inline M128 exp_ps(M128 x)
         {
             M128 tmp = _mm_setzero_ps(), fx;
             M128i emm0;
@@ -301,7 +301,7 @@ namespace m
 {
     namespace sse
     {
-		inline M128 sin_ps(M128 x)
+        inline M128 sin_ps(M128 x)
         {
             // any x
             M128 xmm1, xmm2 = _mm_setzero_ps(), xmm3, sign_bit, y;
@@ -387,7 +387,7 @@ namespace m
         }
 
         /* almost the same as sin_ps */
-		inline M128 cos_ps(M128 x)
+        inline M128 cos_ps(M128 x)
         {
             // any x
             M128 xmm1, xmm2 = _mm_setzero_ps(), xmm3, y;
@@ -468,7 +468,7 @@ namespace m
 
         /* since sin_ps and cos_ps are almost identical, sincos_ps could replace both of them..
         it is almost as fast, and gives you a free cosine with your sine */
-		inline void sincos_ps(M128 x, M128 *s, M128 *c)
+        inline void sincos_ps(M128 x, M128 *s, M128 *c)
         {
             M128 xmm1, xmm2, xmm3 = _mm_setzero_ps(), sign_bit_sin, y;
             M128i emm0, emm2, emm4;

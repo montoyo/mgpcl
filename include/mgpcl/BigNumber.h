@@ -25,135 +25,135 @@
 
 namespace m
 {
-	class BigNumber;
-	class BNContext
-	{
-		//BNContext is NOT thread safe.
-		friend class BigNumber;
+    class BigNumber;
+    class BNContext
+    {
+        //BNContext is NOT thread safe.
+        friend class BigNumber;
 
-	public:
-		BNContext();
-		BNContext(const BNContext &src);
-		BNContext(BNContext &&src);
-		~BNContext();
+    public:
+        BNContext();
+        BNContext(const BNContext &src);
+        BNContext(BNContext &&src);
+        ~BNContext();
 
-		BNContext &operator = (const BNContext &src);
-		BNContext &operator = (BNContext &&src);
+        BNContext &operator = (const BNContext &src);
+        BNContext &operator = (BNContext &&src);
 
-		void start();
-		void end();
+        void start();
+        void end();
 
-	private:
-		void *m_ctx_;
-		int *m_refs;
-	};
+    private:
+        void *m_ctx_;
+        int *m_refs;
+    };
 
-	class BigNumber
-	{
-	public:
-		BigNumber();
-		BigNumber(uint64_t word);
-		BigNumber(const void *raw);
-		BigNumber(const uint8_t *data, uint32_t len);
-		BigNumber(const String &data, bool isHex = false);
-		BigNumber(const BigNumber &src);
-		BigNumber(BigNumber &&src);
-		~BigNumber();
+    class BigNumber
+    {
+    public:
+        BigNumber();
+        BigNumber(uint64_t word);
+        BigNumber(const void *raw);
+        BigNumber(const uint8_t *data, uint32_t len);
+        BigNumber(const String &data, bool isHex = false);
+        BigNumber(const BigNumber &src);
+        BigNumber(BigNumber &&src);
+        ~BigNumber();
 
-		BigNumber &zero();
-		BigNumber &setWord(uint64_t word);
-		uint64_t word() const;
+        BigNumber &zero();
+        BigNumber &setWord(uint64_t word);
+        uint64_t word() const;
 
-		BigNumber operator + (const BigNumber &src) const;
-		BigNumber operator - (const BigNumber &src) const;
-		BigNumber operator * (const BigNumber &src) const; //Slow, better use .multiplied()
-		BigNumber operator / (const BigNumber &src) const; //Slow, better use .divided()
-		BigNumber operator % (const BigNumber &src) const; //Slow, better use .moduloed()
-		BigNumber operator << (int t) const;
-		BigNumber operator >> (int t) const;
-		BigNumber operator + (uint64_t word) const;
-		BigNumber operator - (uint64_t word) const;
-		BigNumber operator * (uint64_t word) const;
-		BigNumber operator / (uint64_t word) const;
-		BigNumber operator % (uint64_t word) const;
+        BigNumber operator + (const BigNumber &src) const;
+        BigNumber operator - (const BigNumber &src) const;
+        BigNumber operator * (const BigNumber &src) const; //Slow, better use .multiplied()
+        BigNumber operator / (const BigNumber &src) const; //Slow, better use .divided()
+        BigNumber operator % (const BigNumber &src) const; //Slow, better use .moduloed()
+        BigNumber operator << (int t) const;
+        BigNumber operator >> (int t) const;
+        BigNumber operator + (uint64_t word) const;
+        BigNumber operator - (uint64_t word) const;
+        BigNumber operator * (uint64_t word) const;
+        BigNumber operator / (uint64_t word) const;
+        BigNumber operator % (uint64_t word) const;
 
-		BigNumber &operator += (const BigNumber &src);
-		BigNumber &operator -= (const BigNumber &src);
-		BigNumber &operator *= (const BigNumber &src); //Slow, better use .multiply()
-		BigNumber &operator /= (const BigNumber &src); //Slow, better use .divide()
-		BigNumber &operator %= (const BigNumber &src); //Slow, better use .modulo()
-		BigNumber &operator <<= (int t);
-		BigNumber &operator >>= (int t);
-		BigNumber &operator += (uint64_t word);
-		BigNumber &operator -= (uint64_t word);
-		BigNumber &operator *= (uint64_t word);
-		BigNumber &operator /= (uint64_t word);
-		BigNumber &operator %= (uint64_t word);
+        BigNumber &operator += (const BigNumber &src);
+        BigNumber &operator -= (const BigNumber &src);
+        BigNumber &operator *= (const BigNumber &src); //Slow, better use .multiply()
+        BigNumber &operator /= (const BigNumber &src); //Slow, better use .divide()
+        BigNumber &operator %= (const BigNumber &src); //Slow, better use .modulo()
+        BigNumber &operator <<= (int t);
+        BigNumber &operator >>= (int t);
+        BigNumber &operator += (uint64_t word);
+        BigNumber &operator -= (uint64_t word);
+        BigNumber &operator *= (uint64_t word);
+        BigNumber &operator /= (uint64_t word);
+        BigNumber &operator %= (uint64_t word);
 
-		BigNumber &multiply(const BigNumber &src, BNContext &ctx);
-		BigNumber &divide(const BigNumber &src, BNContext &ctx);
-		BigNumber &modulo(const BigNumber &src, BNContext &ctx);
-		BigNumber multiplied(const BigNumber &src, BNContext &ctx) const;
-		BigNumber divided(const BigNumber &src, BNContext &ctx) const;
-		BigNumber moduloed(const BigNumber &src, BNContext &ctx) const; //yes yes english
+        BigNumber &multiply(const BigNumber &src, BNContext &ctx);
+        BigNumber &divide(const BigNumber &src, BNContext &ctx);
+        BigNumber &modulo(const BigNumber &src, BNContext &ctx);
+        BigNumber multiplied(const BigNumber &src, BNContext &ctx) const;
+        BigNumber divided(const BigNumber &src, BNContext &ctx) const;
+        BigNumber moduloed(const BigNumber &src, BNContext &ctx) const; //yes yes english
 
-		bool isNegative() const;
-		BigNumber &setNegative(bool negative = true);
-		BigNumber &setBytes(const uint8_t *data, uint32_t len); //Does not handle the sign, also: big endian
-		BigNumber &parse(const String &data, bool isHex = false);
+        bool isNegative() const;
+        BigNumber &setNegative(bool negative = true);
+        BigNumber &setBytes(const uint8_t *data, uint32_t len); //Does not handle the sign, also: big endian
+        BigNumber &parse(const String &data, bool isHex = false);
 
-		uint32_t size() const;
-		bool bytes(uint8_t *dst, uint32_t len) const; //Stores the absolute value (big endian)
-		void bytes(uint8_t *dst) const; //Also stores the absolute value (big endian)
-		String toString(bool hex = false) const;
+        uint32_t size() const;
+        bool bytes(uint8_t *dst, uint32_t len) const; //Stores the absolute value (big endian)
+        void bytes(uint8_t *dst) const; //Also stores the absolute value (big endian)
+        String toString(bool hex = false) const;
 
-		BigNumber &setBit(int bit);
-		BigNumber &setBit(int bit, bool val);
-		BigNumber &clearBit(int bit);
-		bool isBitSet(int bit) const;
+        BigNumber &setBit(int bit);
+        BigNumber &setBit(int bit, bool val);
+        BigNumber &clearBit(int bit);
+        bool isBitSet(int bit) const;
 
-		BigNumber &operator = (const BigNumber &src);
-		BigNumber &operator = (BigNumber &&src);
+        BigNumber &operator = (const BigNumber &src);
+        BigNumber &operator = (BigNumber &&src);
 
-		BigNumber &operator++ ();
-		BigNumber &operator-- ();
-		BigNumber operator++ (int);
-		BigNumber operator-- (int);
+        BigNumber &operator++ ();
+        BigNumber &operator-- ();
+        BigNumber operator++ (int);
+        BigNumber operator-- (int);
 
-		bool operator < (const BigNumber &src) const;
-		bool operator <= (const BigNumber &src) const;
-		bool operator == (const BigNumber &src) const;
-		bool operator == (uint64_t word) const;
-		bool operator >= (const BigNumber &src) const;
-		bool operator > (const BigNumber &src) const;
+        bool operator < (const BigNumber &src) const;
+        bool operator <= (const BigNumber &src) const;
+        bool operator == (const BigNumber &src) const;
+        bool operator == (uint64_t word) const;
+        bool operator >= (const BigNumber &src) const;
+        bool operator > (const BigNumber &src) const;
 
-		int compare(const BigNumber &src) const;
-		bool isZero() const;
-		bool isOne() const;
-		bool isOdd() const;
+        int compare(const BigNumber &src) const;
+        bool isZero() const;
+        bool isOne() const;
+        bool isOdd() const;
 
-		BigNumber &square();
-		BigNumber &square(BNContext &ctx);
-		BigNumber squared() const;
-		BigNumber squared(BNContext &ctx) const;
+        BigNumber &square();
+        BigNumber &square(BNContext &ctx);
+        BigNumber squared() const;
+        BigNumber squared(BNContext &ctx) const;
 
-		BigNumber &sqrt();
-		BigNumber &sqrt(BNContext &ctx);
-		BigNumber sqrted() const;
-		BigNumber sqrted(BNContext &ctx) const;
+        BigNumber &sqrt();
+        BigNumber &sqrt(BNContext &ctx);
+        BigNumber sqrted() const;
+        BigNumber sqrted(BNContext &ctx) const;
 
-		BigNumber gcd(const BigNumber &src, BNContext &ctx) const;
-		BigNumber modInverse(const BigNumber &src, BNContext &ctx) const;
+        BigNumber gcd(const BigNumber &src, BNContext &ctx) const;
+        BigNumber modInverse(const BigNumber &src, BNContext &ctx) const;
 
-		void *rawCopy() const;
-		void *raw() const
-		{
-			return m_bn_;
-		}
+        void *rawCopy() const;
+        void *raw() const
+        {
+            return m_bn_;
+        }
 
-	private:
-		void *m_bn_;
-	};
+    private:
+        void *m_bn_;
+    };
 }
 
 #endif

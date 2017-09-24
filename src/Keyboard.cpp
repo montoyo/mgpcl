@@ -28,91 +28,91 @@ const char *g_scancodeLabels[] = { nullptr, "Escape", "1", "2", "3", "4", "5", "
 
 const char *m::keyboard::keycodeName(KeyCode kc)
 {
-	if(kc >= kKC_Max)
-		return M_UNKNOWN_KEY;
+    if(kc >= kKC_Max)
+        return M_UNKNOWN_KEY;
 
-	const char *ret = g_keycodeNames[kc];
-	if(ret == nullptr)
-		ret = M_UNKNOWN_KEY;
+    const char *ret = g_keycodeNames[kc];
+    if(ret == nullptr)
+        ret = M_UNKNOWN_KEY;
 
-	return ret;
+    return ret;
 }
 
 const char *m::keyboard::keycodeLabel(KeyCode kc)
 {
-	if(kc >= kKC_Max)
-		return M_UNKNOWN_KEY;
+    if(kc >= kKC_Max)
+        return M_UNKNOWN_KEY;
 
-	const char *ret = g_keycodeLabels[kc];
-	if(ret == nullptr)
-		ret = M_UNKNOWN_KEY;
+    const char *ret = g_keycodeLabels[kc];
+    if(ret == nullptr)
+        ret = M_UNKNOWN_KEY;
 
-	return ret;
+    return ret;
 }
 
 const char *m::keyboard::scancodeName(ScanCode sc)
 {
-	if(sc >= kSC_Max)
-		return M_UNKNOWN_KEY;
+    if(sc >= kSC_Max)
+        return M_UNKNOWN_KEY;
 
-	const char *ret = g_scancodeNames[sc];
-	if(ret == nullptr)
-		ret = M_UNKNOWN_KEY;
+    const char *ret = g_scancodeNames[sc];
+    if(ret == nullptr)
+        ret = M_UNKNOWN_KEY;
 
-	return ret;
+    return ret;
 }
 
 const char *m::keyboard::scancodeLabel(ScanCode sc)
 {
-	if(sc >= kSC_Max)
-		return M_UNKNOWN_KEY;
+    if(sc >= kSC_Max)
+        return M_UNKNOWN_KEY;
 
-	const char *ret = g_scancodeLabels[sc];
-	if(ret == nullptr)
-		ret = M_UNKNOWN_KEY;
+    const char *ret = g_scancodeLabels[sc];
+    if(ret == nullptr)
+        ret = M_UNKNOWN_KEY;
 
-	return ret;
+    return ret;
 }
 
 #ifdef MGPCL_LINUX
 namespace m
 {
-	static KeyCode g_kcRemap00[256] = { kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Space, kKC_Max, kKC_Quote, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Plus, kKC_Comma, kKC_Minus, kKC_Period, kKC_QuestionMark, kKC_0, kKC_1, kKC_2, kKC_3, kKC_4, kKC_5, kKC_6, kKC_7, kKC_8, kKC_9, kKC_Colons, kKC_Colons, kKC_Max, kKC_Max, kKC_Max, kKC_QuestionMark, kKC_Max, kKC_A, kKC_B, kKC_C, kKC_D, kKC_E, kKC_F, kKC_G, kKC_H, kKC_I, kKC_J, kKC_K, kKC_L, kKC_M, kKC_N, kKC_O, kKC_P, kKC_Q, kKC_R, kKC_S, kKC_T, kKC_U, kKC_V, kKC_W, kKC_X, kKC_Y, kKC_Z, kKC_OpenBrace, kKC_Pipe, kKC_CloseBrace, kKC_Max, kKC_Max, kKC_Quote, kKC_A, kKC_B, kKC_C, kKC_D, kKC_E, kKC_F, kKC_G, kKC_H, kKC_I, kKC_J, kKC_K, kKC_L, kKC_M, kKC_N, kKC_O, kKC_P, kKC_Q, kKC_R, kKC_S, kKC_T, kKC_U, kKC_V, kKC_W, kKC_X, kKC_Y, kKC_Z, kKC_OpenBrace, kKC_Pipe, kKC_CloseBrace, kKC_Tilde, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max };
-	static KeyCode g_kcRemapFF[256] = { kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Backspace, kKC_Tab, kKC_Max, kKC_Clear, kKC_Max, kKC_Enter, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Pause, kKC_ScrollLock, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Escape, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Home, kKC_Left, kKC_Up, kKC_Right, kKC_Down, kKC_PageUp, kKC_PageDown, kKC_End, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Select, kKC_Print, kKC_Execute, kKC_Insert, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Help, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_NumLock, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_KPEnter, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_KPStar, kKC_KPPlus, kKC_KPSeparator, kKC_KPMinus, kKC_KPPeriod, kKC_KPSlash, kKC_KP0, kKC_KP1, kKC_KP2, kKC_KP3, kKC_KP4, kKC_KP5, kKC_KP6, kKC_KP7, kKC_KP8, kKC_KP9, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_F1, kKC_F2, kKC_F3, kKC_F4, kKC_F5, kKC_F6, kKC_F7, kKC_F8, kKC_F9, kKC_F10, kKC_F17, kKC_F18, kKC_F13, kKC_F14, kKC_F15, kKC_F16, kKC_F17, kKC_F18, kKC_F19, kKC_F20, kKC_F21, kKC_F22, kKC_F23, kKC_F24, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_LShift, kKC_RShift, kKC_LControl, kKC_RControl, kKC_CapsLock, kKC_Max, kKC_Max, kKC_Max, kKC_LAlt, kKC_RAlt, kKC_LSuper, kKC_RSuper, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Delete };
+    static KeyCode g_kcRemap00[256] = { kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Space, kKC_Max, kKC_Quote, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Plus, kKC_Comma, kKC_Minus, kKC_Period, kKC_QuestionMark, kKC_0, kKC_1, kKC_2, kKC_3, kKC_4, kKC_5, kKC_6, kKC_7, kKC_8, kKC_9, kKC_Colons, kKC_Colons, kKC_Max, kKC_Max, kKC_Max, kKC_QuestionMark, kKC_Max, kKC_A, kKC_B, kKC_C, kKC_D, kKC_E, kKC_F, kKC_G, kKC_H, kKC_I, kKC_J, kKC_K, kKC_L, kKC_M, kKC_N, kKC_O, kKC_P, kKC_Q, kKC_R, kKC_S, kKC_T, kKC_U, kKC_V, kKC_W, kKC_X, kKC_Y, kKC_Z, kKC_OpenBrace, kKC_Pipe, kKC_CloseBrace, kKC_Max, kKC_Max, kKC_Quote, kKC_A, kKC_B, kKC_C, kKC_D, kKC_E, kKC_F, kKC_G, kKC_H, kKC_I, kKC_J, kKC_K, kKC_L, kKC_M, kKC_N, kKC_O, kKC_P, kKC_Q, kKC_R, kKC_S, kKC_T, kKC_U, kKC_V, kKC_W, kKC_X, kKC_Y, kKC_Z, kKC_OpenBrace, kKC_Pipe, kKC_CloseBrace, kKC_Tilde, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max };
+    static KeyCode g_kcRemapFF[256] = { kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Backspace, kKC_Tab, kKC_Max, kKC_Clear, kKC_Max, kKC_Enter, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Pause, kKC_ScrollLock, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Escape, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Home, kKC_Left, kKC_Up, kKC_Right, kKC_Down, kKC_PageUp, kKC_PageDown, kKC_End, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Select, kKC_Print, kKC_Execute, kKC_Insert, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Help, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_NumLock, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_KPEnter, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_KPStar, kKC_KPPlus, kKC_KPSeparator, kKC_KPMinus, kKC_KPPeriod, kKC_KPSlash, kKC_KP0, kKC_KP1, kKC_KP2, kKC_KP3, kKC_KP4, kKC_KP5, kKC_KP6, kKC_KP7, kKC_KP8, kKC_KP9, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_F1, kKC_F2, kKC_F3, kKC_F4, kKC_F5, kKC_F6, kKC_F7, kKC_F8, kKC_F9, kKC_F10, kKC_F17, kKC_F18, kKC_F13, kKC_F14, kKC_F15, kKC_F16, kKC_F17, kKC_F18, kKC_F19, kKC_F20, kKC_F21, kKC_F22, kKC_F23, kKC_F24, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_LShift, kKC_RShift, kKC_LControl, kKC_RControl, kKC_CapsLock, kKC_Max, kKC_Max, kKC_Max, kKC_LAlt, kKC_RAlt, kKC_LSuper, kKC_RSuper, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Max, kKC_Delete };
 }
 
 m::KeyCode m::keyboard::remapKeycode(unsigned int src)
 {
-	if(src == 0xFD1D)
-		return kKC_PrintScr;
+    if(src == 0xFD1D)
+        return kKC_PrintScr;
 
-	if((src & 0xFF00) == 0x0000)
-		return g_kcRemap00[src & 0x00FF];
+    if((src & 0xFF00) == 0x0000)
+        return g_kcRemap00[src & 0x00FF];
 
-	if((src & 0xFF00) == 0xFF00)
-		return g_kcRemapFF[src & 0x00FF];
+    if((src & 0xFF00) == 0xFF00)
+        return g_kcRemapFF[src & 0x00FF];
 
-	return kKC_Max;
+    return kKC_Max;
 }
 
 m::ScanCode m::keyboard::remapScancode(unsigned short src)
 {
-	src -= 8;
-	if(src == 103)
-		return kSC_Up;
-	else if(src == 105)
-		return kSC_Left;
-	else if(src == 106)
-		return kSC_Right;
-	else if(src == 108)
-		return kSC_Down;
-	else if(src == 111)
-		return kSC_Delete;
+    src -= 8;
+    if(src == 103)
+        return kSC_Up;
+    else if(src == 105)
+        return kSC_Left;
+    else if(src == 106)
+        return kSC_Right;
+    else if(src == 108)
+        return kSC_Down;
+    else if(src == 111)
+        return kSC_Delete;
 
-	if(src >= kSC_Max)
-		return kSC_Max;
+    if(src >= kSC_Max)
+        return kSC_Max;
 
-	return static_cast<ScanCode>(src);
+    return static_cast<ScanCode>(src);
 }
 #endif
 

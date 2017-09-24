@@ -26,22 +26,22 @@ static LARGE_INTEGER g_offset;
 
 void m::time::initTime()
 {
-	LARGE_INTEGER freq;
-	QueryPerformanceFrequency(&freq);
+    LARGE_INTEGER freq;
+    QueryPerformanceFrequency(&freq);
 
-	freq.QuadPart /= 1000;
-	g_freq = static_cast<double>(freq.QuadPart);
+    freq.QuadPart /= 1000;
+    g_freq = static_cast<double>(freq.QuadPart);
 
-	QueryPerformanceCounter(&g_offset);
+    QueryPerformanceCounter(&g_offset);
 }
 
 double m::time::getTimeMs()
 {
-	LARGE_INTEGER ctime;
-	QueryPerformanceCounter(&ctime);
+    LARGE_INTEGER ctime;
+    QueryPerformanceCounter(&ctime);
 
-	ctime.QuadPart -= g_offset.QuadPart;
-	return static_cast<double>(ctime.QuadPart) / g_freq;
+    ctime.QuadPart -= g_offset.QuadPart;
+    return static_cast<double>(ctime.QuadPart) / g_freq;
 }
 
 #else
@@ -70,13 +70,13 @@ double m::time::getTimeMs()
 
 uint32_t m::time::getTimeMsUInt()
 {
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
 
-	ts.tv_sec *= 1000;
-	ts.tv_nsec /= 1000000;
+    ts.tv_sec *= 1000;
+    ts.tv_nsec /= 1000000;
 
-	return static_cast<uint32_t>(ts.tv_sec + ts.tv_nsec);
+    return static_cast<uint32_t>(ts.tv_sec + ts.tv_nsec);
 }
 
 #endif

@@ -26,58 +26,58 @@
 
 namespace m
 {
-	class SSLSocket : public Socket
-	{
-	public:
-		SSLSocket();
-		SSLSocket(SSLSocket &&src);
-		~SSLSocket();
+    class SSLSocket : public Socket
+    {
+    public:
+        SSLSocket();
+        SSLSocket(SSLSocket &&src);
+        ~SSLSocket();
 
-		SSLSocket &operator = (SSLSocket &&src);
+        SSLSocket &operator = (SSLSocket &&src);
 
-		bool initialize(const SSLContext &ctx);
-		bool initialize() override;
-		SocketConnectionError connect(const IPv4Address &addr) override;
-		int receive(uint8_t *dst, int sz) override;
-		int send(const uint8_t *src, int sz) override;
-		void close() override;
+        bool initialize(const SSLContext &ctx);
+        bool initialize() override;
+        SocketConnectionError connect(const IPv4Address &addr) override;
+        int receive(uint8_t *dst, int sz) override;
+        int send(const uint8_t *src, int sz) override;
+        void close() override;
 
-		inet::SocketError lastError() const override
-		{
-			return m_lastErr;
-		}
+        inet::SocketError lastError() const override
+        {
+            return m_lastErr;
+        }
 
-		unsigned int lastSSLError() const
-		{
-			return m_lastSSLErr;
-		}
+        unsigned int lastSSLError() const
+        {
+            return m_lastSSLErr;
+        }
 
-		String lastSSLErrorString() const;
+        String lastSSLErrorString() const;
 
-		bool isValid() const override
-		{
-			return m_sock != INVALID_SOCKET && m_ssl_ != nullptr;
-		}
+        bool isValid() const override
+        {
+            return m_sock != INVALID_SOCKET && m_ssl_ != nullptr;
+        }
 
-		bool operator ! () const override
+        bool operator ! () const override
         {
             return m_sock == INVALID_SOCKET || m_ssl_ == nullptr;
         }
 
-		const SSLContext &context() const
-		{
-			return m_ctx;
-		}
+        const SSLContext &context() const
+        {
+            return m_ctx;
+        }
 
-	private:
-		template<class T> int sslRW(const T &data);
+    private:
+        template<class T> int sslRW(const T &data);
 
-		SOCKET m_sock;
-		SSLContext m_ctx;
-		void *m_ssl_;
-		inet::SocketError m_lastErr;
-		unsigned int m_lastSSLErr;
-	};
+        SOCKET m_sock;
+        SSLContext m_ctx;
+        void *m_ssl_;
+        inet::SocketError m_lastErr;
+        unsigned int m_lastSSLErr;
+    };
 }
 
 #endif

@@ -8,7 +8,7 @@ Declare Test("strings"), Priority(2.0);
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
+    volatile StackIntegrityChecker sic;
     m::String test("i love dicks");
     test = test.substr(0, -1);
     test = test.substr(0, -6);
@@ -48,7 +48,7 @@ TEST
     testAssert(test == "some test", "trimming failed");
     testAssert(test == str2, "strings should match");
     testAssert(str2 == str3, "strings should match");
-	return true;
+    return true;
 }
 
 TEST
@@ -105,115 +105,115 @@ TEST
     d = test.format("%w %d %n %y, %h:%m:%s");
     std::cout << "[i]\tDate 2 for now is \"" << d.raw() << "\"" << std::endl;
 
-	testAssert(!test.parseRFC6265_511("rzr45484,  /  rezrr re++"), "date parsing should have failed 1");
-	testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:18:14 GMT"), "date parsing should have failed 2");
-	testAssert(!test.parseRFC6265_511("Wed, Jan 2021 10:18:14 GMT"), "date parsing should have failed 3");
-	testAssert(!test.parseRFC6265_511("Wed, 09 Jan 10:18:14 GMT"), "date parsing should have failed 4");
-	testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:1x:14 GMT"), "date parsing should have failed 5");
+    testAssert(!test.parseRFC6265_511("rzr45484,  /  rezrr re++"), "date parsing should have failed 1");
+    testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:18:14 GMT"), "date parsing should have failed 2");
+    testAssert(!test.parseRFC6265_511("Wed, Jan 2021 10:18:14 GMT"), "date parsing should have failed 3");
+    testAssert(!test.parseRFC6265_511("Wed, 09 Jan 10:18:14 GMT"), "date parsing should have failed 4");
+    testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:1x:14 GMT"), "date parsing should have failed 5");
 
-	test = m::Date(); //Clear to be sure...
-	testAssert(test.parseRFC6265_511("Wed, 09 Jan 2021 10:18:14 GMT"), "date parsing should be ok");
+    test = m::Date(); //Clear to be sure...
+    testAssert(test.parseRFC6265_511("Wed, 09 Jan 2021 10:18:14 GMT"), "date parsing should be ok");
 
-	testAssert(test.monthDay() == 9, "invalid month day");
-	testAssert(test.month() == 1, "invalid month");
-	testAssert(test.year() == 2021, "invalid year");
-	testAssert(test.hour() == 10, "invalid hour");
-	testAssert(test.minutes() == 18, "invalid minute");
-	testAssert(test.seconds() == 14, "invalid seconds");
+    testAssert(test.monthDay() == 9, "invalid month day");
+    testAssert(test.month() == 1, "invalid month");
+    testAssert(test.year() == 2021, "invalid year");
+    testAssert(test.hour() == 10, "invalid hour");
+    testAssert(test.minutes() == 18, "invalid minute");
+    testAssert(test.seconds() == 14, "invalid seconds");
 
-	testAssert(test.asUnixTimeGMT() == 1610187494, "invalid epoch");
+    testAssert(test.asUnixTimeGMT() == 1610187494, "invalid epoch");
     return true;
 }
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
+    volatile StackIntegrityChecker sic;
 
-	m::String t1("i like trains");
-	m::String t2(t1);
-	m::String t3(t1);
+    m::String t1("i like trains");
+    m::String t2(t1);
+    m::String t3(t1);
 
-	testAssert(t2.take(0, 2) == "i ", "take failed (beg)");
-	testAssert(t3.erase(0, 2) == "like trains", "take failed (beg)");
+    testAssert(t2.take(0, 2) == "i ", "take failed (beg)");
+    testAssert(t3.erase(0, 2) == "like trains", "take failed (beg)");
 
-	t2 = t1;
-	t3 = t1;
-	testAssert(t2.take(2, 7) == "like ", "take failed (mid)");
-	testAssert(t3.erase(2, 7) == "i trains", "take failed (mid)");
+    t2 = t1;
+    t3 = t1;
+    testAssert(t2.take(2, 7) == "like ", "take failed (mid)");
+    testAssert(t3.erase(2, 7) == "i trains", "take failed (mid)");
 
-	t2 = t1;
-	t3 = t1;
-	testAssert(t2.take(6) == " trains", "take failed (end)");
-	testAssert(t3.erase(6) == "i like", "take failed (end)");
+    t2 = t1;
+    t3 = t1;
+    testAssert(t2.take(6) == " trains", "take failed (end)");
+    testAssert(t3.erase(6) == "i like", "take failed (end)");
 
-	m::String tmp;
-	{
-		makeSizeString(1, tmp);
-		testAssert(tmp == "1 byte", "invalid size parsing 1");
-	}
+    m::String tmp;
+    {
+        makeSizeString(1, tmp);
+        testAssert(tmp == "1 byte", "invalid size parsing 1");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(5, tmp);
-		testAssert(tmp == "5 bytes", "invalid size parsing 2");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(5, tmp);
+        testAssert(tmp == "5 bytes", "invalid size parsing 2");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1024, tmp);
-		testAssert(tmp == "1 KiB", "invalid size parsing 3");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1024, tmp);
+        testAssert(tmp == "1 KiB", "invalid size parsing 3");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1024 * 1024, tmp);
-		testAssert(tmp == "1 MiB", "invalid size parsing 4");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1024 * 1024, tmp);
+        testAssert(tmp == "1 MiB", "invalid size parsing 4");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1024 * 1024 * 1024, tmp);
-		testAssert(tmp == "1 GiB", "invalid size parsing 5");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1024 * 1024 * 1024, tmp);
+        testAssert(tmp == "1 GiB", "invalid size parsing 5");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1ULL << 40ULL, tmp);
-		testAssert(tmp == "1 TiB", "invalid size parsing 6");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1ULL << 40ULL, tmp);
+        testAssert(tmp == "1 TiB", "invalid size parsing 6");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1ULL << 50ULL, tmp);
-		testAssert(tmp == "1024 TiB", "invalid size parsing 7");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1ULL << 50ULL, tmp);
+        testAssert(tmp == "1024 TiB", "invalid size parsing 7");
+    }
 
-	{
-		tmp.cleanup();
-		makeSizeString(1024 + 256, tmp);
-		testAssert(tmp == "1.25 KiB", "invalid size parsing 8");
-	}
+    {
+        tmp.cleanup();
+        makeSizeString(1024 + 256, tmp);
+        testAssert(tmp == "1.25 KiB", "invalid size parsing 8");
+    }
 
-	return true;
+    return true;
 }
 
 TEST
 {
-	//I should probably move this to Misc
+    //I should probably move this to Misc
 
-	volatile StackIntegrityChecker sic;
-	m::CPUInfo info(m::CPUInfo::fetch());
+    volatile StackIntegrityChecker sic;
+    m::CPUInfo info(m::CPUInfo::fetch());
 
-	if(!info.isValid())
-		std::cout << "[!]\tCouldn't fetch CPU info: " << info.error().raw() << std::endl;
+    if(!info.isValid())
+        std::cout << "[!]\tCouldn't fetch CPU info: " << info.error().raw() << std::endl;
 
-	testAssert(info.isValid(), "couldn't fetch CPU info!");
+    testAssert(info.isValid(), "couldn't fetch CPU info!");
 
-	std::cout << "[i]\tCPUInfo::name() = " << info.name().raw() << std::endl;
-	std::cout << "[i]\tCPUInfo::vendor() = " << info.vendor().raw() << std::endl;
-	std::cout << "[i]\tCPUInfo::numCores() = " << info.numCores() << std::endl;
-	std::cout << "[i]\tCPUInfo::maxFrequency() = " << info.maxFrequency() << " MHz" << std::endl;
-	return true;
+    std::cout << "[i]\tCPUInfo::name() = " << info.name().raw() << std::endl;
+    std::cout << "[i]\tCPUInfo::vendor() = " << info.vendor().raw() << std::endl;
+    std::cout << "[i]\tCPUInfo::numCores() = " << info.numCores() << std::endl;
+    std::cout << "[i]\tCPUInfo::maxFrequency() = " << info.maxFrequency() << " MHz" << std::endl;
+    return true;
 }
 
 TEST

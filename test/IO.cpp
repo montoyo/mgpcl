@@ -27,7 +27,7 @@ TEST
 
         {
             m::SSharedPtr<m::DataOutputStream> dos(new m::DataOutputStream(new m::BufferOutputStream(buf, 1024)));
-			dos->setEndianness(e);
+            dos->setEndianness(e);
 
             *dos << int(32) << uint16_t(12);
             *dos << m::String("some test");
@@ -42,7 +42,7 @@ TEST
 
         {
             m::SSharedPtr<m::DataInputStream> dis(new m::DataInputStream(new m::BufferInputStream(buf, 1024)));
-			dis->setEndianness(e);
+            dis->setEndianness(e);
 
             int a;
             uint16_t b;
@@ -59,7 +59,7 @@ TEST
         }
     }
 
-	delete[] buf;
+    delete[] buf;
     return true;
 }
 
@@ -67,7 +67,7 @@ TEST
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
+    volatile StackIntegrityChecker sic;
     m::ByteBuf bb;
 
     {
@@ -105,32 +105,32 @@ TEST
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
+    volatile StackIntegrityChecker sic;
 
-	m::SSharedPtr<m::OutputStream> cout(new m::STDOutputStream(m::STDHandle::HOutput));
-	m::TextOutputStream tos(cout);
+    m::SSharedPtr<m::OutputStream> cout(new m::STDOutputStream(m::STDHandle::HOutput));
+    m::TextOutputStream tos(cout);
 
-	tos << "[i]\tthis is a test" << m::eol;
-	tos << m::String("[i]\tSome pointer: ") << &tos << m::eol;
-	tos << "[i]\tSome integer: " << 1234 << m::eol;
-	tos << "[i]\tSome double: " << 12.34 << m::eol;
-	tos << "[i]\tSome char: " << 'c' << m::eol;
-	tos << "[i]\tSome byte: " << static_cast<uint8_t>(0xab) << m::eol;
+    tos << "[i]\tthis is a test" << m::eol;
+    tos << m::String("[i]\tSome pointer: ") << &tos << m::eol;
+    tos << "[i]\tSome integer: " << 1234 << m::eol;
+    tos << "[i]\tSome double: " << 12.34 << m::eol;
+    tos << "[i]\tSome char: " << 'c' << m::eol;
+    tos << "[i]\tSome byte: " << static_cast<uint8_t>(0xab) << m::eol;
 
-	return true;
+    return true;
 }
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
+    volatile StackIntegrityChecker sic;
 
-	m::List<m::String> devs;
-	testAssert(m::SerialPort::listDevices(devs), "couldn't list serial devices");
+    m::List<m::String> devs;
+    testAssert(m::SerialPort::listDevices(devs), "couldn't list serial devices");
 
-	for(m::String &dev: devs)
-		std::cout << "[i]\tFound serial device " << dev.raw() << std::endl;
+    for(m::String &dev: devs)
+        std::cout << "[i]\tFound serial device " << dev.raw() << std::endl;
 
-	return true;
+    return true;
 }
 
 //Serial IO test. Disabled by default to avoid messing

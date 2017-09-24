@@ -9,57 +9,57 @@ Declare Test("json"), Priority(7.0);
 
 TEST
 {
-	volatile StackIntegrityChecker sic;
-	m::SSharedPtr<m::InputStream> is(new m::FileInputStream("test.json"));
-	m::String err;
-	m::JSONElement root;
+    volatile StackIntegrityChecker sic;
+    m::SSharedPtr<m::InputStream> is(new m::FileInputStream("test.json"));
+    m::String err;
+    m::JSONElement root;
 
-	if(!m::json::parse(is, root, err)) {
-		std::cout << "[!]\t" << err.raw() << std::endl;
-		return false;
-	}
+    if(!m::json::parse(is, root, err)) {
+        std::cout << "[!]\t" << err.raw() << std::endl;
+        return false;
+    }
 
-	m::JSONElement &sa = root["someArray"];
-	testAssert(sa.isArray(), "'someArray' is not an array");
-	
-	m::JSONElement &saLast = sa[sa.size() - 1];
-	testAssert(saLast.isObject(), "'someArray.last()' is not an object");
+    m::JSONElement &sa = root["someArray"];
+    testAssert(sa.isArray(), "'someArray' is not an array");
+    
+    m::JSONElement &saLast = sa[sa.size() - 1];
+    testAssert(saLast.isObject(), "'someArray.last()' is not an object");
 
-	m::JSONElement &dee = saLast["dee"];
-	testAssert(dee.isString(), "'dee' is not a string");
-	testAssert(dee.asString() == "hel\tlo", "'dee' has an unexpected value");
+    m::JSONElement &dee = saLast["dee"];
+    testAssert(dee.isString(), "'dee' is not a string");
+    testAssert(dee.asString() == "hel\tlo", "'dee' has an unexpected value");
 
-	m::SSharedPtr<m::StringOStream> sos(new m::StringOStream);
-	testAssert(m::json::serializeCompact(sos.staticCast<m::OutputStream>(), root), "couldn't serialize JSON 1");
-	std::cout << "[i]\tCompact data is:" << sos->data().raw() << std::endl;
+    m::SSharedPtr<m::StringOStream> sos(new m::StringOStream);
+    testAssert(m::json::serializeCompact(sos.staticCast<m::OutputStream>(), root), "couldn't serialize JSON 1");
+    std::cout << "[i]\tCompact data is:" << sos->data().raw() << std::endl;
 
-	sos->cleanup();
-	testAssert(m::json::serializeHumanReadable(sos.staticCast<m::OutputStream>(), root), "couldn't serialize JSON 2");
-	std::cout << "[i]\tHuman data is:\n" << sos->data().raw() << std::endl;
+    sos->cleanup();
+    testAssert(m::json::serializeHumanReadable(sos.staticCast<m::OutputStream>(), root), "couldn't serialize JSON 2");
+    std::cout << "[i]\tHuman data is:\n" << sos->data().raw() << std::endl;
 
-	return true;
+    return true;
 }
 
 DISABLED_TEST
 {
-	volatile StackIntegrityChecker sic;
-	m::File citylots("citylots.json");
+    volatile StackIntegrityChecker sic;
+    m::File citylots("citylots.json");
 
-	if(citylots.exists()) {
-		m::SSharedPtr<m::InputStream> is(new m::FileInputStream("citylots.json"));
-		m::String err;
-		m::JSONElement root;
+    if(citylots.exists()) {
+        m::SSharedPtr<m::InputStream> is(new m::FileInputStream("citylots.json"));
+        m::String err;
+        m::JSONElement root;
 
-		double start = m::time::getTimeMs();
-		if(!m::json::parse(is, root, err)) {
-			std::cout << "[!]\t" << err.raw() << std::endl;
-			return false;
-		}
+        double start = m::time::getTimeMs();
+        if(!m::json::parse(is, root, err)) {
+            std::cout << "[!]\t" << err.raw() << std::endl;
+            return false;
+        }
 
-		double t = m::time::getTimeMs() - start;
-		std::cout << "[i]\tFinished parsing in " << t << " ms!" << std::endl;
-	} else
-		std::cout << "[i]\tHuge citylots.json test file is missing; not running test..." << std::endl;
+        double t = m::time::getTimeMs() - start;
+        std::cout << "[i]\tFinished parsing in " << t << " ms!" << std::endl;
+    } else
+        std::cout << "[i]\tHuge citylots.json test file is missing; not running test..." << std::endl;
 
-	return true;
+    return true;
 }

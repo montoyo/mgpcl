@@ -100,6 +100,14 @@ namespace m
 	template<class RefCnt> class TTextInputStream : public InputStream, public TextDeserializer
 	{
 	public:
+		TTextInputStream()
+        {
+        }
+
+        TTextInputStream(SharedPtr<InputStream, RefCnt> child) : m_child(child)
+        {
+        }
+
 		int read(uint8_t *dst, int sz) override
 		{
 			return m_child->read(dst, sz);

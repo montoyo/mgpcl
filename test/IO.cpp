@@ -6,6 +6,7 @@
 #include <mgpcl/TextIOStream.h>
 #include <mgpcl/ByteBuf.h>
 #include <mgpcl/SerialIO.h>
+#include <mgpcl/Time.h>
 
 Declare Test("io"), Priority(5.0);
 
@@ -131,3 +132,56 @@ TEST
 
 	return true;
 }
+
+//Serial IO test. Disabled by default to avoid messing
+//around with your serial devices. If you have any, that is.
+#ifdef MGPCL_WIN
+#define M_TEST_SERIAL_PORT "COM3"
+#else
+#define M_TEST_SERIAL_PORT "/dev/ttyACM0"
+#endif
+
+static bool readTO(m::TextInputStream &tis, m::String &dst)
+{
+    m::SerialInputStream &sis = *tis.child().staticCast<m::SerialInputStream>();
+    double start = m::time::getTimeMs();
+
+    while(sis.available() <= 0 && m::time::getTimeMs() - start < 5000.0)
+        m::time::sleepMs(50);
+
+    if(sis.available() <= 0)
+        return false;
+
+    dst.cleanup();
+    tis.readLine(dst);
+    return true;
+}
+
+DISABLED_TEST
+{
+    volatile StackIntegrityChecker sic;
+    m::SerialPort sp;
+    testAssert(sp.open(M_TEST_SERIAL_PORT, m::SerialPort::kAF_ReadWrite), "could not open serial port");
+    sp.setArduinoConfig(m::SerialPort::kBR_9600);
+    testAssert(sp.applyConfig(), "could not apply serial port config");
+
+    m::TextInputStream tis(sp.inputStream<m::RefCounter>().staticCast<m::InputStream>());
+    m::TextOutputStream tos(sp.outputStream<m::RefCounter>().staticCast<m::OutputStream>(), m::LineEnding::CRLF);
+    m::String line;
+
+    tos << "What's on this drive?" << m::eol;
+    testAssert(readTO(tis, line), "arduino didn't answer 1");
+    testAssert(line == "Project insight requires... insight", "arduino didn't answer correctly 1");
+    testAssert(readTO(tis, line), "arduino didn't answer 2");
+    testAssert(line == "So I wrote an algorithm", "arduino didn't answer correctly 2");
+    tos << "What kind of algorithm? What does it do?" << m::eol;
+    testAssert(readTO(tis, line), "arduino didn't answer 3");
+    testAssert(line == "The answer to your question is fascinating.", "arduino didn't answer correctly 3");
+    testAssert(readTO(tis, line), "arduino didn't answer 4");
+    testAssert(line == "Unfortunately, you shall be too dead to hear it.", "arduino didn't answer correctly 4");
+
+    tis.close();
+    tos.close();
+    sp.close();
+    return true;
+};

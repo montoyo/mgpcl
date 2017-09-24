@@ -123,6 +123,27 @@ m::SerialInputStream &m::SerialInputStream::operator = (SerialInputStream &&src)
 	return *this;
 }
 
+int m::SerialInputStream::available() const
+{
+    if(m_serial == nullptr)
+        return -1;
+
+#ifdef MGPCL_WIN
+    DWORD noCare;
+    COMSTAT commStat;
+    if(ClearCommError(m_serial->m_handle, &noCare, &commStat) == FALSE)
+        return -1;
+
+    return static_cast<int>(commStat.cbInQue);
+#else
+    int avail = -1;
+    if(ioctl(m_serial->m_fd, FIONREAD, &avail) == -1)
+        return -1;
+
+    return avail;
+#endif
+}
+
 /************************************************************** SerialOutputStream ***********************************************************************/
 
 m::SerialOutputStream::SerialOutputStream(SerialHandle *serial)
@@ -236,6 +257,11 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 	if(!port.startsWith("COM", 3))
 		return false;
 
+	for(int i = 3; i < port.length(); i++) {
+	    if(port[i] < '0' || port[i] > '9')
+	        return false;
+	}
+
 	String fname(4 + port.length());
 	fname.append("\\\\.\\", 4);
 	fname += port;
@@ -247,7 +273,7 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 	if(accessFlags & kAF_Write)
 		oMode |= GENERIC_WRITE;
 
-	HANDLE h = CreateFile(fname.raw(), oMode, 0, nullptr, OPEN_EXISTING, 0, nullptr);
+	HANDLE h = CreateFile(fname.raw(), oMode, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if(h == INVALID_HANDLE_VALUE)
 		return false;
 
@@ -256,8 +282,14 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 		return false;
 	}
 
+	if(GetCommTimeouts(h, &m_defTimeouts) == FALSE) {
+	    CloseHandle(h);
+	    return false;
+	}
+
 	m_sh = new SerialHandle;
 	m_sh->m_handle = h;
+	m_sh->m_nbio = false;
 	return true;
 #else
 	if(!port.startsWith("/dev/tty", 8))
@@ -271,9 +303,21 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 	else
 		oMode = O_WRONLY;
 
-	int fd = ::open(port.raw(), oMode);
+    /* TODO: Lack of error reporting here. This is important
+     * especially on serial ports because it may throw an
+     * 'Access denied' error because of the way linux sucks.
+     *
+     * O_NDELAY is needed to avoid blocking whatever the state
+     * of DCD. It'll disabled just after the open() call.
+     */
+	int fd = ::open(port.raw(), oMode | O_NOCTTY | O_NDELAY);
 	if(fd < 0)
 		return false;
+
+    if(fcntl(fd, F_SETFL, 0) == -1) { //Disable non-blocking by default
+        ::close(fd);
+        return false;
+    }
 
 	Mem::zero(m_tty);
 	if(tcgetattr(fd, &m_tty) != 0) {
@@ -283,14 +327,28 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 
 	m_sh = new SerialHandle;
 	m_sh->m_fd = fd;
+    m_sh->m_nbio = false;
 
-	m_tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY);
-	m_tty.c_lflag = 0;
-	m_tty.c_oflag = 0;
-	m_tty.c_cc[VMIN] = 0;
-	m_tty.c_cc[VTIME] = 5;
+    //Disable hardware flow control (if supported by the OS)
+#ifdef CRTSCTS
 	m_tty.c_cflag &= ~CRTSCTS;
-	m_tty.c_cflag |= CLOCAL;
+#endif
+#ifdef CNEW_RTSCTS
+    m_tty.c_cflag &= ~CNEW_RTSCTS;
+#endif
+#ifndef XCASE
+#define XCASE 0
+#endif
+
+	m_tty.c_cflag |= (CLOCAL | CREAD);
+    m_tty.c_lflag &= ~(ISIG | ICANON | XCASE | ECHO | ECHOE);
+    m_tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY | INLCR | ICRNL | IUCLC | PARMRK);
+    m_tty.c_iflag |= (INPCK | ISTRIP); //Force parity check on. Is that a good thing?
+    m_tty.c_oflag &= ~(OPOST | OLCUC | ONLCR | OCRNL | ONLRET | OFILL | NLDLY | CRDLY | TABDLY | BSDLY);
+    m_tty.c_oflag &= ~(VTDLY | FFDLY);
+    m_tty.c_cc[VMIN] = 0;
+    m_tty.c_cc[VTIME] = 5;
+
 	return true;
 #endif
 }
@@ -400,12 +458,12 @@ void m::SerialPort::setParity(Parity p)
 #else
 	switch(p) {
 	case kP_Odd:
-		m_tty.c_cflag |= PARENB | PARODD;
+		m_tty.c_cflag |= (PARENB | PARODD);
 		break;
 
 	case kP_Even:
-		m_tty.c_cflag &= ~PARODD;
-		m_tty.c_cflag |= PARENB;
+        m_tty.c_cflag |= PARENB;
+        m_tty.c_cflag &= ~PARODD;
 		break;
 
 	default:
@@ -420,25 +478,27 @@ void m::SerialPort::setByteSize(uint8_t bs)
 #ifdef MGPCL_WIN
 	m_cfg.ByteSize = static_cast<BYTE>(bs);
 #else
+    m_tty.c_cflag &= ~CSIZE;
+
 	switch(bs) {
 	case 5:
-		m_tty.c_cflag = (m_tty.c_cflag & ~CSIZE) | CS5;
+		m_tty.c_cflag |= CS5;
 		break;
 
 	case 6:
-		m_tty.c_cflag = (m_tty.c_cflag & ~CSIZE) | CS6;
+        m_tty.c_cflag |= CS6;
 		break;
 
 	case 7:
-		m_tty.c_cflag = (m_tty.c_cflag & ~CSIZE) | CS7;
+        m_tty.c_cflag |= CS7;
 		break;
 
 	case 8:
-		m_tty.c_cflag = (m_tty.c_cflag & ~CSIZE) | CS8;
+        m_tty.c_cflag |= CS8;
 		break;
 
 	default:
-		m_tty.c_cflag &= ~CSIZE;
+        //Well...
 		break;
 	}
 #endif
@@ -558,21 +618,38 @@ void m::SerialPort::setArduinoConfig(BaudRate br)
 	m_cfg.Parity = NOPARITY;
 	m_cfg.ByteSize = 8;
 #else
-	setBaudRate(br);
-	m_tty.c_cflag &= ~CSTOPB; //One stop bit
-	m_tty.c_cflag &= ~(PARENB | PARODD); //Disable parity
-	m_tty.c_cflag = (m_tty.c_cflag & ~CSIZE) | CS8; //8 bits-byte
+    m_tty.c_cflag &= ~(CSTOPB | PARENB | PARODD | CSIZE);
+    m_tty.c_cflag |= CS8;
+    setBaudRate(br);
 #endif
 }
 
-bool m::SerialPort::applyConfig()
+bool m::SerialPort::applyConfig(bool flush, int fPause)
 {
 	mAssert(m_sh != nullptr && m_sh->isValid(), "didn't open serial port!");
 
 #ifdef MGPCL_WIN
-	return SetCommState(m_sh->m_handle, &m_cfg) != FALSE;
+	if(SetCommState(m_sh->m_handle, &m_cfg) == FALSE)
+        return false;
+
+    SetupComm(m_sh->m_handle, MGPCL_WIN_SERIAL_BUF_SZ, MGPCL_WIN_SERIAL_BUF_SZ);
+
+    if(flush) {
+        Sleep(static_cast<DWORD>(fPause));
+        PurgeComm(m_sh->m_handle, PURGE_TXABORT | PURGE_RXABORT | PURGE_TXCLEAR | PURGE_RXCLEAR);
+    }
+
+    return true;
 #else
-	return tcsetattr(m_sh->m_fd, TCSANOW, &m_tty) == 0;
+	if(tcsetattr(m_sh->m_fd, TCSANOW, &m_tty) != 0)
+        return false;
+
+    if(flush) {
+        usleep(static_cast<unsigned int>(fPause * 1000));
+        tcflush(m_sh->m_fd, TCIFLUSH);
+    }
+
+    return true;
 #endif
 }
 
@@ -613,6 +690,34 @@ m::SerialPort &m::SerialPort::operator = (SerialPort &&sp)
 	return *this;
 }
 
+bool m::SerialPort::setNonBlocking(bool nb)
+{
+    if(m_sh == nullptr)
+        return false;
+
+#ifdef MGPCL_WIN
+    if(nb) {
+        COMMTIMEOUTS cto = m_defTimeouts;
+        cto.ReadIntervalTimeout = MAXDWORD;
+        cto.ReadTotalTimeoutMultiplier = 0;
+        cto.ReadTotalTimeoutConstant = 0;
+
+        if(SetCommTimeouts(m_sh->m_handle, &cto) == FALSE)
+            return false;
+    } else if(SetCommTimeouts(m_sh->m_handle, &m_defTimeouts) == FALSE)
+        return false;
+
+    m_sh->m_nbio = true;
+    return true;
+#else
+    if(fcntl(m_sh->m_fd, F_SETFL, nb ? FNDELAY : 0) == -1)
+        return false;
+
+    m_sh->m_nbio = true;
+    return true;
+#endif
+}
+
 #ifdef MGPCL_WIN
 #include "mgpcl/WinWMI.h"
 
@@ -642,8 +747,8 @@ bool m::SerialPort::listDevices(List<String> &dst)
 }
 
 #else
-#include <string.h>
 #include <dirent.h>
+#include <cstring>
 
 bool m::SerialPort::listDevices(List<String> &dst)
 {

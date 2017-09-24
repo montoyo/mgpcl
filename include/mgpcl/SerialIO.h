@@ -75,8 +75,14 @@ namespace m
 
 		void releaseRef();
 
+        bool isNonBlocking() const
+        {
+            return m_nbio;
+        }
+
 	private:
 		Atomic m_refs;
+        bool m_nbio;
 
 #ifdef MGPCL_WIN
 		HANDLE m_handle;
@@ -98,9 +104,15 @@ namespace m
 		uint64_t pos() override;
 		bool seek(int amount, SeekPos sp = SeekPos::Beginning) override;
 		bool seekSupported() const override;
+		int available() const;
 		void close() override;
 
 		SerialInputStream &operator = (SerialInputStream &&src);
+
+        bool isNonBlocking() const
+        {
+            return m_serial != nullptr && m_serial->m_nbio;
+        }
 
 	private:
 		SerialInputStream()
@@ -188,7 +200,8 @@ namespace m
 		void setParity(Parity p);
 		void setByteSize(uint8_t bs);
 		void setArduinoConfig(BaudRate br = kBR_9600);
-		bool applyConfig();
+		bool applyConfig(bool flush = true, int fPause = 2000); //With flush set to true, applyConfig will hang for fPause ms.
+        bool setNonBlocking(bool nb = true); //Non blocking mode makes read() return 0 when no data is available
 		void close();
 
 		BaudRate baudRate() const;
@@ -196,7 +209,12 @@ namespace m
 		Parity parity() const;
 		uint8_t byteSize() const;
 
-		SerialPort &operator =(SerialPort &&sp);
+        bool isNonBlocking() const
+        {
+            return m_sh != nullptr && m_sh->m_nbio;
+        }
+
+		SerialPort &operator = (SerialPort &&sp);
 
 		bool isOpen() const
 		{
@@ -219,6 +237,18 @@ namespace m
 			return SharedPtr<SerialOutputStream, RefCnt>(new SerialOutputStream(m_sh));
 		}
 
+#ifdef MGPCL_WIN
+        DCB &raw()
+        {
+            return m_cfg;
+        }
+#else
+        struct termios &raw()
+        {
+            return m_tty;
+        }
+#endif
+
 		static bool listDevices(List<String> &dst);
 
 	private:
@@ -226,6 +256,7 @@ namespace m
 
 #ifdef MGPCL_WIN
 		DCB m_cfg;
+        COMMTIMEOUTS m_defTimeouts;
 #else
 		struct termios m_tty;
 #endif

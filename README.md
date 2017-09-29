@@ -35,7 +35,7 @@ __TL;DR:__ Not the best, but this is what I want to work with.
  * Parsing misc (JSON, INI-like configs, Program args)
  * Logging (Basic logger, logging over network)
  * Internet (Sockets, SSLSockets, TCPServer, TCPClient, Packet system, HTTP requests)
- * GUI (Message boxes, and **very basic** Window management)
+ * GUI (Message boxes, ~~**very basic** Window management~~ [Window class has been removed])
  * Crypto (OpenSSL wrappers for Big Numbers, HMAC, AES, RSA, SHA)
  * and others (Date, Nifty counter macros, Random, basic signal & slot system, Singletons, Time handling, CRC32, Base64, etc..)
 

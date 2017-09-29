@@ -17,53 +17,6 @@
 
 Declare Test("misc"), Priority(14.0);
 
-class Aligned16
-{
-public:
-    Aligned16(uint32_t cnt)
-    {
-        //Not sure this is actually what "16-bytes aligned" means, but ok...
-        m_ptr = new uint8_t[cnt * sizeof(float) + 16];
-        uint64_t offset = reinterpret_cast<uint64_t>(m_ptr) & 15ULL; //Modulo 16
-
-        if(offset == 0)
-            m_alignedPtr = reinterpret_cast<float*>(m_ptr);
-        else {
-            uint8_t toAdd = 16 - static_cast<uint8_t>(offset);
-            m_alignedPtr = reinterpret_cast<float*>(m_ptr + toAdd);
-        }
-    }
-
-    ~Aligned16()
-    {
-        delete[] m_ptr;
-    }
-
-    float operator[] (uint32_t idx) const
-    {
-        return m_alignedPtr[idx];
-    }
-
-    float &operator[] (uint32_t idx)
-    {
-        return m_alignedPtr[idx];
-    }
-
-    float *ptr()
-    {
-        return m_alignedPtr;
-    }
-
-    void clear(uint32_t cnt)
-    {
-        m::Mem::zero(m_alignedPtr, cnt * sizeof(float));
-    }
-
-private:
-    uint8_t *m_ptr;
-    float *m_alignedPtr;
-};
-
 #define M_FFT_EPSILON 0.01f
 
 static bool checkValues(float *a, float *b)
@@ -97,29 +50,35 @@ TEST
     std::ifstream in("samples.csv");
     testAssert(!!in, "couldn't open input samples");
 
-    Aligned16 samples(2048);
+    float *samples = m::Mem::alignedNew<float>(2048, 16);
     int cnt;
+
     for(cnt = 0; cnt < 2048 && !in.eof(); cnt++)
         in >> samples[cnt];
 
     in.close();
     testAssert(cnt >= 2048, "didn't read enough samples!");
 
-    Aligned16 a(2048);
-    Aligned16 b(2048);
+    float *a = m::Mem::alignedNew<float>(2048, 16);
+    float *b = m::Mem::alignedNew<float>(2048, 16);
 
     double start = m::time::getTimeMs();
-    m::fft::applySSE(samples.ptr(), a.ptr(), b.ptr(), 2048);
+    m::fft::applySSE(samples, a, b, 2048);
     std::cout << "[i]\tfft::applySSE() took " << m::time::getTimeMs() - start << std::endl;
-    testAssert(checkValues(a.ptr(), b.ptr()), "got wrong FFT computations (SSE)");
+    testAssert(checkValues(a, b), "got wrong FFT computations (SSE)");
 
-    a.clear(2048); //Just to make sure...
-    b.clear(2048);
+    //Clear it, just to make sure...
+    m::Mem::zero(a, sizeof(float) * 2048);
+    m::Mem::zero(b, sizeof(float) * 2048);
 
     start = m::time::getTimeMs();
-    m::fft::apply(samples.ptr(), a.ptr(), b.ptr(), 2048);
+    m::fft::apply(samples, a, b, 2048);
     std::cout << "[i]\tfft::apply() took " << m::time::getTimeMs() - start << std::endl;
-    testAssert(checkValues(a.ptr(), b.ptr()), "got wrong FFT computations");
+    testAssert(checkValues(a, b), "got wrong FFT computations");
+
+    m::Mem::alignedDelete<float>(samples);
+    m::Mem::alignedDelete<float>(a);
+    m::Mem::alignedDelete<float>(b);
     return true;
 }
 

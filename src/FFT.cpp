@@ -94,40 +94,40 @@ namespace m
 
             M128 xmm0, xmm7;
             xmm7 = _mm_set1_ps(-2.0f * static_cast<float>(M_PI) / static_cast<float>(cnt));
-            xmm0 = _mm_mul_ps(xmm7, _PS_CONST_GET(0123));    //xmm0 = twAng
-            xmm7 = _mm_mul_ps(xmm7, _PS_CONST_GET(4));        //xmm7 = twMul
+            xmm0 = _mm_mul_ps(xmm7, _PS_CONST_GET(0123)); //xmm0 = twAng
+            xmm7 = _mm_mul_ps(xmm7, _PS_CONST_GET(4));    //xmm7 = twMul
 
             for(uint32_t i = 0; i < half; i += 4) {
                 M128 xmm1, xmm2;
                 uint32_t j = half + i;
 
-                sse::sincos_ps(xmm0, &xmm2, &xmm1);    //xmm1 = twCos, xmm2 = twSin
+                sse::sincos_ps(xmm0, &xmm2, &xmm1);       //xmm1 = twCos, xmm2 = twSin
 
                 M128 xmm3, xmm4, xmm5, xmm6;
                 xmm3 = _mm_load_ps(aOut + j);    //xmm3 = aOut[j]
                 xmm4 = _mm_load_ps(bOut + j);    //xmm4 = bOut[j]
 
-                xmm5 = _mm_mul_ps(xmm1, xmm3);    //xmm5 = twCos * aOut[j]
-                xmm6 = _mm_mul_ps(xmm2, xmm4);    //xmm6 = twSin * bOut[j]
-                xmm5 = _mm_sub_ps(xmm5, xmm6);    //xmm5 = xmm5 - xmm6 (twA)
+                xmm5 = _mm_mul_ps(xmm1, xmm3);   //xmm5 = twCos * aOut[j]
+                xmm6 = _mm_mul_ps(xmm2, xmm4);   //xmm6 = twSin * bOut[j]
+                xmm5 = _mm_sub_ps(xmm5, xmm6);   //xmm5 = xmm5 - xmm6 (twA)
 
-                xmm1 = _mm_mul_ps(xmm1, xmm4);    //xmm1 = twCos * bOut[j]
-                xmm2 = _mm_mul_ps(xmm2, xmm3);    //xmm2 = twSin * aOut[j]
-                xmm6 = _mm_add_ps(xmm1, xmm2);    //xmm6 = xmm1 + xmm2 (twB)
+                xmm1 = _mm_mul_ps(xmm1, xmm4);   //xmm1 = twCos * bOut[j]
+                xmm2 = _mm_mul_ps(xmm2, xmm3);   //xmm2 = twSin * aOut[j]
+                xmm6 = _mm_add_ps(xmm1, xmm2);   //xmm6 = xmm1 + xmm2 (twB)
 
                 xmm1 = _mm_load_ps(aOut + i);    //xmm1 = aOut[i] (tmp)
-                xmm2 = _mm_add_ps(xmm1, xmm5);    //xmm2 = tmp + twA
+                xmm2 = _mm_add_ps(xmm1, xmm5);   //xmm2 = tmp + twA
                 _mm_store_ps(aOut + i, xmm2);    //aOut[i] = xmm2
-                xmm2 = _mm_sub_ps(xmm1, xmm5);    //xmm2 = tmp - twA
+                xmm2 = _mm_sub_ps(xmm1, xmm5);   //xmm2 = tmp - twA
                 _mm_store_ps(aOut + j, xmm2);    //aOut[j] = xmm2
 
                 xmm1 = _mm_load_ps(bOut + i);    //xmm1 = bOut[i] (tmp)
-                xmm2 = _mm_add_ps(xmm1, xmm6);    //xmm2 = tmp + twB
+                xmm2 = _mm_add_ps(xmm1, xmm6);   //xmm2 = tmp + twB
                 _mm_store_ps(bOut + i, xmm2);    //bOut[i] = xmm2
-                xmm2 = _mm_sub_ps(xmm1, xmm6);    //xmm2 = tmp - twB
+                xmm2 = _mm_sub_ps(xmm1, xmm6);   //xmm2 = tmp - twB
                 _mm_store_ps(bOut + j, xmm2);    //bOut[j] = xmm2
 
-                xmm0 = _mm_add_ps(xmm0, xmm7);    //xmm0 = twAng + twMul
+                xmm0 = _mm_add_ps(xmm0, xmm7);   //xmm0 = twAng + twMul
             }
         }
     }

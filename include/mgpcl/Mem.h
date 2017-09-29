@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include <new>
 #include <type_traits>
 #include <cstring>
 #include <cstdint>
@@ -54,13 +55,40 @@ namespace m
         //Only allocate; does not call constructors.
         template<typename T> T *alloc(size_t cnt)
         {
-            return reinterpret_cast<T*>(new char[sizeof(T) * cnt]);
+            return reinterpret_cast<T*>(new uint8_t[sizeof(T) * cnt]);
         }
 
         //Only frees allocated memory; does not call destructors
         template<typename T> void del(T *ptr)
         {
             delete[] reinterpret_cast<uint8_t*>(ptr);
+        }
+
+        //Allocates 'cnt' Ts. The returned pointer will be 'align'-bytes aligned.
+        //Just like alloc(), no constructor will be called. Use alignedDelete to delete.
+        template<typename T> T *alignedNew(size_t cnt, size_t align)
+        {
+            if(align <= 0 || align > 0xFF)
+                throw std::bad_alloc();
+
+            uint8_t *ptr = new uint8_t[sizeof(T) * cnt + align];
+            size_t offset = align - reinterpret_cast<size_t>(ptr) % align;
+
+            //Write offset information
+            T *ret = reinterpret_cast<T*>(ptr + offset);
+            offset--;
+            ptr[offset] = static_cast<uint8_t>(offset);
+
+            return ret;
+        }
+
+        //Deletes data allocated by alignedNew() and ONLY alignedNew().
+        //Just like del(), it won't call the destructor.
+        template<typename T> void alignedDelete(T *ptr)
+        {
+            uint8_t *toDel = reinterpret_cast<uint8_t*>(ptr) - 1;
+            toDel -= *toDel;
+            delete[] toDel;
         }
 
         //Cleverly copies an array of cnt Ts into another

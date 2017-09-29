@@ -40,7 +40,7 @@ namespace m
          * 'cnt' is the number of elements in the arrays, which should be the same for
          * 'aIn', 'aOut', and 'bOut'.
          *
-         * absSSE computes the modulus [that is, sqrt(a² + b²)] of each complex numbers
+         * absSSE computes the modulus [that is, sqrt(a^2 + b^2)] of each complex numbers
          * in 'aIn' and 'bIn', and outputs the result in 'result'. abs2SSE does the same
          * but it also multiplies the result by some constant, which might be useful.
          *

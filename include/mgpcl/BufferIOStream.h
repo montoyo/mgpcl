@@ -127,7 +127,7 @@ namespace m
                 if(static_cast<uint32_t>(sz) > m_len - m_ptr)
                     sz = static_cast<uint32_t>(m_len - m_ptr);
 
-                Mem::copy(dst, m_data + m_ptr, static_cast<size_t>(sz));
+                mem::copy(dst, m_data + m_ptr, static_cast<size_t>(sz));
                 m_ptr += static_cast<uint32_t>(sz);
             }
 
@@ -207,7 +207,7 @@ namespace m
                 if(static_cast<uint32_t>(sz) > m_len - m_ptr)
                     sz = static_cast<uint32_t>(m_len - m_ptr);
 
-                Mem::copy(m_data + m_ptr, src, static_cast<size_t>(sz));
+                mem::copy(m_data + m_ptr, src, static_cast<size_t>(sz));
                 m_ptr += static_cast<uint32_t>(sz);
             }
 

@@ -27,7 +27,7 @@ static const char *g_cDay[]   = { "Sunday", "Monday", "Tuesday", "Wednesday", "T
 
 m::Date::Date()
 {
-    Mem::zero(this, sizeof(Date));
+    mem::zero(this, sizeof(Date));
 }
 
 m::Date::Date(time_t unixt)

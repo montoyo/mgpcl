@@ -189,7 +189,7 @@ static void genArray(int *sz, int *dst)
     } else if(*sz != 5)
         abort();
 
-    m::Mem::copy(dst, g_12345, 5 * sizeof(int));
+    m::mem::copy(dst, g_12345, 5 * sizeof(int));
 }
 
 class ClassWithEqualOp

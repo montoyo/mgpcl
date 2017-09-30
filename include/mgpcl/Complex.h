@@ -216,7 +216,7 @@ namespace m
 
         static Complex<T> fromPolar(T len, T arg)
         {
-            return Complex<T>(len * Math::cos(arg), len * Math::sin(arg));
+            return Complex<T>(len * math::cos(arg), len * math::sin(arg));
         }
 
     private:

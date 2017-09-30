@@ -40,7 +40,7 @@ namespace m
         {
             static_assert(!std::is_class<T>::value, "m::Allocator was not made for classes, particularly not m::Allocator::reallocate()");
             T *nptr = new T[newCnt];
-            Mem::copy(nptr, ptr, sizeof(T) * oldCnt);
+            mem::copy(nptr, ptr, sizeof(T) * oldCnt);
             delete[] ptr;
 
             return nptr;

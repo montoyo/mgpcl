@@ -34,7 +34,7 @@ m::inet::InitError m::inet::initialize()
 {
 #ifdef MGPCL_WIN
     WSADATA wsa;
-    Mem::zero(&wsa, sizeof(WSADATA));
+    mem::zero(&wsa, sizeof(WSADATA));
 
     wsa.wVersion = MAKEWORD(2, 2);
     int err = WSAStartup(MAKEWORD(2, 2), &wsa);

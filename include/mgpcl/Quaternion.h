@@ -142,12 +142,12 @@ namespace m
         //then pitches (X) during take-off, and finally rolls (Z) in the air."
         Quaternion<T> &setFromEuler(T ax, T ay, T az)
         {
-            T cosPhi = Math::cos<T>(az / T(2)); //Roll
-            T sinPhi = Math::sin<T>(az / T(2));
-            T cosTet = Math::cos<T>(ax / T(2)); //Pitch (btw, it's supposed to be theta :D)
-            T sinTet = Math::sin<T>(ax / T(2));
-            T cosPsi = Math::cos<T>(ay / T(2)); //Yaw
-            T sinPsi = Math::sin<T>(ay / T(2));
+            T cosPhi = math::cos<T>(az / T(2)); //Roll
+            T sinPhi = math::sin<T>(az / T(2));
+            T cosTet = math::cos<T>(ax / T(2)); //Pitch (btw, it's supposed to be theta :D)
+            T sinTet = math::sin<T>(ax / T(2));
+            T cosPsi = math::cos<T>(ay / T(2)); //Yaw
+            T sinPsi = math::sin<T>(ay / T(2));
 
             m_w = cosPhi * cosTet * cosPsi + sinPhi * sinTet * sinPsi;
             m_x = sinPhi * cosTet * cosPsi - cosPhi * sinTet * sinPsi;
@@ -167,7 +167,7 @@ namespace m
             T a = T(2) * (m_w * m_x + m_y * m_z);
             T b = T(1) - T(2) * (m_x * m_x + m_y * m_y);
 
-            return Math::atan2<T>(a, b);
+            return math::atan2<T>(a, b);
         }
 
         //Returns the yaw (psi)
@@ -176,14 +176,14 @@ namespace m
             T a = T(2) * (m_w * m_z + m_x * m_y);
             T b = T(1) - T(2) * (m_z * m_z + m_y * m_y);
 
-            return Math::atan2<T>(a, b);
+            return math::atan2<T>(a, b);
         }
 
         //Returns the roll (phi)
         T eulerZ() const
         {
-            T val = Math::clamp<T>(T(2) * (m_w * m_y - m_z * m_x), T(-1), T(1));
-            return Math::asin<T>(val);
+            T val = math::clamp<T>(T(2) * (m_w * m_y - m_z * m_x), T(-1), T(1));
+            return math::asin<T>(val);
         }
 
         Vector3<T> eulerAngles() const
@@ -193,9 +193,9 @@ namespace m
             T xb = T(1) - T(2) * (m_x * m_x + y2);
             T ya = T(2) * (m_w * m_z + m_x * m_y);
             T yb = T(1) - T(2) * (m_z * m_z + y2);
-            T z = Math::clamp<T>(T(2) * (m_w * m_y - m_z * m_x), T(-1), T(1));
+            T z = math::clamp<T>(T(2) * (m_w * m_y - m_z * m_x), T(-1), T(1));
 
-            return Vector3<T>(Math::atan2<T>(xa, xb), Math::atan2<T>(ya, yb), Math::asin<T>(z));
+            return Vector3<T>(math::atan2<T>(xa, xb), math::atan2<T>(ya, yb), math::asin<T>(z));
         }
 
         Quaternion<T> operator + (const Quaternion<T> &src) const
@@ -278,11 +278,11 @@ namespace m
 
             T cp, cq;
             if(T(1) - cosOmega > T(0.0001)) {
-                T omega = Math::acos<T>(cosOmega);
-                T sinOmega = Math::sin<T>(omega);
+                T omega = math::acos<T>(cosOmega);
+                T sinOmega = math::sin<T>(omega);
 
-                cp = Math::sin<T>((T(1) - t) * omega) / sinOmega;
-                cq = Math::sin<T>(t * omega) / sinOmega;
+                cp = math::sin<T>((T(1) - t) * omega) / sinOmega;
+                cq = math::sin<T>(t * omega) / sinOmega;
             } else {
                 //With small angles, lerp will work just fine...
                 cp = T(1) - t;

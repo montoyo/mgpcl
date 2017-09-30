@@ -32,7 +32,7 @@
 void m::debugBreak(const char *fname, int line, const char *str)
 {
     String txt(fname);
-    int pos = Math::maximum(txt.lastIndexOf('/'), txt.lastIndexOf('\\'));
+    int pos = math::maximum(txt.lastIndexOf('/'), txt.lastIndexOf('\\'));
 
     if(pos > 0)
         txt = txt.substr(pos + 1);

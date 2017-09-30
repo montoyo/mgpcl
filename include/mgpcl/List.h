@@ -44,7 +44,7 @@ namespace m
 
             m_alloc = alloc;
             m_size = 0;
-            m_data = (alloc == 0) ? nullptr : Mem::alloc<T>(static_cast<size_t>(alloc));
+            m_data = (alloc == 0) ? nullptr : mem::alloc<T>(static_cast<size_t>(alloc));
         }
 
         List(const List<T, Size> &src)
@@ -53,12 +53,12 @@ namespace m
             m_size = src.m_size;
 
             if(m_alloc > 0)
-                m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
+                m_data = mem::alloc<T>(static_cast<size_t>(m_alloc));
             else
                 m_data = nullptr;
 
             if(m_size > 0)
-                Mem::copyInitT<T>(m_data, src.m_data, static_cast<size_t>(m_size));
+                mem::copyInitT<T>(m_data, src.m_data, static_cast<size_t>(m_size));
         }
 
         List(List<T, Size> &&src)
@@ -75,8 +75,8 @@ namespace m
             m_alloc = Size(list.size());
             m_size = m_alloc;
 
-            m_data = Mem::alloc<T>(m_alloc);
-            Mem::copyInitT<T>(m_data, list.begin(), list.size());
+            m_data = mem::alloc<T>(m_alloc);
+            mem::copyInitT<T>(m_data, list.begin(), list.size());
         }
 
         ~List()
@@ -354,7 +354,7 @@ namespace m
                 for(Size i = Size(0); i < m_size; ++i)
                     m_data[i].~T();
 
-                Mem::del<T>(m_data);
+                mem::del<T>(m_data);
                 m_alloc = Size(0);
                 m_size = Size(0);
                 m_data = nullptr;
@@ -489,8 +489,8 @@ namespace m
             m_alloc = src.m_alloc;
             m_size = src.m_size;
 
-            m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
-            Mem::copyInitT(m_data, src.m_data, static_cast<size_t>(m_size));
+            m_data = mem::alloc<T>(static_cast<size_t>(m_alloc));
+            mem::copyInitT(m_data, src.m_data, static_cast<size_t>(m_size));
 
             return *this;
         }
@@ -512,8 +512,8 @@ namespace m
             m_alloc = Size(list.size());
             m_size = m_alloc;
 
-            m_data = Mem::alloc<T>(list.size());
-            Mem::copyInitT(m_data, list.begin(), list.size());
+            m_data = mem::alloc<T>(list.size());
+            mem::copyInitT(m_data, list.begin(), list.size());
 
             return *this;
         }
@@ -562,8 +562,8 @@ namespace m
         List<T, Size> operator + (const List<T, Size> &src) const
         {
             List<T, Size> ret(m_size + src.m_size);
-            Mem::copyInitT(ret.m_data, m_data, m_size);
-            Mem::copyInitT(ret.m_data + m_size, src.m_data, src.m_size);
+            mem::copyInitT(ret.m_data, m_data, m_size);
+            mem::copyInitT(ret.m_data + m_size, src.m_data, src.m_size);
             ret.m_size = m_size + src.m_size;
 
             return ret;
@@ -596,12 +596,12 @@ namespace m
                 for(Size i = Size(0); i < m_size; ++i)
                     m_data[i].~T();
 
-                Mem::del<T>(m_data);
+                mem::del<T>(m_data);
             }
 
             m_alloc = newSize;
             m_size = newSize;
-            m_data = Mem::alloc<T>(newSize);
+            m_data = mem::alloc<T>(newSize);
             return func(&newSize, m_data);
         }
 
@@ -648,12 +648,12 @@ namespace m
             m_alloc = sz;
 
             if(m_data == nullptr)
-                m_data = Mem::alloc<T>(static_cast<size_t>(m_alloc));
+                m_data = mem::alloc<T>(static_cast<size_t>(m_alloc));
             else {
-                T *nptr = Mem::alloc<T>(static_cast<size_t>(m_alloc));
+                T *nptr = mem::alloc<T>(static_cast<size_t>(m_alloc));
 
                 if(std::is_trivially_move_constructible<T>::value && std::is_trivially_destructible<T>::value)
-                    Mem::copy(nptr, m_data, static_cast<size_t>(m_size) * sizeof(T));
+                    mem::copy(nptr, m_data, static_cast<size_t>(m_size) * sizeof(T));
                 else {
                     for(Size i = Size(0); i < m_size; ++i) {
                         new(nptr + i) T(std::move(m_data[i]));
@@ -661,7 +661,7 @@ namespace m
                     }
                 }
 
-                Mem::del<T>(m_data);
+                mem::del<T>(m_data);
                 m_data = nptr;
             }
         }

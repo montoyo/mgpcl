@@ -256,7 +256,7 @@ bool m::TCPServerClient::readyRead()
             if(avail < sizeof(uint32_t)) {
                 m_rPos = avail;
                 if(ptr != m_rBuf)
-                    Mem::move(m_rBuf, ptr, avail);
+                    mem::move(m_rBuf, ptr, avail);
 
                 //Come back later
                 break;

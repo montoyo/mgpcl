@@ -96,7 +96,7 @@ namespace m
 
         T length() const
         {
-            return Math::sqrt<T>(m_x * m_x + m_y * m_y);
+            return math::sqrt<T>(m_x * m_x + m_y * m_y);
         }
 
         T dist2(const Vector2<T> &src) const
@@ -112,12 +112,12 @@ namespace m
             T dx = src.m_x - m_x;
             T dy = src.m_y - m_y;
 
-            return Math::sqrt<T>(dx * dx + dy * dy);
+            return math::sqrt<T>(dx * dx + dy * dy);
         }
 
         Vector2<T> &normalize()
         {
-            T len = Math::sqrt<T>(m_x * m_x + m_y * m_y);
+            T len = math::sqrt<T>(m_x * m_x + m_y * m_y);
             m_x /= len;
             m_y /= len;
 
@@ -126,7 +126,7 @@ namespace m
 
         Vector2<T> normalized() const
         {
-            T len = Math::sqrt<T>(m_x * m_x + m_y * m_y);
+            T len = math::sqrt<T>(m_x * m_x + m_y * m_y);
             return Vector2<T>(m_x / len, m_y / len);
         }
 
@@ -248,13 +248,13 @@ namespace m
 
         T angle() const
         {
-            return Math::atan2<T>(m_y, m_x);
+            return math::atan2<T>(m_y, m_x);
         }
 
-        friend Vector2<T> operator + (T nbr, const Vector2<T> &src);
-        friend Vector2<T> operator - (T nbr, const Vector2<T> &src);
-        friend Vector2<T> operator * (T nbr, const Vector2<T> &src);
-        friend Vector2<T> operator / (T nbr, const Vector2<T> &src);
+        template<typename U> friend Vector2<U> operator + (U nbr, const Vector2<U> &src);
+        template<typename U> friend Vector2<U> operator - (U nbr, const Vector2<U> &src);
+        template<typename U> friend Vector2<U> operator * (U nbr, const Vector2<U> &src);
+        template<typename U> friend Vector2<U> operator / (U nbr, const Vector2<U> &src);
 
     private:
         T m_x;

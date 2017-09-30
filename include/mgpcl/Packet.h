@@ -76,7 +76,7 @@ namespace m
         {
             //TODO: Allow ref-counting packets to avoid this!
             uint8_t *cpy = m_al.allocate(m_len);
-            Mem::copy(cpy, m_data, static_cast<size_t>(m_len));
+            mem::copy(cpy, m_data, static_cast<size_t>(m_len));
 
             return TFPacket<Alloc>(m_al, cpy, m_len);
         }
@@ -124,7 +124,7 @@ namespace m
                 m_data = m_al.allocate(m_alloc);
 
                 if(m_len > sizeof(uint32_t))
-                    Mem::copy(m_data, src.m_data, m_len); //No need to copy the 4 first bytes, but it's not a problem if we do...
+                    mem::copy(m_data, src.m_data, m_len); //No need to copy the 4 first bytes, but it's not a problem if we do...
             }
         }
 
@@ -256,7 +256,7 @@ namespace m
                     m_data = m_al.allocate(m_alloc);
 
                     if(m_len > sizeof(uint32_t))
-                        Mem::copy(m_data, src.m_data, m_len); //No need to copy the 4 first bytes, but it's not a problem if we do...
+                        mem::copy(m_data, src.m_data, m_len); //No need to copy the 4 first bytes, but it's not a problem if we do...
                 }
             }
 
@@ -295,7 +295,7 @@ namespace m
                 grow(end);
 
             //Replace or insert, we don't care
-            Mem::copy(m_data + pos, data, len);
+            mem::copy(m_data + pos, data, len);
             if(end > m_len)
                 m_len = end;
         }
@@ -349,7 +349,7 @@ namespace m
                 m_buf = m_al.allocate(m_size);
 
                 if(m_pos > 0)
-                    Mem::copy(m_buf, src.m_buf, m_pos);
+                    mem::copy(m_buf, src.m_buf, m_pos);
             }
         }
 
@@ -383,7 +383,7 @@ namespace m
             if(sz > rem)
                 sz = rem;
 
-            Mem::copy(m_buf, data, sz);
+            mem::copy(m_buf, data, sz);
             m_pos += sz;
             return sz;
         }
@@ -427,7 +427,7 @@ namespace m
                 m_buf = m_al.allocate(m_size);
 
                 if(m_pos > 0)
-                    Mem::copy(m_buf, src.m_buf, m_pos);
+                    mem::copy(m_buf, src.m_buf, m_pos);
             }
 
             return *this;
@@ -505,7 +505,7 @@ namespace m
             if(sz == 0)
                 return 0;
 
-            Mem::copy(dst, m_data + m_pos, sz);
+            mem::copy(dst, m_data + m_pos, sz);
             m_pos += sz;
             return sz;
         }
@@ -614,9 +614,9 @@ namespace m
         {
             if(m_pos + static_cast<uint32_t>(sz) > m_size) {
                 //Woops! What do we do here?
-                Mem::zero(dst, sz);
+                mem::zero(dst, sz);
             } else {
-                Mem::copy(dst, m_data + m_pos, sz);
+                mem::copy(dst, m_data + m_pos, sz);
                 m_pos += static_cast<uint32_t>(sz);
             }
         }

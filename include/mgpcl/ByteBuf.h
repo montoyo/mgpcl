@@ -39,7 +39,7 @@ namespace m
             m_alloc = src.m_alloc;
             m_len = src.m_len;
             m_data = m_al.allocate(m_alloc);
-            Mem::copy(m_data, src.m_data, m_len);
+            mem::copy(m_data, src.m_data, m_len);
         }
 
         TByteBuf(TByteBuf<Alloc> &&src)
@@ -73,10 +73,10 @@ namespace m
                 m_alloc = src.m_alloc;
                 m_len = src.m_len;
                 m_data = m_al.allocate(m_alloc);
-                Mem::copy(m_data, src.m_data, m_len);
+                mem::copy(m_data, src.m_data, m_len);
             } else {
                 m_len = src.m_len;
-                Mem::copy(m_data, src.m_data, m_len);
+                mem::copy(m_data, src.m_data, m_len);
             }
 
             return *this;
@@ -127,7 +127,7 @@ namespace m
         {
             //Don't use Alloc here
             uint8_t *ret = new uint8_t[m_len];
-            Mem::copy(ret, m_data, m_len);
+            mem::copy(ret, m_data, m_len);
 
             return ret;
         }
@@ -166,7 +166,7 @@ namespace m
                     m_data[m_len++] = 0;
 
                 //Insert
-                Mem::copy(m_data + m_len, data, len);
+                mem::copy(m_data + m_len, data, len);
                 m_len += len;
             } else {
                 //Make sure we have enough space
@@ -175,7 +175,7 @@ namespace m
                     grow(nlen - m_len);
 
                 //Replace or insert, we don't care
-                Mem::copy(m_data + pos, data, len);
+                mem::copy(m_data + pos, data, len);
                 if(nlen > m_len)
                     m_len = nlen;
             }
@@ -192,7 +192,7 @@ namespace m
                 if(len > static_cast<int>(remaining))
                     len = static_cast<int>(remaining);
 
-                Mem::copy(dst, m_data + pos, len);
+                mem::copy(dst, m_data + pos, len);
                 return len;
             }
         }

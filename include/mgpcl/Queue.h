@@ -32,10 +32,10 @@ namespace m
     //The maximum number of elements that can be pushed is called backlog
     //When the backlog is reached, no more elements can be pushed and offer() fails (returns false)
     //If offerEx() is used, backlog is increased automatically and buffers are re-allocated.
-    //Two buffers of size "backlog" are used, to avoid overlap and thus prefer the use of Mem::copy over Mem::move which should be a bit faster
+    //Two buffers of size "backlog" are used, to avoid overlap and thus prefer the use of mem::copy over mem::move which should be a bit faster
     //
     //This queue implementation is designed to be faster than using Lists with .add() and .removeFirst(),
-    //which would call Mem::move() every time an element is popped. Here elements are copied to the secondary
+    //which would call mem::move() every time an element is popped. Here elements are copied to the secondary
     //buffer only if "the mouse" reaches the maximum size (the backlog). It has NO cost if elements are popped
     //faster than they are pushed, within the limits of the defined backlog, which can be changed at any moment
     //using .setBacklog(). Doing so will re-allocate the two buffers. One could also use offerEx() which is the same
@@ -48,7 +48,7 @@ namespace m
             m_backlog = 2;
             m_size = 0;
             m_pos = 0;
-            m_data = Mem::alloc<T>(4);
+            m_data = mem::alloc<T>(4);
             m_buffer = m_data + 2;
         }
 
@@ -57,7 +57,7 @@ namespace m
             m_backlog = bl;
             m_size = 0;
             m_pos = 0;
-            m_data = Mem::alloc<T>(bl << 1);
+            m_data = mem::alloc<T>(bl << 1);
             m_buffer = m_data + bl;
         }
 
@@ -66,9 +66,9 @@ namespace m
             m_backlog = src.m_backlog;
             m_size = src.m_size;
             m_pos = 0;
-            m_data = Mem::alloc<T>(m_backlog << 1);
+            m_data = mem::alloc<T>(m_backlog << 1);
             m_buffer = m_data + m_backlog;
-            Mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
+            mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
         }
 
         Queue(Queue &&src) noexcept
@@ -88,9 +88,9 @@ namespace m
                     m_data[m_pos + i].~T();
 
                 if(m_data < m_buffer)
-                    Mem::del<T>(m_data);
+                    mem::del<T>(m_data);
                 else
-                    Mem::del<T>(m_buffer);
+                    mem::del<T>(m_buffer);
             }
         }
 
@@ -120,13 +120,13 @@ namespace m
                 //Realloc
                 m_backlog += m_backlog >> 1; //backlog is at least two, so this would do 2 + (2 >> 1) = 2 + 1 = 3
 
-                T *nptr = Mem::alloc<T>(m_backlog << 1);
+                T *nptr = mem::alloc<T>(m_backlog << 1);
                 moveData(nptr, m_data + m_pos, m_size);
 
                 if(m_data < m_buffer)
-                    delete[] Mem::del<T>(m_data);
+                    delete[] mem::del<T>(m_data);
                 else
-                    delete[] Mem::del<T>(m_buffer);
+                    delete[] mem::del<T>(m_buffer);
 
                 m_data = nptr;
                 m_buffer = nptr + m_backlog;
@@ -196,16 +196,16 @@ namespace m
             mDebugAssert(bl >= 2, "backlog must be at least 2");
             m_backlog = bl;
 
-            T *nptr = Mem::alloc<T>(bl << 1);
+            T *nptr = mem::alloc<T>(bl << 1);
             if(m_size > 0) {
                 moveData(nptr, m_data + m_pos, m_size);
                 m_pos = 0;
             }
 
             if(m_data < m_buffer)
-                delete[] Mem::del<T>(m_data);
+                delete[] mem::del<T>(m_data);
             else
-                delete[] Mem::del<T>(m_buffer);
+                delete[] mem::del<T>(m_buffer);
 
             m_data = nptr;
             m_buffer = nptr + bl;
@@ -236,19 +236,19 @@ namespace m
                     m_data[m_pos + i].~T();
 
                 if(m_data < m_buffer)
-                    delete[] Mem::del<T>(m_data);
+                    delete[] mem::del<T>(m_data);
                 else
-                    delete[] Mem::del<T>(m_buffer);
+                    delete[] mem::del<T>(m_buffer);
 
                 m_backlog = src.m_backlog;
-                m_data = Mem::alloc<T>(m_backlog << 1);
+                m_data = mem::alloc<T>(m_backlog << 1);
                 m_buffer = m_data + m_backlog;
             }
 
             m_size = src.m_size;
             m_pos = 0;
 
-            Mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
+            mem::copyInitT<T>(m_data, src.m_data + src.m_pos, m_size);
             return *this;
         }
 
@@ -258,9 +258,9 @@ namespace m
                 m_data[m_pos + i].~T();
 
             if(m_data < m_buffer)
-                Mem::del<T>(m_data);
+                mem::del<T>(m_data);
             else
-                Mem::del<T>(m_buffer);
+                mem::del<T>(m_buffer);
 
             m_backlog = src.m_backlog;
             m_size = src.m_size;
@@ -275,7 +275,7 @@ namespace m
         static void moveData(T *dst, T *src, uint32_t sz)
         {
             if(std::is_trivially_move_constructible<T>::value && std::is_trivially_destructible<T>::value)
-                Mem::copy(dst, src, sz);
+                mem::copy(dst, src, sz);
             else {
                 for(uint32_t i = 0; i < sz; i++) {
                     new(dst + i) T(std::move(src[i]));

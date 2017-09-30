@@ -50,7 +50,7 @@ TEST
     std::ifstream in("samples.csv");
     testAssert(!!in, "couldn't open input samples");
 
-    float *samples = m::Mem::alignedNew<float>(2048, 16);
+    float *samples = m::mem::alignedNew<float>(2048, 16);
     int cnt;
 
     for(cnt = 0; cnt < 2048 && !in.eof(); cnt++)
@@ -59,8 +59,8 @@ TEST
     in.close();
     testAssert(cnt >= 2048, "didn't read enough samples!");
 
-    float *a = m::Mem::alignedNew<float>(2048, 16);
-    float *b = m::Mem::alignedNew<float>(2048, 16);
+    float *a = m::mem::alignedNew<float>(2048, 16);
+    float *b = m::mem::alignedNew<float>(2048, 16);
 
     double start = m::time::getTimeMs();
     m::fft::applySSE(samples, a, b, 2048);
@@ -68,17 +68,17 @@ TEST
     testAssert(checkValues(a, b), "got wrong FFT computations (SSE)");
 
     //Clear it, just to make sure...
-    m::Mem::zero(a, sizeof(float) * 2048);
-    m::Mem::zero(b, sizeof(float) * 2048);
+    m::mem::zero(a, sizeof(float) * 2048);
+    m::mem::zero(b, sizeof(float) * 2048);
 
     start = m::time::getTimeMs();
     m::fft::apply(samples, a, b, 2048);
     std::cout << "[i]\tfft::apply() took " << m::time::getTimeMs() - start << std::endl;
     testAssert(checkValues(a, b), "got wrong FFT computations");
 
-    m::Mem::alignedDelete<float>(samples);
-    m::Mem::alignedDelete<float>(a);
-    m::Mem::alignedDelete<float>(b);
+    m::mem::alignedDelete<float>(samples);
+    m::mem::alignedDelete<float>(a);
+    m::mem::alignedDelete<float>(b);
     return true;
 }
 
@@ -178,13 +178,13 @@ TEST
     char *plain = new char[rsa.size()];
     int sz = rsa.privateDecrypt(cipher, rsa.size(), reinterpret_cast<uint8_t*>(plain), m::kRSAP_PKCS1OAEP);
     testAssert(sz >= 0, "couldn't decypt data 1");
-    testAssert(sz == strlen(test) && m::Mem::cmp(test, plain, sz) == 0, "chipertext does not match plaintext 1");
+    testAssert(sz == strlen(test) && m::mem::cmp(test, plain, sz) == 0, "chipertext does not match plaintext 1");
 
     //Private encrypt/public decrypt test...
     testAssert(rsa.privateEncrypt(reinterpret_cast<const uint8_t*>(test), static_cast<uint32_t>(strlen(test)), cipher, m::kRSAP_PKCS1), "couldn't encrypt data 2");
     sz = rsa.publicDecrypt(cipher, rsa.size(), reinterpret_cast<uint8_t*>(plain), m::kRSAP_PKCS1);
     testAssert(sz >= 0, "couldn't decypt data 2");
-    testAssert(sz == strlen(test) && m::Mem::cmp(test, plain, sz) == 0, "chipertext does not match plaintext 2");
+    testAssert(sz == strlen(test) && m::mem::cmp(test, plain, sz) == 0, "chipertext does not match plaintext 2");
 
     delete[] cipher;
     delete[] plain;

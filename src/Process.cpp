@@ -511,7 +511,7 @@ m::Process &m::Process::start()
 
     //STD I/O redirection
     STARTUPINFO si;
-    Mem::zero(si);
+    mem::zero(si);
     si.cb = sizeof(STARTUPINFO);
 
     if(m_redirSTD) {

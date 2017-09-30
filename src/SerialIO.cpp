@@ -319,7 +319,7 @@ bool m::SerialPort::open(const String &port, int accessFlags)
         return false;
     }
 
-    Mem::zero(m_tty);
+    mem::zero(m_tty);
     if(tcgetattr(fd, &m_tty) != 0) {
         ::close(fd);
         return false;

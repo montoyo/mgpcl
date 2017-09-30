@@ -152,7 +152,7 @@ namespace m
             //Bring back
             m_len -= m_pos + leLen;
             if(m_len > 0)
-                Mem::move(m_buffer, m_buffer + m_pos + leLen, m_len);
+                mem::move(m_buffer, m_buffer + m_pos + leLen, m_len);
 
             //Reset
             m_pos = 0;

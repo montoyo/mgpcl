@@ -396,14 +396,14 @@ namespace m
                     return err;
 
                 if(m_outAvail < toRead) {
-                    Mem::copy(dst, m_outBuf, static_cast<size_t>(m_outAvail));
+                    mem::copy(dst, m_outBuf, static_cast<size_t>(m_outAvail));
                     dst += m_outAvail;
                     toRead -= m_outAvail;
                     m_outAvail = 0; //We just took everything; no more data available
                 } else {
-                    Mem::copy(dst, m_outBuf, static_cast<size_t>(toRead));
+                    mem::copy(dst, m_outBuf, static_cast<size_t>(toRead));
                     m_outAvail -= toRead;
-                    Mem::move(m_outBuf, m_outBuf + toRead, static_cast<size_t>(m_outAvail)); //Move everything at the beginning
+                    mem::move(m_outBuf, m_outBuf + toRead, static_cast<size_t>(m_outAvail)); //Move everything at the beginning
                     return sz; //Output buffer has been filled. Our job here, is done.
                 }
             }

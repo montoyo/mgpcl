@@ -297,7 +297,7 @@ namespace m
                     t[0] = -b / (T(2.0) * a);
                     t[1] = t[0];
                 } else {
-                    T sqd = Math::sqrt<T>(delta);
+                    T sqd = math::sqrt<T>(delta);
 
                     t[0] = (-sqd - b) / (T(2.0) * a);
                     t[1] = ( sqd - b) / (T(2.0) * a);
@@ -404,7 +404,7 @@ namespace m
 
                 return true;
             } else {
-                T sqd = Math::sqrt<T>(delta);
+                T sqd = math::sqrt<T>(delta);
                 T t1 = (-sqd - b) / (T(2.0) * a);
                 T t2 = ( sqd - b) / (T(2.0) * a);
                 T x1 = ray[t1].x();

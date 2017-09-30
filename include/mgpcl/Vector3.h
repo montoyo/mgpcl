@@ -119,7 +119,7 @@ namespace m
 
         T length() const
         {
-            return Math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
+            return math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
         }
 
         T dist2(const Vector3<T> &src) const
@@ -137,7 +137,7 @@ namespace m
             T dy = src.m_y - m_y;
             T dz = src.m_z - m_z;
 
-            return Math::sqrt<T>(dx * dx + dy * dy + dz * dz);
+            return math::sqrt<T>(dx * dx + dy * dy + dz * dz);
         }
 
         Vector3<T> cross(const Vector3<T> &src) const
@@ -156,8 +156,8 @@ namespace m
         //NOTE: this has to be normalized!
         Vector2<T> unwrapSphere() const
         {
-            T u = T(0.5) + Math::atan2<T>(m_z, m_x) / (T(2.0) * T(M_PI));
-            T v = T(0.5) - Math::asin<T>(m_y) / T(M_PI);
+            T u = T(0.5) + math::atan2<T>(m_z, m_x) / (T(2.0) * T(M_PI));
+            T v = T(0.5) - math::asin<T>(m_y) / T(M_PI);
 
             if(u < T(0.0))
                 u = -u;
@@ -176,7 +176,7 @@ namespace m
 
         Vector3<T> &normalize()
         {
-            T len = Math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
+            T len = math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
             m_x /= len;
             m_y /= len;
             m_z /= len;
@@ -186,7 +186,7 @@ namespace m
 
         Vector3<T> normalized() const
         {
-            T len = Math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
+            T len = math::sqrt<T>(m_x * m_x + m_y * m_y + m_z * m_z);
             return Vector3<T>(m_x / len, m_y / len, m_z / len);
         }
 
@@ -345,10 +345,10 @@ namespace m
             return *this;
         }
 
-        friend Vector3<T> operator + (T nbr, const Vector3<T> &src);
-        friend Vector3<T> operator - (T nbr, const Vector3<T> &src);
-        friend Vector3<T> operator * (T nbr, const Vector3<T> &src);
-        friend Vector3<T> operator / (T nbr, const Vector3<T> &src);
+        template<typename U> friend Vector3<U> operator + (U nbr, const Vector3<U> &src);
+        template<typename U> friend Vector3<U> operator - (U nbr, const Vector3<U> &src);
+        template<typename U> friend Vector3<U> operator * (U nbr, const Vector3<U> &src);
+        template<typename U> friend Vector3<U> operator / (U nbr, const Vector3<U> &src);
 
     private:
         T m_x;

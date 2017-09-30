@@ -65,7 +65,7 @@ namespace m
         Matrix3<T> &scale(T x, T y)
         {
             Matrix3<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 3 * 3);
+            mem::zero(trans.m_data, sizeof(T) * 3 * 3);
             trans.m_data[0][0] = x;
             trans.m_data[1][1] = y;
             trans.m_data[2][2] = T(1);
@@ -77,7 +77,7 @@ namespace m
         Matrix3<T> &scale(T val)
         {
             Matrix3<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 3 * 3);
+            mem::zero(trans.m_data, sizeof(T) * 3 * 3);
             trans.m_data[0][0] = val;
             trans.m_data[1][1] = val;
             trans.m_data[2][2] = T(1);
@@ -89,7 +89,7 @@ namespace m
         Matrix3<T> &scale(const Vector2<T> &v)
         {
             Matrix3<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 3 * 3);
+            mem::zero(trans.m_data, sizeof(T) * 3 * 3);
             trans.m_data[0][0] = v.x();
             trans.m_data[1][1] = v.y();
             trans.m_data[2][2] = T(1);
@@ -103,8 +103,8 @@ namespace m
             Matrix3<T> trans;
             trans.loadIdentity();
 
-            T sint = Math::sin(theta);
-            T cost = Math::cos(theta);
+            T sint = math::sin(theta);
+            T cost = math::cos(theta);
 
             trans.m_data[0][0] = cost;
             trans.m_data[1][0] = -sint;
@@ -144,7 +144,7 @@ namespace m
                 tmp[x][2] = m_data[0][2] * src.m_data[x][0] + m_data[1][2] * src.m_data[x][1] + m_data[2][2] * src.m_data[x][2];
             }
 
-            Mem::copy(m_data, tmp, 3 * 3 * sizeof(float));
+            mem::copy(m_data, tmp, 3 * 3 * sizeof(float));
             return *this;
         }
 

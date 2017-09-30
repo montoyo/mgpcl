@@ -147,7 +147,7 @@ namespace m
             m_count = 32;
             m_buckets = new Bucket*[m_count];
             m_numElems = 0;
-            Mem::zero(m_buckets, sizeof(Bucket*) * m_count);
+            mem::zero(m_buckets, sizeof(Bucket*) * m_count);
         }
 
         HashMap(int bcount)
@@ -155,7 +155,7 @@ namespace m
             m_count = bcount;
             m_buckets = new Bucket*[m_count];
             m_numElems = 0;
-            Mem::zero(m_buckets, sizeof(Bucket*) * m_count);
+            mem::zero(m_buckets, sizeof(Bucket*) * m_count);
         }
 
         HashMap(const HashMap<K, V, Hasher> &src)
@@ -333,7 +333,7 @@ namespace m
         {
             int nc = m_count << 1;
             Bucket **ray = new Bucket*[nc];
-            Mem::zero(ray, nc * sizeof(Bucket*));
+            mem::zero(ray, nc * sizeof(Bucket*));
 
             for(int i = 0; i < m_count; i++) {
                 Bucket *b = m_buckets[i];

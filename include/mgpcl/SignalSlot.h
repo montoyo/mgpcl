@@ -96,17 +96,17 @@ namespace m
 
             void setFunc(const void *data)
             {
-                Mem::copy(function, data, sizeof(Func));
+                mem::copy(function, data, sizeof(Func));
             }
 
             void getFunc(void *dst) const
             {
-                Mem::copy(dst, function, sizeof(Func));
+                mem::copy(dst, function, sizeof(Func));
             }
 
             void setFunc(const Slot &src)
             {
-                Mem::copy(function, src.function, sizeof(Func));
+                mem::copy(function, src.function, sizeof(Func));
             }
         };
 

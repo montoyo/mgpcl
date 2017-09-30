@@ -115,7 +115,7 @@ void m::TCPClient::threadFunc()
                         if(avail < sizeof(uint32_t)) {
                             m_rBufPos = avail;
                             if(ptr != m_rBuffer)
-                                Mem::move(m_rBuffer, ptr, avail);
+                                mem::move(m_rBuffer, ptr, avail);
 
                             //Come back later
                             break;

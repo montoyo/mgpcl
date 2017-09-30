@@ -231,7 +231,7 @@ TEST
     testAssert(m::unHexString(test1, testBuf, testSz) == 0, "un-hex test1 should have failed");
     testAssert(m::unHexString(test2, testBuf, testSz) == 0, "un-hex test2 should have failed");
     testAssert(m::unHexString(test3, testBuf, testSz) == 8, "un-hex test3 failed for no reason");
-    testAssert(m::Mem::cmp(testBuf, origHex, 8) == 0, "un-hexed data does not match hex data");
+    testAssert(m::mem::cmp(testBuf, origHex, 8) == 0, "un-hexed data does not match hex data");
 
     return true;
 };

@@ -34,7 +34,7 @@ int m::StringOStream::write(const uint8_t *src, int sz)
         if(rep > sz)
             rep = sz;
 
-        Mem::copy(m_data.begin(), src, rep);
+        mem::copy(m_data.begin(), src, rep);
         sz -= rep;
 
         if(sz > 0)
@@ -98,7 +98,7 @@ int m::StringIStream::read(uint8_t *dst, int sz)
     if(rem > sz)
         rem = sz;
 
-    Mem::copy(dst, m_data.begin() + m_pos, rem);
+    mem::copy(dst, m_data.begin() + m_pos, rem);
     m_pos += rem;
     return rem;
 }

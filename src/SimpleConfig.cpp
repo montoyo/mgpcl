@@ -94,11 +94,13 @@ m::SimpleConfig::Category::Category() : m_data(16)
 m::SimpleConfig::SimpleConfig() : m_data(16)
 {
     m_errLine = -1;
+    m_lastErr = kCLE_None;
 }
 
 m::SimpleConfig::SimpleConfig(const String &fname) : m_fname(fname), m_data(16)
 {
     m_errLine = -1;
+    m_lastErr = kCLE_None;
 }
 
 m::SimpleConfig::~SimpleConfig()
@@ -130,12 +132,16 @@ bool m::SimpleConfig::save()
 
 m::ConfigLoadError m::SimpleConfig::load()
 {
-    if(m_fname.isEmpty())
+    if(m_fname.isEmpty()) {
+        m_lastErr = kCLE_MissingFileName;
         return kCLE_MissingFileName;
+    }
 
     SSharedPtr<FileInputStream> fis(new FileInputStream);
-    if(fis->open(m_fname) != FileInputStream::kOE_Success)
+    if(fis->open(m_fname) != FileInputStream::kOE_Success) {
+        m_lastErr = kCLE_FileNotFound;
         return kCLE_FileNotFound;
+    }
 
     for(Line *line : m_lines)
         delete line;
@@ -150,6 +156,7 @@ m::ConfigLoadError m::SimpleConfig::load()
         cline++;
 
         if(!parseLine(lr.line(), ccat)) {
+            m_lastErr = kCLE_FormattingError;
             m_errLine = cline;
             fis->close();
             return kCLE_FormattingError;
@@ -157,7 +164,8 @@ m::ConfigLoadError m::SimpleConfig::load()
     }
 
     fis->close();
-    return err == 0 ? kCLE_None : kCLE_ReadError;
+    m_lastErr = (err == 0) ? kCLE_None : kCLE_ReadError;
+    return m_lastErr;
 }
 
 #define M_SCFG_VALID_CHAR(chr) (((chr) >= 'A' && (chr) <= 'Z') || ((chr) >= 'a' && (chr) <= 'z') || ((chr) >= '0' && (chr) <= '9') || (chr) == '_' || (chr) == '-')
@@ -270,4 +278,37 @@ bool m::SimpleConfig::parseLine(const String &line, String &ccat)
     }
 
     return false;
+}
+
+m::String m::SimpleConfig::errorString() const
+{
+    m::String ret;
+    switch(m_lastErr) {
+    case kCLE_MissingFileName:
+        ret = "SimpleConfig wasn't initialized";
+        break;
+
+    case kCLE_FileNotFound:
+        ret = "File ";
+        ret += m_fname;
+        ret += " could not be found";
+        break;
+
+    case kCLE_ReadError:
+        ret = "Could not read input file ";
+        ret += m_fname;
+        break;
+
+    case kCLE_FormattingError:
+        ret = "Config format error at line ";
+        ret += String::fromInteger(m_errLine);
+        ret += " of file ";
+        ret += m_fname;
+        break;
+
+    default:
+        ret = "No error";
+    }
+
+    return ret;
 }

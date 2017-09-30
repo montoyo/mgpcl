@@ -22,13 +22,13 @@
 
 m::IPv4Address::IPv4Address()
 {
-    Mem::zero(&m_sain, sizeof(struct sockaddr_in));
+    mem::zero(&m_sain, sizeof(struct sockaddr_in));
     m_sain.sin_family = AF_INET;
 }
 
 m::IPv4Address::IPv4Address(uint16_t port)
 {
-    Mem::zero(&m_sain, sizeof(struct sockaddr_in));
+    mem::zero(&m_sain, sizeof(struct sockaddr_in));
     m_sain.sin_family = AF_INET;
     m_sain.sin_port = ((port & 0xFF00) >> 8) | ((port & 0x00FF) << 8);
 
@@ -38,7 +38,7 @@ m::IPv4Address::IPv4Address(uint16_t port)
 
 m::IPv4Address::IPv4Address(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t port)
 {
-    Mem::zero(&m_sain, sizeof(struct sockaddr_in));
+    mem::zero(&m_sain, sizeof(struct sockaddr_in));
     m_sain.sin_family = AF_INET;
     m_sain.sin_port = ((port & 0xFF00) >> 8) | ((port & 0x00FF) << 8);
     m_sain.sin_addr.s_addr = static_cast<uint32_t>(a) | (static_cast<uint32_t>(b) << 8) | (static_cast<uint32_t>(c) << 16) | (static_cast<uint32_t>(d) << 24);
@@ -47,7 +47,7 @@ m::IPv4Address::IPv4Address(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint16_t
 m::DNSResolveError m::IPv4Address::resolve(const String &str, uint16_t port)
 {
     struct addrinfo hints, *result;
-    Mem::zero(&hints, sizeof(struct addrinfo));
+    mem::zero(&hints, sizeof(struct addrinfo));
 
     hints.ai_family = AF_INET;
 
@@ -94,7 +94,7 @@ m::DNSResolveError m::IPv4Address::resolve(const String &str, uint16_t port)
         return kRE_UnknownError;
     }
 
-    Mem::copy(&m_sain, result->ai_addr, sizeof(struct sockaddr_in));
+    mem::copy(&m_sain, result->ai_addr, sizeof(struct sockaddr_in));
     freeaddrinfo(result);
 
     m_sain.sin_port = ((port & 0xFF00) >> 8) | ((port & 0x00FF) << 8);

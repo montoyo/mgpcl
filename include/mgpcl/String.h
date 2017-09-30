@@ -56,7 +56,7 @@ namespace m
             m_len   = src.m_len;
             m_alloc = src.m_alloc;
             m_data  = new T[m_alloc];
-            Mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+            mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
         }
 
         TString(TString<T> &&src)
@@ -77,7 +77,7 @@ namespace m
 
             m_alloc = m_len + 1;
             m_data = new T[m_alloc];
-            Mem::copy(m_data, str, (m_len + 1) * sizeof(T));
+            mem::copy(m_data, str, (m_len + 1) * sizeof(T));
         }
 
         TString(const T *str, int len)
@@ -93,7 +93,7 @@ namespace m
 
             m_alloc = m_len + 1;
             m_data  = new T[m_alloc];
-            Mem::copy(m_data, str, m_len * sizeof(T));
+            mem::copy(m_data, str, m_len * sizeof(T));
             m_data[m_len] = 0;
         }
 
@@ -159,7 +159,7 @@ namespace m
         T *rawCopy() const
         {
             T *ret = new T[m_len + 1];
-            Mem::copy(ret, m_data, m_len + 1);
+            mem::copy(ret, m_data, m_len + 1);
 
             return ret;
         }
@@ -196,7 +196,7 @@ namespace m
         TString<T> &operator += (const TString<T> &src)
         {
             reserve(m_len + src.m_len);
-            Mem::copy(m_data + m_len, src.m_data, (src.m_len + 1) * sizeof(T));
+            mem::copy(m_data + m_len, src.m_data, (src.m_len + 1) * sizeof(T));
             m_len += src.m_len;
             return *this;
         }
@@ -209,7 +209,7 @@ namespace m
                 len++;
 
             reserve(m_len + len);
-            Mem::copy(m_data + m_len, str, (len + 1) * sizeof(T));
+            mem::copy(m_data + m_len, str, (len + 1) * sizeof(T));
             m_len += len;
             return *this;
         }
@@ -231,7 +231,7 @@ namespace m
             }
 
             m_len = src.m_len;
-            Mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+            mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
             return *this;
         }
 
@@ -261,15 +261,15 @@ namespace m
             }
 
             m_len = len;
-            Mem::copy(m_data, str, (len + 1) * sizeof(T));
+            mem::copy(m_data, str, (len + 1) * sizeof(T));
             return *this;
         }
 
         TString<T> operator + (const TString<T> &src) const
         {
             TString<T> ret(m_len + src.m_len);
-            Mem::copy(ret.m_data, m_data, m_len * sizeof(T));
-            Mem::copy(ret.m_data + m_len, src.m_data, (src.m_len + 1) * sizeof(T));
+            mem::copy(ret.m_data, m_data, m_len * sizeof(T));
+            mem::copy(ret.m_data + m_len, src.m_data, (src.m_len + 1) * sizeof(T));
 
             ret.m_len = m_len + src.m_len;
             return ret;
@@ -283,8 +283,8 @@ namespace m
                 len++;
 
             TString<T> ret(m_len + len);
-            Mem::copy(ret.m_data, m_data, m_len * sizeof(T));
-            Mem::copy(ret.m_data + m_len, str, (len + 1) * sizeof(T));
+            mem::copy(ret.m_data, m_data, m_len * sizeof(T));
+            mem::copy(ret.m_data + m_len, str, (len + 1) * sizeof(T));
 
             ret.m_len = m_len + len;
             return ret;
@@ -293,7 +293,7 @@ namespace m
         TString<T> operator + (T c) const
         {
             TString<T> ret(m_len + 1);
-            Mem::copy(ret.m_data, m_data, m_len * sizeof(T));
+            mem::copy(ret.m_data, m_data, m_len * sizeof(T));
             ret.m_data[m_len] = c;
             ret.m_data[m_len + 1] = 0;
 
@@ -303,12 +303,12 @@ namespace m
 
         bool operator == (const TString<T> &src) const
         {
-            return m_len == src.m_len && Mem::cmp(m_data, src.m_data, m_len) == 0;
+            return m_len == src.m_len && mem::cmp(m_data, src.m_data, m_len) == 0;
         }
 
         bool operator != (const TString<T> &src) const
         {
-            return m_len != src.m_len || Mem::cmp(m_data, src.m_data, m_len) != 0;
+            return m_len != src.m_len || mem::cmp(m_data, src.m_data, m_len) != 0;
         }
 
         bool operator == (const T *src) const
@@ -339,7 +339,7 @@ namespace m
             if(m_len != len)
                 return false;
 
-            return Mem::cmp(m_data, src, m_len) == 0;
+            return mem::cmp(m_data, src, m_len) == 0;
         }
 
         bool equalsIgnoreCase(const TString<T> &src) const
@@ -388,7 +388,7 @@ namespace m
                 return *this;
 
             reserve(m_len + len);
-            Mem::copy(m_data + m_len, str, len * sizeof(T));
+            mem::copy(m_data + m_len, str, len * sizeof(T));
             m_len += len;
             m_data[m_len] = 0;
             return *this;
@@ -468,7 +468,7 @@ namespace m
                 return TString<T>();
 
             TString<T> ret(len);
-            Mem::copy(ret.m_data, m_data + beg, len);
+            mem::copy(ret.m_data, m_data + beg, len);
             ret.m_data[len] = 0;
             ret.m_len = len;
 
@@ -588,14 +588,14 @@ namespace m
 
             //Extract data
             TString<T> ret(len);
-            Mem::copy(ret.m_data, m_data + beg, len);
+            mem::copy(ret.m_data, m_data + beg, len);
             ret.m_data[len] = 0;
             ret.m_len = len;
 
             //Move
             int remaining = m_len - end;
             if(remaining > 0)
-                Mem::move(m_data + beg, m_data + end, remaining);
+                mem::move(m_data + beg, m_data + end, remaining);
 
             m_len -= len;
             m_data[m_len] = 0;
@@ -618,7 +618,7 @@ namespace m
             //Move
             int remaining = m_len - end;
             if(remaining > 0)
-                Mem::move(m_data + beg, m_data + end, remaining);
+                mem::move(m_data + beg, m_data + end, remaining);
 
             m_len = beg + remaining;
             m_data[m_len] = 0;
@@ -631,8 +631,8 @@ namespace m
                 return *this;
 
             reserve(m_len + str.m_len);
-            Mem::move(m_data + pos + str.m_len, m_data + pos, str.m_len + 1); //Copy 0 byte
-            Mem::copy(m_data + pos, str.m_data, str.m_len);
+            mem::move(m_data + pos + str.m_len, m_data + pos, str.m_len + 1); //Copy 0 byte
+            mem::copy(m_data + pos, str.m_data, str.m_len);
             return *this;
         }
 
@@ -652,8 +652,8 @@ namespace m
                 return *this;
 
             reserve(m_len + len);
-            Mem::move(m_data + pos + len, m_data + pos, len + 1); //Copy 0 byte
-            Mem::copy(m_data + pos, str, len);
+            mem::move(m_data + pos + len, m_data + pos, len + 1); //Copy 0 byte
+            mem::copy(m_data + pos, str, len);
             return *this;
         }
 
@@ -895,12 +895,12 @@ namespace m
 
         bool startsWith(const TString<T> &src) const
         {
-            return src.isEmpty() || (m_len >= src.m_len && Mem::cmp(m_data, src.m_data, src.m_len) == 0);
+            return src.isEmpty() || (m_len >= src.m_len && mem::cmp(m_data, src.m_data, src.m_len) == 0);
         }
 
         bool endsWith(const TString<T> &src) const
         {
-            return src.isEmpty() || (m_len >= src.m_len && Mem::cmp(m_data + (m_len - src.m_len), src.m_data, src.m_len) == 0);
+            return src.isEmpty() || (m_len >= src.m_len && mem::cmp(m_data + (m_len - src.m_len), src.m_data, src.m_len) == 0);
         }
 
         bool startsWith(const T *str, int len = -1) const
@@ -912,7 +912,7 @@ namespace m
                     len++;
             }
 
-            return len <= 0 || (m_len >= len && Mem::cmp(m_data, str, len) == 0);
+            return len <= 0 || (m_len >= len && mem::cmp(m_data, str, len) == 0);
         }
 
         bool endsWith(const T *str, int len = -1) const
@@ -924,7 +924,7 @@ namespace m
                     len++;
             }
 
-            return len <= 0 || (m_len >= len && Mem::cmp(m_data + (m_len - len), str, len) == 0);
+            return len <= 0 || (m_len >= len && mem::cmp(m_data + (m_len - len), str, len) == 0);
         }
 
         void splitOnOneOf(const T *chars, List<TString<T>> &dst, int chrLen = -1) const
@@ -1270,7 +1270,7 @@ namespace m
                 m_alloc = add;
 
             T *ndata = new T[m_alloc];
-            Mem::copy(ndata, m_data, (m_len + 1) * sizeof(T));
+            mem::copy(ndata, m_data, (m_len + 1) * sizeof(T));
             delete[] m_data;
             m_data = ndata;
         }

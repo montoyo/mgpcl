@@ -48,7 +48,7 @@ bool m::Version::parse(const String &str)
 
     m_count = static_cast<uint8_t>(++cnt);
     m_data = new uint32_t[cnt];
-    Mem::zero(m_data, sizeof(uint32_t) * cnt);
+    mem::zero(m_data, sizeof(uint32_t) * cnt);
 
     uint8_t pos = 0;
     for(int i = 0; i < str.length(); i++) {
@@ -200,7 +200,7 @@ m::Version &m::Version::operator = (const Version &src)
         m_data = nullptr;
     else {
         m_data = new uint32_t[m_count];
-        Mem::copy(m_data, src.m_data, sizeof(uint32_t) * m_count);
+        mem::copy(m_data, src.m_data, sizeof(uint32_t) * m_count);
     }
 
     return *this;

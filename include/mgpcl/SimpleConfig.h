@@ -203,6 +203,11 @@ namespace m
         bool save();
         ConfigLoadError load();
 
+        ConfigLoadError lastError() const
+        {
+            return m_lastErr;
+        }
+
         int erroringLine() const
         {
             return m_errLine;
@@ -212,6 +217,8 @@ namespace m
         {
             return m_fname;
         }
+
+        String errorString() const;
 
         void setFileName(const String &fname)
         {
@@ -227,5 +234,6 @@ namespace m
         int m_errLine;
         List<Line*> m_lines;
         HashMap<String, Category> m_data;
+        ConfigLoadError m_lastErr;
     };
 }

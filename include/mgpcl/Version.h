@@ -74,7 +74,7 @@ namespace m
                 m_data = nullptr;
             else {
                 m_data = new uint32_t[m_count];
-                Mem::copy(m_data, src.m_data, sizeof(uint32_t) * m_count);
+                mem::copy(m_data, src.m_data, sizeof(uint32_t) * m_count);
             }
         }
 
@@ -135,7 +135,7 @@ namespace m
             } else {
                 m_count = cnt;
                 m_data = new uint32_t[cnt];
-                Mem::copy(m_data, src.m_data, sizeof(uint32_t) * cnt);
+                mem::copy(m_data, src.m_data, sizeof(uint32_t) * cnt);
             }
         }
 

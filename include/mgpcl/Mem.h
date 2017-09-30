@@ -25,7 +25,7 @@
 
 namespace m
 {
-    namespace Mem
+    namespace mem
     {
         inline void *copy(void *dst, const void *src, size_t sz)
         {
@@ -105,7 +105,7 @@ namespace m
         }
 
         //Cleverly initializes an array of cnt Ts from another (calls copy constructor)
-        //dst must NOT be intialized (i.e. allocated with Mem::alloc)
+        //dst must NOT be intialized (i.e. allocated with mem::alloc)
         template<typename T> T *copyInitT(T *dst, const T *src, size_t cnt)
         {
             if(std::is_trivially_copy_constructible<T>::value)

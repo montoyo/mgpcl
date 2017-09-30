@@ -405,9 +405,9 @@ namespace m
                 }
 
                 if(negExp)
-                    dst /= Math::pow(10.0, static_cast<double>(exp));
+                    dst /= math::pow(10.0, static_cast<double>(exp));
                 else
-                    dst *= Math::pow(10.0, static_cast<double>(exp));
+                    dst *= math::pow(10.0, static_cast<double>(exp));
             }
 
             if(neg)

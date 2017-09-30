@@ -266,7 +266,7 @@ int m::HTTPInputStream::read(uint8_t *dst, int sz)
             rd = usz;
 
         //Copy from line buffer
-        Mem::copy(dst, m_req->m_lr.remainingData(), rd);
+        mem::copy(dst, m_req->m_lr.remainingData(), rd);
         m_pos += rd;
         dst += rd;
         usz -= static_cast<int>(rd);

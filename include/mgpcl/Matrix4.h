@@ -80,7 +80,7 @@ namespace m
         Matrix4<T> &scale(T x, T y, T z = T(1))
         {
             Matrix4<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 4 * 4);
+            mem::zero(trans.m_data, sizeof(T) * 4 * 4);
             trans.m_data[0][0] = x;
             trans.m_data[1][1] = y;
             trans.m_data[2][2] = z;
@@ -93,7 +93,7 @@ namespace m
         Matrix4<T> &scale(T val)
         {
             Matrix4<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 4 * 4);
+            mem::zero(trans.m_data, sizeof(T) * 4 * 4);
             trans.m_data[0][0] = val;
             trans.m_data[1][1] = val;
             trans.m_data[2][2] = val;
@@ -106,7 +106,7 @@ namespace m
         Matrix4<T> &scale(const Vector3<T> &v)
         {
             Matrix4<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 4 * 4);
+            mem::zero(trans.m_data, sizeof(T) * 4 * 4);
             trans.m_data[0][0] = v.x();
             trans.m_data[1][1] = v.y();
             trans.m_data[2][2] = v.z();
@@ -119,7 +119,7 @@ namespace m
         Matrix4<T> &scale(const Vector2<T> &v)
         {
             Matrix4<T> trans;
-            Mem::zero(trans.m_data, sizeof(T) * 4 * 4);
+            mem::zero(trans.m_data, sizeof(T) * 4 * 4);
             trans.m_data[0][0] = v.x();
             trans.m_data[1][1] = v.y();
             trans.m_data[2][2] = T(1);
@@ -134,8 +134,8 @@ namespace m
             Matrix4<T> trans;
             trans.loadIdentity();
 
-            T sint = Math::sin(theta);
-            T cost = Math::cos(theta);
+            T sint = math::sin(theta);
+            T cost = math::cos(theta);
 
             trans.m_data[1][1] = cost;
             trans.m_data[2][1] = -sint;
@@ -151,8 +151,8 @@ namespace m
             Matrix4<T> trans;
             trans.loadIdentity();
 
-            T sint = Math::sin(theta);
-            T cost = Math::cos(theta);
+            T sint = math::sin(theta);
+            T cost = math::cos(theta);
 
             trans.m_data[0][0] = cost;
             trans.m_data[2][0] = sint;
@@ -168,8 +168,8 @@ namespace m
             Matrix4<T> trans;
             trans.loadIdentity();
 
-            T sint = Math::sin(theta);
-            T cost = Math::cos(theta);
+            T sint = math::sin(theta);
+            T cost = math::cos(theta);
 
             trans.m_data[0][0] = cost;
             trans.m_data[1][0] = -sint;
@@ -364,7 +364,7 @@ namespace m
                 tmp[x][3] = m_data[0][3] * src.m_data[x][0] + m_data[1][3] * src.m_data[x][1] + m_data[2][3] * src.m_data[x][2] + m_data[3][3] * src.m_data[x][3];
             }
 
-            Mem::copy(m_data, tmp, 4 * 4 * sizeof(float));
+            mem::copy(m_data, tmp, 4 * 4 * sizeof(float));
             return *this;
         }
 
@@ -418,7 +418,7 @@ namespace m
         {
             Matrix4<T> ret;
 
-            float f = T(1) / Math::tan(angle);
+            float f = T(1) / math::tan(angle);
             M_SET_ROW_OF(&ret, 0,   f / ratio, T(0), T(0),  T(0));
             M_SET_ROW_OF(&ret, 1,   T(0),      f,    T(0),  T(0));
             M_SET_ROW_OF(&ret, 2,   T(0),      T(0), (near_ + far_) / (near_ - far_), (T(2) * near_ * far_) / (near_ - far_));

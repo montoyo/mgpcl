@@ -147,8 +147,8 @@ namespace m
 
             for(uint32_t i = 0; i < half; i++) {
                 uint32_t j = half + i;
-                float twCos = Math::cos<float>(twAng);
-                float twSin = Math::sin<float>(twAng);
+                float twCos = math::cos<float>(twAng);
+                float twSin = math::sin<float>(twAng);
                 float twA = twCos * aOut[j] - twSin * bOut[j];
                 float twB = twCos * bOut[j] + twSin * aOut[j];
 

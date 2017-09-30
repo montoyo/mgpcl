@@ -25,7 +25,7 @@
 
 namespace m
 {
-    namespace Math
+    namespace math
     {
         template<typename T> T sin(T ang)
         {

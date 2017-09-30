@@ -68,7 +68,7 @@ namespace m
             int ret = sz;
             while(sz > 0) {
                 uint32_t toWrite = minimum(static_cast<uint32_t>(sz), m_alloc - m_pos);
-                Mem::copy(m_buf + m_pos, src, toWrite);
+                mem::copy(m_buf + m_pos, src, toWrite);
                 sz -= static_cast<int>(toWrite);
                 src += toWrite;
                 m_pos += toWrite;

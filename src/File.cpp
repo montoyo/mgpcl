@@ -735,7 +735,7 @@ m::FileIterator::FileIterator(const String &path)
     }
 
     char tmp[MAX_PATH];
-    Mem::copy(tmp, path.raw(), len);
+    mem::copy(tmp, path.raw(), len);
     tmp[len + 0] = '\\';
     tmp[len + 1] = '*';
     tmp[len + 2] = 0;

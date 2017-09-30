@@ -59,7 +59,7 @@ static void g_histogram(const double *samples, int nSamples, int *counts, int nC
 {
     const double step = 1.0 / static_cast<double>(nCounts);
     double pos = 0.0;
-    m::Mem::zero(counts, nCounts * sizeof(int));
+    m::mem::zero(counts, nCounts * sizeof(int));
 
     for(int i = 0; i < nCounts; i++) {
         double pos2 = pos + step;

@@ -47,7 +47,7 @@ namespace m
                 m_bits = nullptr;
             else {
                 m_bits = new uint32_t[m_numBits >> 5];
-                Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
+                mem::copy(m_bits, src.m_bits, m_numBits >> 5);
             }
         }
 
@@ -78,7 +78,7 @@ namespace m
                 m_bits = nullptr;
             else {
                 m_bits = new uint32_t[m_numBits >> 5];
-                Mem::copy(m_bits, src.m_bits, m_numBits >> 5);
+                mem::copy(m_bits, src.m_bits, m_numBits >> 5);
             }
 
             return *this;
@@ -111,7 +111,7 @@ namespace m
         Bitfield &clear()
         {
             if(m_bits != nullptr)
-                Mem::zero(m_bits, (m_numBits >> 5) * sizeof(uint32_t));
+                mem::zero(m_bits, (m_numBits >> 5) * sizeof(uint32_t));
 
             return *this;
         }

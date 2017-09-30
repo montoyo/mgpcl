@@ -8,7 +8,7 @@ MIT/X11.
 
 ## Dependencies? ##
  * OpenSSL (for crypto and SSL)
- * gtk3 (Linux only; for GUI)
+ * gtk3 (Linux only; for message boxes)
 
 Both of these dependencies can be disabled through CMake using `MGPCL_ENABLE_GUI` and `MGPCL_ENABLE_SSL`
 
@@ -43,7 +43,6 @@ __TL;DR:__ Not the best, but this is what I want to work with.
  * Patterns (aka Regexp)
  * ZLib and LZ4 compression I/O streams
  * Networking: Complete UDP model
- * Async serial I/O
  * SSL Certificate Management
  * Noise techniques (Perlin?)
  * Shapes: Cylinder & cube

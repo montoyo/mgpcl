@@ -26,25 +26,16 @@ namespace m
     template<typename T> class Vector3
     {
     public:
-        Vector3()
+        Vector3() : m_x(0), m_y(0), m_z(0)
         {
-            m_x = T(0);
-            m_y = T(0);
-            m_z = T(0);
         }
 
-        Vector3(T x, T y, T z)
+        Vector3(T x, T y, T z) : m_x(x), m_y(y), m_z(z)
         {
-            m_x = x;
-            m_y = y;
-            m_z = z;
         }
 
-        Vector3(T val)
+        Vector3(T val) : m_x(val), m_y(y), m_z(z)
         {
-            m_x = val;
-            m_y = val;
-            m_z = val;
         }
 
         T x() const
@@ -151,9 +142,9 @@ namespace m
 
         Vector3<T> cross(const Vector3<T> &src) const
         {
-            return Vector3<T>(  m_y * src.m_z - m_z * src.m_y,
-                                m_z * src.m_x - m_x * src.m_z,
-                                m_x * src.m_y - m_y * src.m_x);
+            return Vector3<T>(m_y * src.m_z - m_z * src.m_y,
+                              m_z * src.m_x - m_x * src.m_z,
+                              m_x * src.m_y - m_y * src.m_x);
         }
 
         //NOTE: the normal has to be normalized!
@@ -316,11 +307,74 @@ namespace m
             return Vector3<T>(-m_x, -m_y, -m_z);
         }
 
+        Vector3<T> operator ^ (const Vector3<T> &src) const
+        {
+            return Vector3<T>(m_y * src.m_z - m_z * src.m_y,
+                              m_z * src.m_x - m_x * src.m_z,
+                              m_x * src.m_y - m_y * src.m_x);
+        }
+
+        Vector3<T> &operator ^= (const Vector3<T> &src)
+        {
+            T x = m_y * src.m_z - m_z * src.m_y;
+            T y = m_z * src.m_x - m_x * src.m_z;
+            m_z = m_x * src.m_y - m_y * src.m_x;
+            m_y = y;
+            m_x = x;
+
+            return *this;
+        }
+
+        bool isPerpendicularTo(const Vector3<T> &src) const
+        {
+            return m_x * src.m_x + m_y * src.m_y + m_z * src.m_z == T(0);
+        }
+
+        bool isColinearTo(const Vector3<T> &src) const
+        {
+            return m_y * src.m_z - m_z * src.m_y == T(0)
+                    && m_z * src.m_x - m_x * src.m_z == T(0)
+                    && m_x * src.m_y - m_y * src.m_x == T(0);
+        }
+
+        Vector3<T> &operator = (T val)
+        {
+            m_x = val;
+            m_y = val;
+            m_z = val;
+            return *this;
+        }
+
+        friend Vector3<T> operator + (T nbr, const Vector3<T> &src);
+        friend Vector3<T> operator - (T nbr, const Vector3<T> &src);
+        friend Vector3<T> operator * (T nbr, const Vector3<T> &src);
+        friend Vector3<T> operator / (T nbr, const Vector3<T> &src);
+
     private:
         T m_x;
         T m_y;
         T m_z;
     };
+
+    template<typename T> Vector3<T> operator + (T nbr, const Vector3<T> &src)
+    {
+        return Vector3<T>(nbr + src.m_x, nbr + src.m_y, nbr + src.m_z);
+    }
+
+    template<typename T> Vector3<T> operator - (T nbr, const Vector3<T> &src)
+    {
+        return Vector3<T>(nbr - src.m_x, nbr - src.m_y, nbr - src.m_z);
+    }
+
+    template<typename T> Vector3<T> operator * (T nbr, const Vector3<T> &src)
+    {
+        return Vector3<T>(nbr * src.m_x, nbr * src.m_y, nbr * src.m_z);
+    }
+
+    template<typename T> Vector3<T> operator / (T nbr, const Vector3<T> &src)
+    {
+        return Vector3<T>(nbr / src.m_x, nbr / src.m_y, nbr / src.m_z);
+    }
 
     typedef Vector3<float> Vector3f;
     typedef Vector3<double> Vector3d;

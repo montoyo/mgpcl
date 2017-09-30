@@ -392,6 +392,28 @@ namespace m
             return ret;
         }
 
+        Matrix4<T> transposed() const
+        {
+            Matrix4<T> ret;
+            M_SET_ROW_OF(&ret, 0, m_data[0][0], m_data[0][1], m_data[0][2], m_data[0][3]);
+            M_SET_ROW_OF(&ret, 1, m_data[1][0], m_data[1][1], m_data[1][2], m_data[1][3]);
+            M_SET_ROW_OF(&ret, 2, m_data[2][0], m_data[2][1], m_data[2][2], m_data[2][3]);
+            M_SET_ROW_OF(&ret, 3, m_data[3][0], m_data[3][1], m_data[3][2], m_data[3][3]);
+
+            return ret;
+        }
+
+        Matrix4<T> operator ~ () const
+        {
+            return transposed();
+        }
+
+        Matrix4<T> &transpose()
+        {
+            *this = transposed();
+            return *this;
+        }
+
         static Matrix4<T> perspective(T angle, T ratio, T near_, T far_)
         {
             Matrix4<T> ret;

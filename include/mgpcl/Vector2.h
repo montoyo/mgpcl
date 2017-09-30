@@ -25,22 +25,16 @@ namespace m
     template<typename T> class Vector2
     {
     public:
-        Vector2()
+        Vector2() : m_x(0), m_y(0)
         {
-            m_x = T(0);
-            m_y = T(0);
         }
 
-        Vector2(T x, T y)
+        Vector2(T x, T y) : m_x(x), m_y(y)
         {
-            m_x = x;
-            m_y = y;
         }
 
-        Vector2(T val)
+        Vector2(T val) : m_x(val), m_y(val)
         {
-            m_x = val;
-            m_y = val;
         }
 
         T x() const
@@ -245,10 +239,47 @@ namespace m
             return Vector2<T>(-m_x, -m_y);
         }
 
+        Vector2<T> &operator = (T val)
+        {
+            m_x = val;
+            m_y = val;
+            return *this;
+        }
+
+        T angle() const
+        {
+            return Math::atan2<T>(m_y, m_x);
+        }
+
+        friend Vector2<T> operator + (T nbr, const Vector2<T> &src);
+        friend Vector2<T> operator - (T nbr, const Vector2<T> &src);
+        friend Vector2<T> operator * (T nbr, const Vector2<T> &src);
+        friend Vector2<T> operator / (T nbr, const Vector2<T> &src);
+
     private:
         T m_x;
         T m_y;
     };
+
+    template<typename T> Vector2<T> operator + (T nbr, const Vector2<T> &src)
+    {
+        return Vector2<T>(nbr + src.m_x, nbr + src.m_y);
+    }
+
+    template<typename T> Vector2<T> operator - (T nbr, const Vector2<T> &src)
+    {
+        return Vector2<T>(nbr - src.m_x, nbr - src.m_y);
+    }
+
+    template<typename T> Vector2<T> operator * (T nbr, const Vector2<T> &src)
+    {
+        return Vector2<T>(nbr * src.m_x, nbr * src.m_y);
+    }
+
+    template<typename T> Vector2<T> operator / (T nbr, const Vector2<T> &src)
+    {
+        return Vector2<T>(nbr / src.m_x, nbr / src.m_y);
+    }
 
     typedef Vector2<float> Vector2f;
     typedef Vector2<double> Vector2d;

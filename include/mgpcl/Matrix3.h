@@ -24,6 +24,7 @@
 #include "Math.h"
 
 #define M_SET_ROW(row, a, b, c) m_data[0][row] = T(a); m_data[1][row] = T(b); m_data[2][row] = T(c);
+#define M_SET_ROW_OF(mat, row, a, b, c) (mat)->m_data[0][row] = T(a); (mat)->m_data[1][row] = T(b); (mat)->m_data[2][row] = T(c);
 
 namespace m
 {
@@ -174,6 +175,27 @@ namespace m
             ret.setZ(m_data[0][2] * src.x() + m_data[1][2] * src.y() + m_data[2][2] * src.z());
 
             return ret;
+        }
+
+        Matrix3<T> transposed() const
+        {
+            Matrix3<T> ret;
+            M_SET_ROW_OF(&ret, 0, m_data[0][0], m_data[0][1], m_data[0][2]);
+            M_SET_ROW_OF(&ret, 1, m_data[1][0], m_data[1][1], m_data[1][2]);
+            M_SET_ROW_OF(&ret, 2, m_data[2][0], m_data[2][1], m_data[2][2]);
+
+            return ret;
+        }
+
+        Matrix3<T> operator ~ () const
+        {
+            return transposed();
+        }
+
+        Matrix3<T> &transpose()
+        {
+            *this = transposed();
+            return *this;
         }
         
     private:

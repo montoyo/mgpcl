@@ -191,6 +191,11 @@ namespace m
             return m_data;
         }
 
+        const uint8_t *data() const
+        {
+            return m_data;
+        }
+
         uint32_t length() const
         {
             return m_len;

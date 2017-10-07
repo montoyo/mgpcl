@@ -273,7 +273,7 @@ m::ArgParseError m::ProgramArgs::parse()
 
             av->addRef(); //Ref will be destroyed by ArgDescriptor
             d->m_values.add(av);
-        } if(!d->isSatisfied()) {
+        } if(!d->isSatisfied() && (!m_helpIgnoreReqs || m_helpSwitch == nullptr)) {
             d->m_lastErr = kAE_Required;
 
             m_err = d;

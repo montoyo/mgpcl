@@ -144,16 +144,18 @@ namespace m
         }
 
     protected:
-        void tsRead(char *dst, int len) override
+        bool tsRead(char *dst, int len) override
         {
             while(len > 0) {
                 int rd = m_child->read(reinterpret_cast<uint8_t*>(dst), len);
                 if(rd <= 0)
-                    return;
+                    return false;
 
                 dst += rd;
                 len -= rd;
             }
+
+            return true;
         }
 
     private:

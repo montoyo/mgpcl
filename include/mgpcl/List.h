@@ -67,6 +67,7 @@ namespace m
             m_size = src.m_size;
             m_data = src.m_data;
 
+            src.m_size = 0;
             src.m_data = nullptr;
         }
 
@@ -502,6 +503,7 @@ namespace m
             m_size = src.m_size;
             m_data = src.m_data;
 
+            src.m_size = 0;
             src.m_data = nullptr;
             return *this;
         }

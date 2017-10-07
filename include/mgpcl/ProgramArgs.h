@@ -382,6 +382,7 @@ namespace m
             m_err = nullptr;
             m_remainingIdx = -1;
             m_acceptsRem = true;
+            m_helpIgnoreReqs = false;
             m_helpSwitch = nullptr;
             m_lastErr = kAPE_NoError;
         }
@@ -393,6 +394,7 @@ namespace m
             m_err = nullptr;
             m_remainingIdx = -1;
             m_acceptsRem = true;
+            m_helpIgnoreReqs = false;
             m_helpSwitch = nullptr;
             m_lastErr = kAPE_NoError;
         }
@@ -460,6 +462,16 @@ namespace m
             return m_acceptsRem;
         }
 
+        void setHelpIgnoresRequirements(bool hir = true)
+        {
+            m_helpIgnoreReqs = true;
+        }
+
+        bool helpIgnoresRequirements() const
+        {
+            return m_helpIgnoreReqs;
+        }
+
         const String &unrecongnizedArgument() const
         {
             return m_unrecognized;
@@ -478,6 +490,7 @@ namespace m
         const char **m_argv;
         int m_remainingIdx;
         bool m_acceptsRem;
+        bool m_helpIgnoreReqs;
         ArgDescriptor *m_err; //Just a ref
         ArgDescriptor *m_helpSwitch; //Just a ref
         List<ArgDescriptor*> m_descr; //ProgramArgs cares about ArgDescriptor allocation/deallocation

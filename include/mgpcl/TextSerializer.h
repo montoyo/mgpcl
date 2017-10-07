@@ -204,8 +204,8 @@ namespace m
     class TextDeserializer
     {
     protected:
-        virtual void tsRead(char *dst, int len) = 0;
-        char tsReadChr()
+        virtual bool tsRead(char *dst, int len) = 0;
+        int tsReadChr()
         {
             if(m_hasUndo) {
                 m_hasUndo = false;
@@ -213,8 +213,12 @@ namespace m
             }
 
             char ret;
-            tsRead(&ret, 1);
-            return ret;
+            if(!tsRead(&ret, 1)) {
+                m_reachedEOF = true;
+                return -1;
+            }
+
+            return static_cast<int>(ret);
         }
 
     public:
@@ -223,6 +227,7 @@ namespace m
             m_hasUndo = false;
             m_undo = 0;
             m_skipWS = true;
+            m_reachedEOF = false;
         }
 
         virtual ~TextDeserializer()
@@ -232,8 +237,14 @@ namespace m
         void skipWS()
         {
             char chr;
+            int chr2;
+
             do {
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+                if(chr2 < 0)
+                    return;
+
+                chr = static_cast<char>(chr2);
             } while(chr == ' ' || chr == '\t' || chr == '\r' || chr == '\n');
 
             m_hasUndo = true;
@@ -245,7 +256,7 @@ namespace m
             if(m_skipWS)
                 skipWS();
 
-            dst = tsReadChr();
+            dst = static_cast<char>(tsReadChr());
             return *this;
         }
 
@@ -253,10 +264,12 @@ namespace m
         {
             uint8_t ret;
             if(m_hasUndo) {
-                ret = *reinterpret_cast<char*>(&m_undo);
+                ret = static_cast<uint8_t>(m_undo);
                 m_hasUndo = false;
-            } else
-                tsRead(reinterpret_cast<char*>(&ret), 1);
+            } else {
+                if(!tsRead(reinterpret_cast<char*>(&ret), 1))
+                    m_reachedEOF = true;
+            }
 
             return ret;
         }
@@ -270,38 +283,64 @@ namespace m
             char maxChar = '9';
             dst = 0;
 
-            char chr = tsReadChr();
+            int chr2 = tsReadChr();
+            if(chr2 < 0)
+                return *this;
+
+            char chr = static_cast<char>(chr2);
             if(chr == '0') {
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
 
                 if(chr == 'x') {
                     base = 16;
                     maxChar = 'f';
-                    chr = tsReadChr();
+
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 } else if(chr == 'b') {
                     base = 2;
                     maxChar = '1';
-                    chr = tsReadChr();
+
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 }
             }
 
             if(maxChar <= '9') {
                 while(chr >= '0' && chr <= maxChar) {
                     dst = dst * base + static_cast<uint32_t>(chr - '0');
-                    chr = tsReadChr();
+                    chr2 = tsReadChr();
+
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 }
             } else {
                 //Alphanumeric
-                char chr2 = tolower(chr);
+                char chrl = static_cast<char>(tolower(chr));
 
-                while((chr2 >= '0' && chr2 <= '9') || (chr2 >= 'a' && chr2 <= maxChar)) {
-                    if(chr2 >= '0' && chr2 <= '9')
-                        dst = dst * base + static_cast<uint32_t>(chr2 - '0');
+                while((chrl >= '0' && chrl <= '9') || (chrl >= 'a' && chrl <= maxChar)) {
+                    if(chrl >= '0' && chrl <= '9')
+                        dst = dst * base + static_cast<uint32_t>(chrl - '0');
                     else
-                        dst = dst * base + static_cast<uint32_t>(chr2 - 'a') + 10;
+                        dst = dst * base + static_cast<uint32_t>(chrl - 'a') + 10;
 
-                    chr = tsReadChr();
-                    chr2 = tolower(chr);
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return *this;
+
+                    chrl = static_cast<char>(tolower(chr2));
                 }
             }
 
@@ -312,7 +351,11 @@ namespace m
 
         TextDeserializer &operator >> (int32_t &dst)
         {
-            char chr = tsReadChr();
+            int chr2 = tsReadChr();
+            if(chr2 < 0)
+                return *this;
+
+            char chr = static_cast<char>(chr2);
             if(chr != '-') {
                 m_hasUndo = true;
                 m_undo = chr;
@@ -362,28 +405,53 @@ namespace m
                 skipWS();
 
             dst = 0.0;
-            char chr = tsReadChr();
+            int chr2 = tsReadChr();
             bool neg;
+            char chr;
+
+            if(chr2 < 0)
+                return *this;
+
+            chr = static_cast<char>(chr2);
 
             if(dst == '-') {
                 neg = true;
-                chr = tsReadChr();
+
+                chr2 = tsReadChr();
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
             } else
                 neg = false;
 
             while(chr >= '0' && chr <= '9') {
                 dst = dst * 10.0 + static_cast<double>(chr - '0');
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
             }
 
             if(chr == '.') {
                 double div = 0.1;
-                chr = tsReadChr();
+                chr2 = tsReadChr();
 
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
                 while(chr >= '0' && chr <= '9') {
                     dst = dst + static_cast<double>(chr - '0') * div;
                     div *= 0.1;
-                    chr = tsReadChr();
+                    chr2 = tsReadChr();
+
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 }
             }
 
@@ -391,17 +459,32 @@ namespace m
                 //Exponent?
                 bool negExp;
                 uint32_t exp = 0;
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
 
                 if(chr == '-') {
                     negExp = true;
-                    chr = tsReadChr();
+                    chr2 = tsReadChr();
+
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 } else
                     negExp = false;
 
                 while(chr >= '0' && chr <= '9') {
                     exp = exp * 10 + static_cast<uint32_t>(chr - '0');
-                    chr = tsReadChr();
+                    chr2 = tsReadChr();
+
+                    if(chr2 < 0)
+                        return *this;
+
+                    chr = static_cast<char>(chr2);
                 }
 
                 if(negExp)
@@ -432,10 +515,19 @@ namespace m
             if(m_skipWS)
                 skipWS();
 
-            char chr = tsReadChr();
+            int chr2 = tsReadChr();
+            if(chr2 < 0)
+                return *this;
+
+            char chr = static_cast<char>(chr2);
             while(chr != ' ' && chr != '\t' && chr != '\r' && chr != '\n') {
                 str += chr;
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
             }
 
             m_hasUndo = true;
@@ -445,15 +537,27 @@ namespace m
 
         TextDeserializer &readLine(String &str)
         {
-            char chr = tsReadChr();
+            int chr2 = tsReadChr();
+            if(chr2 < 0)
+                return *this;
+
+            char chr = static_cast<char>(chr2);
             while(chr != '\r' && chr != '\n') {
                 str += chr;
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+
+                if(chr2 < 0)
+                    return *this;
+
+                chr = static_cast<char>(chr2);
             }
 
             if(chr == '\r') {
-                chr = tsReadChr();
+                chr2 = tsReadChr();
+                if(chr2 < 0)
+                    return *this;
 
+                chr = static_cast<char>(chr2);
                 if(chr != '\n') {
                     m_hasUndo = true;
                     m_undo = chr;
@@ -463,10 +567,21 @@ namespace m
             return *this;
         }
 
+        bool hasReachedEOF() const
+        {
+            return m_reachedEOF;
+        }
+
+        bool operator ! () const
+        {
+            return m_reachedEOF;
+        }
+
     private:
         bool m_hasUndo;
         char m_undo;
         bool m_skipWS;
+        bool m_reachedEOF;
     };
 
 }

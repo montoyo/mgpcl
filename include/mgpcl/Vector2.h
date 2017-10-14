@@ -74,12 +74,12 @@ namespace m
             return m_x == T(0) && m_y == T(0);
         }
 
-        bool operator == (const Vector2<T> &src)
+        bool operator == (const Vector2<T> &src) const
         {
             return m_x == src.m_x && m_y == src.m_y;
         }
 
-        bool operator != (const Vector2<T> &src)
+        bool operator != (const Vector2<T> &src) const
         {
             return m_x != src.m_x || m_y != src.m_y;
         }

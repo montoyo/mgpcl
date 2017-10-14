@@ -31,6 +31,10 @@ namespace m
             m_refs = 0;
         }
 
+        RefCounter(long initRefs) : m_refs(initRefs)
+        {
+        }
+
         void addRef()
         {
             m_refs++;
@@ -48,6 +52,14 @@ namespace m
     class MGPCL_PREFIX AtomicRefCounter
     {
     public:
+        AtomicRefCounter()
+        {
+        }
+
+        AtomicRefCounter(long initRefs) : m_refs(initRefs)
+        {
+        }
+
         void addRef()
         {
             m_refs.increment();

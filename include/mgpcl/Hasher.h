@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include <cstdint>
 
 namespace m
 {
@@ -39,8 +40,18 @@ namespace m
         }
     };
 
-    template<> class DefaultHasher<int> : public StaticCastHasher<int>
+    template<> class DefaultHasher<int>
     {
+    public:
+        static int hash(int i_)
+        {
+            uint32_t i = static_cast<uint32_t>(i_);
+            i = ((i >> 16) ^ i) * 0x45d9f3b;
+            i = ((i >> 16) ^ i) * 0x45d9f3b;
+            i = (i >> 16) ^ i;
+
+            return static_cast<int>(i);
+        }
     };
 
     template<> class DefaultHasher<short> : public StaticCastHasher<short>
@@ -55,8 +66,17 @@ namespace m
     {
     };
 
-    template<> class DefaultHasher<unsigned int> : public StaticCastHasher<unsigned int>
+    template<> class DefaultHasher<unsigned int>
     {
+    public:
+        static int hash(uint32_t i)
+        {
+            i = ((i >> 16) ^ i) * 0x45d9f3b;
+            i = ((i >> 16) ^ i) * 0x45d9f3b;
+            i = (i >> 16) ^ i;
+
+            return static_cast<int>(i);
+        }
     };
 
     template<> class DefaultHasher<unsigned short> : public StaticCastHasher<unsigned short>

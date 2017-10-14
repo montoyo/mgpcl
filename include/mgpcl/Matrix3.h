@@ -208,4 +208,4 @@ namespace m
 }
 
 #undef M_SET_ROW
-
+#undef M_SET_ROW_OF

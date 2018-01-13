@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2018 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -279,78 +279,15 @@ namespace m
             if(m_skipWS)
                 skipWS();
 
-            uint32_t base = 10;
-            char maxChar = '9';
-            dst = 0;
-
-            int chr2 = tsReadChr();
-            if(chr2 < 0)
-                return *this;
-
-            char chr = static_cast<char>(chr2);
-            if(chr == '0') {
-                chr2 = tsReadChr();
-                if(chr2 < 0)
-                    return *this;
-
-                chr = static_cast<char>(chr2);
-
-                if(chr == 'x') {
-                    base = 16;
-                    maxChar = 'f';
-
-                    chr2 = tsReadChr();
-                    if(chr2 < 0)
-                        return *this;
-
-                    chr = static_cast<char>(chr2);
-                } else if(chr == 'b') {
-                    base = 2;
-                    maxChar = '1';
-
-                    chr2 = tsReadChr();
-                    if(chr2 < 0)
-                        return *this;
-
-                    chr = static_cast<char>(chr2);
-                }
-            }
-
-            if(maxChar <= '9') {
-                while(chr >= '0' && chr <= maxChar) {
-                    dst = dst * base + static_cast<uint32_t>(chr - '0');
-                    chr2 = tsReadChr();
-
-                    if(chr2 < 0)
-                        return *this;
-
-                    chr = static_cast<char>(chr2);
-                }
-            } else {
-                //Alphanumeric
-                char chrl = static_cast<char>(tolower(chr));
-
-                while((chrl >= '0' && chrl <= '9') || (chrl >= 'a' && chrl <= maxChar)) {
-                    if(chrl >= '0' && chrl <= '9')
-                        dst = dst * base + static_cast<uint32_t>(chrl - '0');
-                    else
-                        dst = dst * base + static_cast<uint32_t>(chrl - 'a') + 10;
-
-                    chr2 = tsReadChr();
-                    if(chr2 < 0)
-                        return *this;
-
-                    chrl = static_cast<char>(tolower(chr2));
-                }
-            }
-
-            m_hasUndo = true;
-            m_undo = chr;
+            dst = parseUInt();
             return *this;
         }
 
         TextDeserializer &operator >> (int32_t &dst)
         {
+            if(m_skipWS)
+                skipWS();
+
             int chr2 = tsReadChr();
             if(chr2 < 0)
                 return *this;
@@ -361,9 +298,7 @@ namespace m
                 m_undo = chr;
             }
 
-            uint32_t ret;
-            *this >> ret;
-
+            uint32_t ret = parseUInt();
             if(chr == '-')
                 dst = -static_cast<int>(ret);
             else
@@ -578,6 +513,78 @@ namespace m
         }
 
     private:
+        uint32_t parseUInt()
+        {
+            uint32_t base = 10;
+            char maxChar = '9';
+            uint32_t dst = 0;
+
+            int chr2 = tsReadChr();
+            if(chr2 < 0)
+                return dst;
+
+            char chr = static_cast<char>(chr2);
+            if(chr == '0') {
+                chr2 = tsReadChr();
+                if(chr2 < 0)
+                    return dst;
+
+                chr = static_cast<char>(chr2);
+
+                if(chr == 'x') {
+                    base = 16;
+                    maxChar = 'f';
+
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return dst;
+
+                    chr = static_cast<char>(chr2);
+                } else if(chr == 'b') {
+                    base = 2;
+                    maxChar = '1';
+
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return dst;
+
+                    chr = static_cast<char>(chr2);
+                }
+            }
+
+            if(maxChar <= '9') {
+                while(chr >= '0' && chr <= maxChar) {
+                    dst = dst * base + static_cast<uint32_t>(chr - '0');
+                    chr2 = tsReadChr();
+
+                    if(chr2 < 0)
+                        return dst;
+
+                    chr = static_cast<char>(chr2);
+                }
+            } else {
+                //Alphanumeric
+                char chrl = static_cast<char>(tolower(chr));
+
+                while((chrl >= '0' && chrl <= '9') || (chrl >= 'a' && chrl <= maxChar)) {
+                    if(chrl >= '0' && chrl <= '9')
+                        dst = dst * base + static_cast<uint32_t>(chrl - '0');
+                    else
+                        dst = dst * base + static_cast<uint32_t>(chrl - 'a') + 10;
+
+                    chr2 = tsReadChr();
+                    if(chr2 < 0)
+                        return dst;
+
+                    chrl = static_cast<char>(tolower(chr2));
+                }
+            }
+
+            m_hasUndo = true;
+            m_undo = chr;
+            return dst;
+        }
+
         bool m_hasUndo;
         char m_undo;
         bool m_skipWS;

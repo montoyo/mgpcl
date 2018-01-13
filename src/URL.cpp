@@ -56,7 +56,7 @@ m::URLParseError m::URL::parse(const String &url)
             return kUPE_InvalidPort;
 
         hasPort = true;
-        m_port = p;
+        m_port = static_cast<uint16_t>(p);
     }
 
     if(!checkStringRange(url, 0, protoPos, false))

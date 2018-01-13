@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2018 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -569,6 +569,27 @@ namespace m
             ret.m_size = m_size + src.m_size;
 
             return ret;
+        }
+
+        List<T, Size> &flip()
+        {
+            const Size mid(m_size / Size(2));
+            uint8_t _tmp[sizeof(T)];
+            T *tmp = reinterpret_cast<T*>(_tmp);
+
+            for(Size i = Size(0); i < mid; ++i) {
+                T *first  = m_data + i;
+                T *second = m_data + (m_size - i - Size(1));
+
+                new(tmp) T(std::move(*first)); //tmp <- first
+                first->~T();
+                new(m_data + i) T(std::move(*second)); //first <- second
+                second->~T();
+                new(second) T(std::move(*tmp)); //second <- tmp
+                tmp->~T();
+            }
+
+            return *this;
         }
 
         //If T is trivially copy constructible, this helper function

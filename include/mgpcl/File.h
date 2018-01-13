@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2018 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -180,6 +180,11 @@ namespace m
 #else
             return '/';
 #endif
+        }
+
+        File operator / (const String &str) const
+        {
+            return File(*this, str);
         }
 
     private:

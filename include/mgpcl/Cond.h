@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2018 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -54,15 +54,14 @@ namespace m
 #ifdef MGPCL_WIN
             return SleepConditionVariableCS(&m_cv, &m.m_cs, ms) != FALSE;
 #else
-            struct timeval tv;
             struct timespec ts;
+            clock_gettime(CLOCK_REALTIME, &ts);
 
-            if(gettimeofday(&tv, nullptr) != 0)
-                return false;
-
-            tv.tv_usec += ms * 1000;
-            ts.tv_sec   = tv.tv_sec + tv.tv_usec / 1000000;
-            ts.tv_nsec  = (tv.tv_usec % 1000000) * 1000;
+            ts.tv_nsec += ms * 1000000;
+            if(ts.tv_nsec >= 1000000000) {
+                ts.tv_sec += ts.tv_nsec / 1000000000;
+                ts.tv_nsec = ts.tv_nsec % 1000000000;
+            }
 
             return pthread_cond_timedwait(&m_cv, &m.m_mutex, &ts) == 0;
 #endif

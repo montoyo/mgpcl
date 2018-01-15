@@ -707,13 +707,13 @@ bool m::SerialPort::setNonBlocking(bool nb)
     } else if(SetCommTimeouts(m_sh->m_handle, &m_defTimeouts) == FALSE)
         return false;
 
-    m_sh->m_nbio = true;
+    m_sh->m_nbio = nb;
     return true;
 #else
     if(fcntl(m_sh->m_fd, F_SETFL, nb ? FNDELAY : 0) == -1)
         return false;
 
-    m_sh->m_nbio = true;
+    m_sh->m_nbio = nb;
     return true;
 #endif
 }

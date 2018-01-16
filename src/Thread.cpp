@@ -17,6 +17,7 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define MGPCL_THREAD_SOURCE
 #include "mgpcl/Thread.h"
 #include "mgpcl/ReadWriteLock.h"
 #include "mgpcl/HashMap.h"
@@ -468,3 +469,57 @@ m::CallbackThread &m::ThreadArray::operator[] (int idx)
 
     return m_threads[idx];
 }
+
+#ifdef MGPCL_WIN
+
+static DWORD WINAPI g_stdFuncThreadProc(LPVOID func)
+{
+    auto realFunc = static_cast<std::function<void()>*>(func);
+    std::function<void()> funcCpy(*realFunc);
+    delete realFunc;
+    funcCpy();
+    return 0;
+}
+
+bool m::execAsync(std::function<void()> func)
+{
+    auto ptrFunc = new std::function<void()>(func);
+    HANDLE handle = CreateThread(nullptr, 0, g_stdFuncThreadProc, ptrFunc, 0, nullptr);
+
+    if(handle == nullptr) {
+        delete ptrFunc;
+        return false;
+    }
+
+    CloseHandle(handle);
+    return true;
+}
+
+#else
+
+void *g_stdFuncThreadProc(void *func)
+{
+    auto realFunc = static_cast<std::function<void()>*>(func);
+    std::function<void()> funcCpy(*realFunc);
+    delete realFunc;
+    funcCpy();
+    return 0;
+}
+
+bool m::execAsync(std::function<void()> func)
+{
+    auto ptrFunc = new std::function<void()>(func);
+    pthread_attr_t attrs;
+    pthread_t thread;
+
+    pthread_attr_init(&attrs);
+    pthread_attr_setdetachstate(&attrs, 1);
+
+    if(pthread_create(&thread, &attrs, g_stdFuncThreadProc, ptrFunc) == 0)
+        return true;
+
+    delete ptrFunc;
+    return false;
+}
+
+#endif

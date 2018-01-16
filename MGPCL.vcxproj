@@ -185,6 +185,7 @@
     <ClInclude Include="include\mgpcl\File.h" />
     <ClInclude Include="include\mgpcl\FileIOStream.h" />
     <ClInclude Include="include\mgpcl\FlatMap.h" />
+    <ClInclude Include="include\mgpcl\Future.h" />
     <ClInclude Include="include\mgpcl\HMAC.h" />
     <ClInclude Include="include\mgpcl\LineOStream.h" />
     <ClInclude Include="include\mgpcl\MathConstants.h" />

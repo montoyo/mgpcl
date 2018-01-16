@@ -22,13 +22,6 @@
 #include "Enums.h"
 #include "Math.h"
 #include <cstdint>
-#include <future>
-
-#ifdef M_TEXTSERIALIZER_SRC
-#define M_TEXTSERIALIZER_GLOBAL
-#else
-#define M_TEXTSERIALIZER_GLOBAL extern
-#endif
 
 namespace m
 {
@@ -37,7 +30,7 @@ namespace m
     {
     };
 
-    M_TEXTSERIALIZER_GLOBAL TextSerializerEndOfLine eol;
+    const TextSerializerEndOfLine eol;
     
     class TextSerializer
     {

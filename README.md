@@ -49,4 +49,4 @@ __TL;DR:__ Not the best, but this is what I want to work with.
  * RoundRobin class
  * Faster & better FFT
  * DLL/SO build
- * **The aim is to completely remove the stdlib/stl dependency**
+ * The aim is to **NOT** to make the stdlib/stl useless but rather to complete it with some features I really need for my projects.

@@ -1,7 +1,7 @@
 #include "TestAPI.h"
 #include <mgpcl/Thread.h>
-#include <mgpcl/Mutex.h>
 #include <mgpcl/Time.h>
+#include <mgpcl/Future.h>
 
 Declare Test("threading"), Priority(9.0);
 
@@ -46,5 +46,20 @@ TEST
 
     std::cout << "[i]\tThread ran in " << m::time::getTimeMs() - start << " ms." << std::endl;
     ft.join();
+    return true;
+}
+
+TEST
+{
+    volatile StackIntegrityChecker sic;
+    m::Promise<int> promise;
+    m::Future<int> future(promise.makeNewFuture());
+
+    testAssert(m::execAsync([&promise] () {
+        m::time::sleepMs(250);
+        promise.set(42);
+    }), "couldn't start async func");
+
+    testAssert(future.get() == 42, "future != promise");
     return true;
 }

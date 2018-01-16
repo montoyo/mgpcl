@@ -29,6 +29,12 @@
 #include <pthread.h>
 #endif
 
+#ifdef MGPCL_THREAD_SOURCE
+#define MGPCL_THREAD_EXT
+#else
+#define MGPCL_THREAD_EXT extern
+#endif
+
 namespace m
 {
     class ThreadArray;
@@ -264,6 +270,8 @@ namespace m
         String m_name;
         uint8_t m_cpus;
     };
+
+    MGPCL_THREAD_EXT bool execAsync(std::function<void()> func);
 
 }
 

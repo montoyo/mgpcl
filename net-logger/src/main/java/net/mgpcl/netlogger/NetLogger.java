@@ -14,13 +14,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NetLogger implements WindowListener, ActionListener {
 
     public static NetLogger INSTANCE;
+
+    private Thread thread;
     private AtomicBoolean running = new AtomicBoolean(false);
-    private AtomicBoolean threadEnded = new AtomicBoolean(false);
-    private AtomicBoolean hasClient = new AtomicBoolean(false);
     private ServerSocket sock;
+
+    private final Object clientLock = new Object();
     private Socket client;
-    private InputStream sockIn;
     private OutputStream sockOut;
+
     private JFrame window;
     private LogTableModel table;
     private JCheckBox levels[] = new JCheckBox[4];
@@ -94,12 +96,13 @@ public class NetLogger implements WindowListener, ActionListener {
         System.out.println("Starting NetLogger on *:" + port);
         INSTANCE = new NetLogger(port);
         INSTANCE.closeOnDisconnect = cod;
+        INSTANCE.thread = new Thread(() -> INSTANCE.listen());
 
         try {
             Thread.sleep(1000); //Java GUI init is slow...
         } catch(Throwable t) {}
 
-        INSTANCE.listen();
+        INSTANCE.thread.start();
     }
 
     NetLogger(int port)
@@ -210,74 +213,95 @@ public class NetLogger implements WindowListener, ActionListener {
         pane.add(inner, c);
     }
 
-    private class AddRowRunnable implements Runnable {
-
-        private LogTableModel.LogRow row;
-
-        public AddRowRunnable(LogTableModel.LogRow row)
-        {
-            this.row = row;
-        }
-
-        @Override
-        public void run() {
-            table.addLine(row);
-        }
-
-    }
-
     private void listen()
     {
-        boolean disco = false;
         running.set(true);
 
-        while(client == null && running.get()) {
-            try {
-                client = sock.accept();
-            } catch (IOException ex) {
-                if(!running.get())
+        while(running.get()) {
+            Socket cli = null;
+
+            while(cli == null && running.get()) {
+                try {
+                    System.out.println("Waiting for client...");
+                    cli = sock.accept();
+                } catch(IOException ex) {
+                    if(running.get())
+                        ex.printStackTrace();
+                }
+            }
+
+            if(cli != null) {
+                synchronized(clientLock) {
+                    client = cli;
+                }
+
+                InetAddress addr = client.getInetAddress();
+                if(addr != null)
+                    System.out.println("Got client from: " + addr.getHostAddress() + ":" + client.getPort());
+
+                InputStream sockIn;
+                try {
+                    sockIn = client.getInputStream();
+                    sockOut = client.getOutputStream();
+                } catch(IOException ex) {
                     ex.printStackTrace();
+                    System.exit(-3);
+                    return; //Shut the warning up
+                }
+
+                //Send current config (disabled levels)
+                SwingUtilities.invokeLater(() -> {
+                    for(int i = 0; i < levels.length; i++) {
+                        if(!levels[i].isSelected())
+                            sendLevel(false, i);
+                    }
+                });
+
+                //Receive packets
+                boolean normalExit = handlePackets(sockIn);
+
+                synchronized(clientLock) {
+                    client = null;
+                    sockOut = null;
+                }
+
+                //Make sure the client is closed
+                try {
+                    cli.close();
+                } catch(Throwable t) {}
+
+                //Close on disconnect
+                if(normalExit && closeOnDisconnect) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch(Throwable t) {}
+
+                    SwingUtilities.invokeLater(() -> windowClosing(null));
+                    return;
+                }
             }
         }
+    }
 
-        if(client == null) {
-            threadEnded.set(true);
-            return;
-        }
-
-        hasClient.set(true);
-
-        InetAddress addr = client.getInetAddress();
-        if(addr != null)
-            System.out.println("Got client from: " + addr.getHostAddress() + ":" + client.getPort());
-
-        try {
-            sockIn = client.getInputStream();
-            sockOut = client.getOutputStream();
-        } catch(IOException ex) {
-            ex.printStackTrace();
-            System.exit(-3);
-        }
-
+    private boolean handlePackets(InputStream sockIn)
+    {
         try {
             DataInputStream dis = new DataInputStream(sockIn);
 
             while(running.get()) {
                 int pktSize = dis.readInt();
 
-                if (pktSize < 4 || pktSize > 8192)
+                if(pktSize < 4 || pktSize > 8192)
                     System.out.println("Spotted invalid packet with size " + pktSize);
                 else {
                     pktSize -= 4;
                     byte[] pkt = new byte[pktSize];
                     int offset = 0;
 
-                    while (pktSize > 0) {
+                    while(pktSize > 0) {
                         int rd = dis.read(pkt, offset, pktSize);
-                        if (rd == 0) {
-                            System.out.println("Connection closed");
-                            return;
-                        }
+                        if(rd == 0)
+                            throw new EOFException();
 
                         offset += rd;
                         pktSize -= rd;
@@ -292,40 +316,29 @@ public class NetLogger implements WindowListener, ActionListener {
             } catch(Throwable t) {}
 
             client = null;
-            disco = true;
-            SwingUtilities.invokeLater(new AddRowRunnable(new LogTableModel.LogRow()));
+            SwingUtilities.invokeLater(() -> table.addLine(new LogTableModel.LogRow()));
+            return true; //Client disconnected normally
         } catch(IOException ex) {
-            ex.printStackTrace();
-            disco = true;
+            if(running.get())
+                ex.printStackTrace();
         }
 
-        threadEnded.set(true);
-        running.set(false);
-
-        if(disco && closeOnDisconnect) {
-            try {
-                Thread.sleep(1000);
-            } catch(Throwable t) {}
-
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    windowClosing(null);
-                }
-            });
-        }
+        return false;
     }
 
-    private void handlePacket(DataInputStream dis) throws IOException
+    private void handlePacket(DataInputStream dis)
     {
-        SwingUtilities.invokeLater(new AddRowRunnable(new LogTableModel.LogRow(dis)));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                table.addLine(new LogTableModel.LogRow(dis));
+            } catch(IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     public void sendPacket(byte[] data)
     {
-        if(sockOut == null)
-            return;
-
         byte[] pkt = new byte[data.length + 4];
         pkt[0] = (byte) ((pkt.length & 0xFF000000) >> 24);
         pkt[1] = (byte) ((pkt.length & 0x00FF0000) >> 16);
@@ -334,10 +347,17 @@ public class NetLogger implements WindowListener, ActionListener {
 
         System.arraycopy(data, 0, pkt, 4, data.length);
 
-        try {
-            sockOut.write(pkt);
-        } catch(IOException ex) {
-            ex.printStackTrace();
+        synchronized(clientLock) {
+            if(sockOut == null) {
+                System.out.println("!!! -> Can't send packet; client is disconnected...");
+                return;
+            }
+
+            try {
+                sockOut.write(pkt);
+            } catch(IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -367,42 +387,28 @@ public class NetLogger implements WindowListener, ActionListener {
     @Override
     public void windowClosing(WindowEvent ev) {
         System.out.println("Shutting down...");
+        running.set(false);
 
-        boolean alreadyClosed = false;
-        boolean waitForEnd = running.get();
-
-        if(!hasClient.get()) {
-            running.set(false);
-
-            try {
-                sock.close();
-            } catch(Throwable t) {}
-
-            alreadyClosed = true;
-        }
-
-        if(waitForEnd) {
-            running.set(false);
-
-            while(!threadEnded.get()) {
+        //End client's connection (if any)
+        synchronized(clientLock) {
+            if(client != null) {
                 try {
-                    Thread.sleep(10);
+                    client.close();
                 } catch(Throwable t) {}
             }
         }
 
-        if(client != null) {
-            try {
-                client.close();
-            } catch(Throwable t) {}
-        }
+        //Close server
+        try {
+            sock.close();
+        } catch(Throwable t) {}
 
-        if(!alreadyClosed) {
-            try {
-                sock.close();
-            } catch (Throwable t) {}
-        }
+        //Wait for thread to end
+        try {
+            thread.join();
+        } catch(InterruptedException ex) {}
 
+        //Finally, close dat window
         window.dispose();
     }
 

@@ -9,7 +9,12 @@
 /test/test.png
 /net-logger/.idea/
 /net-logger/.gradle/
+/net-logger/gradle/
 /net-logger/build/
+/net-logger/gradlew
+/net-logger/gradlew.bat
+/net-logger/net-logger.iml
+/net-logger/out/
 /build/
 /.idea/
 /.vscode/

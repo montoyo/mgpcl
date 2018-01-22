@@ -148,8 +148,8 @@ void m::AES::reset(const uint8_t *key, const uint8_t *iv)
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
         EVP_CIPHER_CTX_reset(m_aes);
 #else
-		EVP_CIPHER_CTX_free(m_aes);
-		m_aes = EVP_CIPHER_CTX_new();
+        EVP_CIPHER_CTX_free(m_aes);
+        m_aes = EVP_CIPHER_CTX_new();
 #endif
 
         EVP_CipherInit(m_aes, g_mapping[m_version](), key, iv, m_mode == kAESM_Encrypt);

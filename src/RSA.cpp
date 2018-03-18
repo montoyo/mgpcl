@@ -232,7 +232,7 @@ int m::RSA::privateDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RS
         while(j < num && tmp[j] == 0)
             j++;
 
-        int ret = RSA_padding_check_PKCS1_OAEP_mgf1(dst, num, tmp, j, num, nullptr, 0, EVP_sha256(), EVP_sha1());
+        int ret = RSA_padding_check_PKCS1_OAEP_mgf1(dst, num, tmp + j, num - j, num, nullptr, 0, EVP_sha256(), EVP_sha1());
         delete[] tmp;
         return ret;
     } else

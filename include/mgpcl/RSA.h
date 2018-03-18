@@ -20,6 +20,8 @@
 #pragma once
 #include "BigNumber.h"
 #include "Config.h"
+#include "IOStream.h"
+#include <exception>
 
 #ifndef MGPCL_NO_SSL
 #define M_RSA_SIZE(bits) ((bits) / 8)
@@ -29,6 +31,8 @@
 
 namespace m
 {
+    typedef int (*RSAPasswordCallback)(char *buf, int size, int rwflag, void *userdata);
+
     enum RSAExponent
     {
         kRSAE_3,
@@ -41,6 +45,7 @@ namespace m
         kRSAP_NoPadding = 0, //Insecure. Do not use unless you do manual padding.
         kRSAP_PKCS1,
         kRSAP_PKCS1OAEP,
+        kRSAP_PKCS1OAEPSHA256, //Private decrypt only. If used somewhere else, will fall back to regular PCKS1 OAEP (SHA-1) padding.
         kRSAP_SSLv23,
 
         kRSAP_Max //NOT AN ACTUAL PADDING. KEEP AT END.
@@ -56,11 +61,22 @@ namespace m
         kRSASA_Max //DO NOT USE. KEEP AT END.
     };
 
+    class PEMParseException : public std::exception
+    {
+    public:
+        PEMParseException(const char *msg) : std::exception(msg)
+        {
+        }
+    };
+
     class RSAPublicKey
     {
     public:
         RSAPublicKey();
         RSAPublicKey(const BigNumber &e, const BigNumber &n);
+
+        static RSAPublicKey readPEM(InputStream *is, RSAPasswordCallback pc = nullptr, void *pcud = nullptr); //Throws PEMParseException
+        static RSAPublicKey readPEM(const String &fname, RSAPasswordCallback pc = nullptr, void *pcud = nullptr); //Throws PEMParseException
 
         const BigNumber &e() const
         {
@@ -95,6 +111,8 @@ namespace m
 
         static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, const BigNumber &e);
         static RSAPrivateKey fromPQE(const BigNumber &p, const BigNumber &q, RSAExponent e);
+        static RSAPrivateKey readPEM(InputStream *is, RSAPasswordCallback pc = nullptr, void *pcud = nullptr); //Throws PEMParseException
+        static RSAPrivateKey readPEM(const String &fname, RSAPasswordCallback pc = nullptr, void *pcud = nullptr); //Throws PEMParseException
 
         RSAPublicKey publicKey() const;
 
@@ -162,6 +180,11 @@ namespace m
         RSA();
         ~RSA();
 
+        static RSA fromRaw(void *raw)
+        {
+            return RSA(raw);
+        }
+
         bool generateKeys(int bits, RSAExponent exp = kRSAE_65537);
         BigNumber e() const; //Public exponent
         BigNumber n() const; //Modulus
@@ -225,6 +248,11 @@ namespace m
         uint32_t size(RSAPadding padding) const;
 
     private:
+        RSA(void *opensslRSAStruct)
+        {
+            m_rsa_ = opensslRSAStruct;
+        }
+
         void *m_rsa_;
     };
 }

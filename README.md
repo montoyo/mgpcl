@@ -44,6 +44,7 @@ __TL;DR:__ Not the best, but this is what I want to work with.
  * ZLib and LZ4 compression I/O streams
  * Networking: Complete UDP model
  * SSL Certificate Management
+ * RSA: Export keys to PEM
  * Noise techniques (Perlin?)
  * Shapes: Cylinder & cube
  * RoundRobin class

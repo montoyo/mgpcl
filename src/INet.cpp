@@ -20,6 +20,7 @@
 #define M_INET_SRC
 #include "mgpcl/INet.h"
 #include "mgpcl/Mem.h"
+#include "mgpcl/IOStream.h"
 
 #ifndef MGPCL_NO_SSL
 #include <openssl/ssl.h>
@@ -28,7 +29,14 @@
 #include <openssl/pem.h>
 #include <openssl/x509.h>
 #include <openssl/err.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+ //Version 1.1.x support
+#define M_CRYPTO_11
 #endif
+#endif
+
+static BIO_METHOD *g_bioMethod;
 
 m::inet::InitError m::inet::initialize()
 {
@@ -120,9 +128,117 @@ m::inet::SocketError m::inet::socketError(int err)
 #endif
 }
 
+#ifdef MGPCL_NO_SSL
+
 void m::inet::initSSL()
 {
-#ifndef MGPCL_NO_SSL
+}
+
+void *m::inet::makeBIO(m::InputStream *is)
+{
+    return nullptr;
+}
+
+#else
+
+class BIOInputStream
+{
+public:
+    BIOInputStream(m::InputStream *is_) : is(is_), hasUndo(false)
+    {
+    }
+
+    int read(char *data, int len)
+    {
+        if(hasUndo) {
+            *data = undo;
+            hasUndo = false;
+
+            if(--len <= 0)
+                return 1;
+        }
+
+        return is->read(reinterpret_cast<uint8_t*>(data), len);
+    }
+
+    int getc(char *dst)
+    {
+        if(hasUndo) {
+            *dst = undo;
+            hasUndo = false;
+            return 1;
+        }
+
+        return is->read(reinterpret_cast<uint8_t*>(dst), 1);
+    }
+
+    void revert(char c)
+    {
+        hasUndo = true;
+        undo = c;
+    }
+
+    static BIOInputStream *get(BIO *bio)
+    {
+#ifdef M_CRYPTO_11
+        return static_cast<BIOInputStream*>(BIO_get_data(bio));
+#else
+        return static_cast<BIOInputStream*>(bio->ptr);
+#endif
+    }
+
+    m::InputStream *is;
+    bool hasUndo;
+    char undo;
+};
+
+static int bioRead(BIO *bio, char *dst, int len)
+{
+    return BIOInputStream::get(bio)->read(dst, len);
+}
+
+static int bioGets(BIO *bio, char *dst, int len)
+{
+    BIOInputStream *is = BIOInputStream::get(bio);
+    bool err = false;
+    int pos;
+
+    for(pos = 0; pos < len - 1; pos++) {
+        int ret = is->getc(dst);
+        if(ret <= 0) {
+            if(ret < 0)
+                err = true;
+
+            break;
+        }
+
+        if(*dst == '\r') {
+            *dst = '\n';
+
+            char nxt;
+            if(is->getc(&nxt) > 0 && nxt != '\n')
+                is->revert(nxt);
+        }
+
+        if(*(dst++) == '\n')
+            break;
+    }
+
+    *dst = 0;
+    if(pos > 0)
+        return pos;
+    else
+        return err ? -1 : 0;
+}
+
+static int bioDestroy(BIO *b)
+{
+    delete BIOInputStream::get(b);
+    return 0;
+}
+
+void m::inet::initSSL()
+{
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
@@ -130,5 +246,34 @@ void m::inet::initSSL()
     ERR_load_PEM_strings();
     ERR_load_X509_strings();
     OpenSSL_add_all_algorithms();
+
+#ifdef M_CRYPTO_11
+    g_bioMethod = BIO_meth_new(BIO_get_new_index(), "MGPCL_BIO");
+    BIO_meth_set_read(g_bioMethod, bioRead);
+    BIO_meth_set_gets(g_bioMethod, bioGets);
+    BIO_meth_set_destroy(g_bioMethod, bioDestroy);
+#else
+    g_bioMethod = new BIO_METHOD;
+    mem::zero(g_bioMethod, sizeof(BIO_METHOD));
+    g_bioMethod->type = 42 | BIO_TYPE_SOURCE_SINK;
+    g_bioMethod->name = "MGPCL_BIO";
+    g_bioMethod->bread = bioRead;
+    g_bioMethod->bgets = bioGets;
+    g_bioMethod->destroy = bioDestroy;
 #endif
 }
+
+void *m::inet::makeBIO(m::InputStream *is)
+{
+    BIO *ret = BIO_new(g_bioMethod);
+
+#ifdef M_CRYPTO_11
+    BIO_set_data(ret, new BIOInputStream(is));
+#else
+    ret->ptr = new BIOInputStream(is);
+#endif
+
+    return ret;
+}
+
+#endif

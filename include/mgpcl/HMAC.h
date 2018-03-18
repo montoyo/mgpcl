@@ -29,6 +29,10 @@ namespace m
     {
         kHH_None = 0,
         kHH_Sha1,
+        kHH_Sha224,
+        kHH_Sha256,
+        kHH_Sha384,
+        kHH_Sha512,
         kHH_Ripemd160
     };
 

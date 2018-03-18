@@ -18,10 +18,13 @@
  */
 
 #include "mgpcl/RSA.h"
+#include "mgpcl/INet.h"
 
 #ifndef MGPCL_NO_SSL
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 //Version 1.1.x support
@@ -32,7 +35,7 @@
 #define m_rsa (*reinterpret_cast<::RSA**>(&m_rsa_))
 #define m_crsa static_cast<const ::RSA*>(m_rsa_)
 
-static const int g_paddingMapping[m::kRSAP_Max] = { RSA_NO_PADDING, RSA_PKCS1_PADDING, RSA_PKCS1_OAEP_PADDING, RSA_SSLV23_PADDING };
+static const int g_paddingMapping[m::kRSAP_Max] = { RSA_NO_PADDING, RSA_PKCS1_PADDING, RSA_PKCS1_OAEP_PADDING, RSA_PKCS1_OAEP_PADDING, RSA_SSLV23_PADDING };
 static const int g_algMapping[m::kRSASA_Max] = { NID_sha1, NID_md5, NID_ripemd160, NID_md5_sha1 };
 
 m::RSAPublicKey::RSAPublicKey()
@@ -41,6 +44,48 @@ m::RSAPublicKey::RSAPublicKey()
 
 m::RSAPublicKey::RSAPublicKey(const BigNumber &e, const BigNumber &n) : m_e(e), m_n(n)
 {
+}
+
+m::RSAPublicKey m::RSAPublicKey::readPEM(InputStream *is, RSAPasswordCallback pc, void *pcud)
+{
+    BIO *bio = static_cast<BIO*>(inet::makeBIO(is));
+    EVP_PKEY *pubKey = nullptr;
+    bool ok = (PEM_read_bio_PUBKEY(bio, &pubKey, pc, pcud) != nullptr);
+    BIO_free(bio);
+
+    if(!ok)
+        throw PEMParseException("PEM_read_bio_PUBKEY failed");
+
+    ::RSA *rsa = EVP_PKEY_get1_RSA(pubKey);
+    if(rsa == nullptr) {
+        EVP_PKEY_free(pubKey);
+        throw PEMParseException("Not an RSA public key");
+    }
+
+    RSAPublicKey ret(RSA::fromRaw(rsa).publicKey()); //Do not worry my friends, ref counting is here for ya!
+    EVP_PKEY_free(pubKey);
+    return ret;
+}
+
+m::RSAPublicKey m::RSAPublicKey::readPEM(const m::String &fname, RSAPasswordCallback pc, void *pcud)
+{
+    BIO *bio = BIO_new_file(fname.raw(), "r");
+    EVP_PKEY *pubKey = nullptr;
+    bool ok = (PEM_read_bio_PUBKEY(bio, &pubKey, pc, pcud) != nullptr);
+    BIO_free(bio);
+
+    if(!ok)
+        throw PEMParseException("PEM_read_bio_PUBKEY failed");
+
+    ::RSA *rsa = EVP_PKEY_get1_RSA(pubKey);
+    if(rsa == nullptr) {
+        EVP_PKEY_free(pubKey);
+        throw PEMParseException("Not an RSA public key");
+    }
+
+    RSAPublicKey ret(RSA::fromRaw(rsa).publicKey()); //Do not worry my friends, ref counting is here for ya!
+    EVP_PKEY_free(pubKey);
+    return ret;
 }
 
 m::RSAPrivateKey::RSAPrivateKey()
@@ -89,6 +134,32 @@ m::RSAPrivateKey m::RSAPrivateKey::fromPQE(const BigNumber &p, const BigNumber &
     }
 
     return fromPQE(p, q, BigNumber(word));
+}
+
+m::RSAPrivateKey m::RSAPrivateKey::readPEM(InputStream *is, RSAPasswordCallback pc, void *pcud)
+{
+    BIO *bio = static_cast<BIO*>(inet::makeBIO(is));
+    ::RSA *rsa = nullptr;
+    bool ok = (PEM_read_bio_RSAPrivateKey(bio, &rsa, pc, pcud) != nullptr);
+    BIO_free(bio);
+
+    if(!ok)
+        throw PEMParseException("PEM_read_bio_RSAPrivateKey failed");
+
+    return RSA::fromRaw(rsa).privateKey();
+}
+
+m::RSAPrivateKey m::RSAPrivateKey::readPEM(const m::String &fname, RSAPasswordCallback pc, void *pcud)
+{
+    BIO *bio = BIO_new_file(fname.raw(), "r");
+    ::RSA *rsa = nullptr;
+    bool ok = (PEM_read_bio_RSAPrivateKey(bio, &rsa, pc, pcud) != nullptr);
+    BIO_free(bio);
+
+    if(!ok)
+        throw PEMParseException("PEM_read_bio_RSAPrivateKey failed");
+
+    return RSA::fromRaw(rsa).privateKey();
 }
 
 m::RSAPublicKey m::RSAPrivateKey::publicKey() const
@@ -148,7 +219,24 @@ int m::RSA::privateDecrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RS
     if(padding < 0 || padding >= kRSAP_Max)
         return false;
 
-    return RSA_private_decrypt(static_cast<int>(srcLen), src, dst, m_rsa, g_paddingMapping[padding]);
+    if(padding == kRSAP_PKCS1OAEPSHA256) {
+        int num = RSA_size(m_rsa);
+        uint8_t *tmp = new uint8_t[num];
+
+        if(RSA_private_decrypt(static_cast<int>(srcLen), src, tmp, m_rsa, RSA_NO_PADDING) <= 0) {
+            delete[] tmp;
+            return -1;
+        }
+
+        int j = 0;
+        while(j < num && tmp[j] == 0)
+            j++;
+
+        int ret = RSA_padding_check_PKCS1_OAEP_mgf1(dst, num, tmp, j, num, nullptr, 0, EVP_sha256(), EVP_sha1());
+        delete[] tmp;
+        return ret;
+    } else
+        return RSA_private_decrypt(static_cast<int>(srcLen), src, dst, m_rsa, g_paddingMapping[padding]);
 }
 
 bool m::RSA::privateEncrypt(const uint8_t *src, uint32_t srcLen, uint8_t *dst, RSAPadding padding)
@@ -198,6 +286,7 @@ uint32_t m::RSA::size(RSAPadding padding) const
         return ret - 12;
 
     case kRSAP_PKCS1OAEP:
+    case kRSAP_PKCS1OAEPSHA256:
         return ret - 42;
 
     default:

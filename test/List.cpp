@@ -150,6 +150,21 @@ TEST
         testAssert(lst3[i] <= lst3[i + 1], "list sorting failed");
 
     lst3.clear();
+
+    /*for(int i = 0; i < 1048576; i++) {
+        float a = static_cast<float>(rand() % 10000 - 5000);
+        float b = static_cast<float>(rand() % 10000 - 5000) / 10000.f;
+
+        lst3 << (a + b);
+    }
+
+    s = m::time::getTimeMs();
+    lst3.mergeSort();
+    std::cout << "[i]\tMerge sort (floats) took " << m::time::getTimeMs() - s << "ms" << std::endl;
+
+    for(int i = 0; i < lst3.size() - 1; i++)
+        testAssert(lst3[i] <= lst3[i + 1], "list merge sorting failed");*/
+
     return true;
 }
 

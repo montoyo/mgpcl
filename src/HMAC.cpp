@@ -35,6 +35,18 @@ static const EVP_MD *g_hashMD(m::HMACHash hash)
     case m::kHH_Sha1:
         return EVP_sha1();
 
+    case m::kHH_Sha224:
+        return EVP_sha224();
+
+    case m::kHH_Sha256:
+        return EVP_sha256();
+
+    case m::kHH_Sha384:
+        return EVP_sha384();
+
+    case m::kHH_Sha512:
+        return EVP_sha512();
+
     case m::kHH_Ripemd160:
         return EVP_ripemd160();
 

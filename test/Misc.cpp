@@ -360,3 +360,19 @@ TEST
 
     return true;
 }
+
+TEST
+{
+    volatile StackIntegrityChecker sic;
+
+    try {
+        m::RSAPrivateKey priv(m::RSAPrivateKey::readPEM("test_private.pem"));
+        std::cout << "[i]\tPrivate key size: " << priv.n().size() * 8 << std::endl;
+        m::RSAPublicKey pub(m::RSAPublicKey::readPEM("test_public.pem"));
+        std::cout << "[i]\tPublic key size: " << pub.n().size() * 8 << std::endl;
+    } catch(m::PEMParseException &ex) {
+        testAssert(false, ex.what());
+    }
+
+    return true;
+}

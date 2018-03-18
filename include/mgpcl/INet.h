@@ -51,6 +51,8 @@ typedef int SOCKET;
 
 namespace m
 {
+    class InputStream;
+
     namespace inet
     {
         enum InitError
@@ -77,6 +79,7 @@ namespace m
         M_INET_PREFIX InitError initialize();
         M_INET_PREFIX void release();
         M_INET_PREFIX void initSSL();
+        M_INET_PREFIX void *makeBIO(m::InputStream *is);
 
 #ifdef MGPCL_WIN
         M_INET_PREFIX SocketError socketError(int err = WSAGetLastError());

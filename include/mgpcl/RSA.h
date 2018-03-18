@@ -64,9 +64,17 @@ namespace m
     class PEMParseException : public std::exception
     {
     public:
-        PEMParseException(const char *msg) : std::exception(msg)
+        PEMParseException(const char *msg) noexcept : m_msg(msg)
         {
         }
+
+        const char *what() const noexcept override
+        {
+            return m_msg;
+        }
+
+    private:
+        const char *m_msg;
     };
 
     class RSAPublicKey

@@ -145,8 +145,9 @@ namespace m
     class PromiseAlreadySetException : public std::exception
     {
     public:
-        PromiseAlreadySetException() throw() : std::exception("m::Promise::set(): already set")
+        const char *what() const noexcept override
         {
+            return "promise already set";
         }
     };
 

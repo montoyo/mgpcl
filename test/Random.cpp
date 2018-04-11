@@ -1,8 +1,10 @@
 #include "TestAPI.h"
 #include <mgpcl/Random.h>
+#include <mgpcl/Time.h>
 #include <fstream>
 #include <ctime>
 #include <cstdlib>
+#include <random>
 
 Declare Test("random"), Priority(4.0);
 
@@ -85,9 +87,14 @@ DISABLED_TEST
     std::ofstream out("random.csv");
 
     //Test with Xoroshiro
-    m::Random<> random;
+    m::Random<m::prng::Xoroshiro> random;
+	double t = m::time::getTimeMs();
+
     for(int i = 0; i < N_SAMPLES; i++)
         samples[i] = random.nextDouble(1.0);
+
+	t = m::time::getTimeMs() - t;
+	std::cout << "[i]\tXoroshiro took " << t << " ms" << std::endl;
 
     g_histogram(samples, N_SAMPLES, histo, HISTO_SIZE);
     out << "PRNG:,Xoroshiro" << std::endl;
@@ -95,16 +102,57 @@ DISABLED_TEST
     for(int i = 0; i < HISTO_SIZE; i++)
         out << i << ',' << histo[i] << std::endl;
 
+	//Test with OpenSSL's RAND()
+#ifndef MGPCL_NO_SSL
+	m::Random<m::prng::OpenSSL> randomSSL;
+	t = m::time::getTimeMs();
+
+	for(int i = 0; i < N_SAMPLES; i++)
+		samples[i] = randomSSL.nextDouble(1.0);
+
+	t = m::time::getTimeMs() - t;
+	std::cout << "[i]\tOpenSSL took " << t << " ms" << std::endl;
+
+	g_histogram(samples, N_SAMPLES, histo, HISTO_SIZE);
+	out << "PRNG:,OpenSSL" << std::endl;
+
+	for(int i = 0; i < HISTO_SIZE; i++)
+		out << i << ',' << histo[i] << std::endl;
+#endif
+
     //Test with stdlib's rand()
     srand(static_cast<unsigned>(time(nullptr)));
+	t = m::time::getTimeMs();
+
     for(int i = 0; i < N_SAMPLES; i++)
         samples[i] = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+
+	t = m::time::getTimeMs() - t;
+	std::cout << "[i]\trand() took " << t << " ms" << std::endl;
 
     g_histogram(samples, N_SAMPLES, histo, HISTO_SIZE);
     out << "PRNG:,rand()" << std::endl;
 
     for(int i = 0; i < HISTO_SIZE; i++)
         out << i << ',' << histo[i] << std::endl;
+
+	//Test with C++0x's MT
+	std::random_device rndDev;
+	std::mt19937 mtRnd(rndDev());
+	std::uniform_real_distribution<double> rndDist;
+	t = m::time::getTimeMs();
+
+	for(int i = 0; i < N_SAMPLES; i++)
+		samples[i] = rndDist(mtRnd);
+
+	t = m::time::getTimeMs() - t;
+	std::cout << "[i]\tMT19937 took " << t << " ms" << std::endl;
+
+	g_histogram(samples, N_SAMPLES, histo, HISTO_SIZE);
+	out << "PRNG:,MT19937" << std::endl;
+
+	for(int i = 0; i < HISTO_SIZE; i++)
+		out << i << ',' << histo[i] << std::endl;
 
     out.close();
     delete[] samples;

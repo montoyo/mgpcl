@@ -217,7 +217,7 @@ TEST
     volatile StackIntegrityChecker sic;
 
     //Generate keys
-    m::Random<> prng;
+    m::Random<m::prng::OpenSSL> prng;
     const uint32_t keyLen = m::AES::keySize(m::kAESV_256CBC);
     const uint32_t ivLen = m::AES::ivSize(m::kAESV_256CBC);
     uint8_t *key = new uint8_t[keyLen + ivLen];

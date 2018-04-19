@@ -731,6 +731,9 @@ bool m::Process::enumerateProcesses(List<ProcessInfo> &lst)
         return false;
 
     PROCESSENTRY32 entry;
+    mem::zero(entry);
+    entry.dwSize = sizeof(PROCESSENTRY32);
+
     if(Process32First(snap, &entry) == FALSE) {
         CloseHandle(snap);
         return false;

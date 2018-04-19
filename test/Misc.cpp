@@ -361,6 +361,8 @@ TEST
     return true;
 }
 
+#ifndef MGPCL_NO_SSL
+
 TEST
 {
     volatile StackIntegrityChecker sic;
@@ -376,3 +378,5 @@ TEST
 
     return true;
 }
+
+#endif

@@ -34,9 +34,9 @@
  //Version 1.1.x support
 #define M_CRYPTO_11
 #endif
-#endif
 
 static BIO_METHOD *g_bioMethod;
+#endif
 
 m::inet::InitError m::inet::initialize()
 {

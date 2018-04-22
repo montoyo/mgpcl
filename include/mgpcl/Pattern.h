@@ -30,29 +30,93 @@ namespace m
         kPPE_InvalidRange,        //i.e. [Z-A] instead of [A-Z]
         kPPE_MisplacedEscape,     //'%' at the end of a range, capture, or pattern
         kPPE_EmptyCapture,        //"()" found in pattern
-        kPPE_MisplacedCtrlChar
+        kPPE_MisplacedCtrlChar,
+        kPPE_EmptyPattern
     };
+
+    class Pattern;
 
     class Matcher
     {
+        friend class Pattern;
+
     public:
-    	//Matcher();
-    	//~Matcher();
+        bool next();
+
+        const m::String &capture(int i = 0) const
+        {
+            return m_captures[i];
+        }
+
+        int captureBegin(int i = 0) const
+        {
+            return m_starts[i];
+        }
+
+        int captureEnd(int i = 0) const
+        {
+            return m_ends[i];
+        }
+
+        int numCaptures() const
+        {
+            return ~m_captures;
+        }
 
     private:
-        String *m_groups;
+        Matcher()
+        {
+        }
+
+        Matcher(Pattern *p, const String &str) : m_pat(p), m_str(str), m_strPos(0)
+        {
+        }
+
+        Matcher(Pattern *p, String &&str) : m_pat(p), m_str(str), m_strPos(0)
+        {
+        }
+
+        int matches();
+
+        Pattern *m_pat;
+        String m_str;
+        int m_strPos;
+        List<String> m_captures;
+        List<int> m_starts;
+        List<int> m_ends;
     };
 
     class PatternNode;
 
     class Pattern
     {
+        friend class Matcher;
+
     public:
         Pattern();
         ~Pattern();
 
-        bool compile(const String &str);
-        Matcher *matcher(const String &str);
+        bool compile(const char *sIt, int sLen = -1);
+        
+        Matcher matcher(const String &str)
+        {
+            return Matcher(this, str);
+        }
+
+        Matcher matcher(String &&str)
+        {
+            return Matcher(this, str);
+        }
+
+        Matcher matcher(const char *str, int len = -1)
+        {
+            return Matcher(this, String(str, len));
+        }
+
+        bool compile(const String &str)
+        {
+            return compile(str.raw(), str.length());
+        }
 
         PatternParseError parseError() const
         {

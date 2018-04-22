@@ -262,29 +262,45 @@ TEST
 
         testAssert(!pat.compile("te[A-$]+t"), "compilation of pattern #7 should have failed");
         testAssert(pat.parseError() == m::kPPE_MisplacedCtrlChar, "wrong parse error for pattern #7");
+
+        testAssert(!pat.compile(""), "compilation of pattern #8 should have failed");
+        testAssert(pat.parseError() == m::kPPE_EmptyPattern, "wrong parse error for pattern #8");
+
+        testAssert(!pat.compile("^$"), "compilation of pattern #9 should have failed");
+        testAssert(pat.parseError() == m::kPPE_EmptyPattern, "wrong parse error for pattern #9");
     }
 
     {
         m::Pattern pat;
-        testAssert(pat.compile("^a(bb)+a$"), "could not compile pattern #1");
-        testAssert(pat.matcher("zdf")    == nullptr, "pattern #1 test #1 shouldn't match");
-        testAssert(pat.matcher("ab")     == nullptr, "pattern #1 test #2 shouldn't match");
-        testAssert(pat.matcher("aba")    == nullptr, "pattern #1 test #3 shouldn't match");
-        testAssert(pat.matcher("abba")   != nullptr, "pattern #1 test #4 should match");
-        testAssert(pat.matcher("abbba")  == nullptr, "pattern #1 test #5 shouldn't match");
-        testAssert(pat.matcher("abbbba") != nullptr, "pattern #1 test #6 should match");
+        testAssert( pat.compile("^a(bb)+a$"), "could not compile pattern #1");
+        testAssert(!pat.matcher("zdf"      ).next(), "pattern #1 test #1 shouldn't match");
+        testAssert(!pat.matcher("ab"       ).next(), "pattern #1 test #2 shouldn't match");
+        testAssert(!pat.matcher("aba"      ).next(), "pattern #1 test #3 shouldn't match");
+        testAssert( pat.matcher("abba"     ).next(), "pattern #1 test #4 should match");
+        testAssert(!pat.matcher("abbba"    ).next(), "pattern #1 test #5 shouldn't match");
+        testAssert( pat.matcher("abbbba"   ).next(), "pattern #1 test #6 should match");
     }
 
     {
         m::Pattern pat;
         testAssert(pat.compile("^[E-T]+ *=%s*[ste]+$"), "could not compile pattern #2");
-        testAssert(pat.matcher("zdf")           == nullptr, "pattern #2 test #1 shouldn't match");
-        testAssert(pat.matcher("=")             == nullptr, "pattern #2 test #2 shouldn't match");
-        testAssert(pat.matcher("test = test")   == nullptr, "pattern #2 test #3 shouldn't match");
-        testAssert(pat.matcher("TEST = test")   != nullptr, "pattern #2 test #4 should match");
-        testAssert(pat.matcher("TEST=test")     != nullptr, "pattern #2 test #5 should match");
-        testAssert(pat.matcher("TEST   = test") != nullptr, "pattern #2 test #6 should match");
-        testAssert(pat.matcher("TEST= \t test") != nullptr, "pattern #2 test #7 should match");
+        testAssert(!pat.matcher("zdf"          ).next(), "pattern #2 test #1 shouldn't match");
+        testAssert(!pat.matcher("="            ).next(), "pattern #2 test #2 shouldn't match");
+        testAssert(!pat.matcher("test = test"  ).next(), "pattern #2 test #3 shouldn't match");
+        testAssert( pat.matcher("TEST = test"  ).next(), "pattern #2 test #4 should match");
+        testAssert( pat.matcher("TEST=test"    ).next(), "pattern #2 test #5 should match");
+        testAssert( pat.matcher("TEST   = test").next(), "pattern #2 test #6 should match");
+        testAssert( pat.matcher("TEST= \t test").next(), "pattern #2 test #7 should match");
+    }
+
+    {
+        m::Pattern pat;
+        testAssert(pat.compile("%d%d/%d%d/%d%d%d%d"), "could not compile pattern #3");
+        testAssert(!pat.matcher("zdf").next(), "pattern #3 test #1 shouldn't match");
+
+        m::Matcher matcher(pat.matcher("The date is 01/11/2024 lol"));
+        testAssert(matcher.next(), "pattern #3 test #2 should match");
+        testAssert(matcher.capture() == "01/11/2024", "pattern #3 test #2 captured match is wrong");
     }
 
     return true;

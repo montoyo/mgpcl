@@ -499,7 +499,7 @@ namespace m
                     head = nullptr;
                     tail = nullptr;
 
-                    return pLen < 0 ? kPPE_UnclosedParenthesis : kPPE_EmptyCapture;
+                    return (pLen < 0) ? kPPE_UnclosedParenthesis : kPPE_EmptyCapture;
                 }
 
                 PatternParseError ret = parsePat(++it, pLen, newHead, newTail);
@@ -507,7 +507,7 @@ namespace m
                     destroyPat(head);
                     head = nullptr;
                     tail = nullptr;
-                    return ret;
+                    return (ret == kPPE_EmptyPattern) ? kPPE_EmptyCapture : ret;
                 }
 
                 it += pLen + 1;
@@ -569,6 +569,9 @@ namespace m
             }
         }
 
+        if(head == nullptr)
+            return kPPE_EmptyPattern;
+
         if(addChildToThis != nullptr) {
             PatternNode *end = new PatternNodeEnd; //This should be optimized out
             tail->addChild(end);
@@ -622,7 +625,7 @@ m::Pattern::~Pattern()
 #endif
 }
 
-bool m::Pattern::compile(const String &str)
+bool m::Pattern::compile(const char *sIt, int sLen)
 {
     if(m_root != nullptr) {
         List<PatternNode*> toDelete;
@@ -632,9 +635,14 @@ bool m::Pattern::compile(const String &str)
             delete pn;
     }
 
+    if(sLen < 0) {
+        sLen = 0;
+
+        while(sIt[sLen] != 0)
+            sLen++;
+    }
+
     m_flags = 0;
-    const char *sIt = str.raw();
-    int sLen = str.length();
 
     if(sLen > 0 && *sIt == '^') {
         m_flags |= kPF_Start;
@@ -659,13 +667,27 @@ bool m::Pattern::compile(const String &str)
     return true;
 }
 
-m::Matcher *m::Pattern::matcher(const String &str)
+const char *m::Pattern::parseErrorString() const
+{
+    switch(m_err) {
+    case kPPE_NoError:             return "no error";
+    case kPPE_UnclosedParenthesis: return "found opening parenthesis, but the closing one is missing";
+    case kPPE_UnclosedBracket:     return "found opening bracket, but the closing one is missing";
+    case kPPE_InvalidRange:        return "found invalid range";
+    case kPPE_MisplacedEscape:     return "found misplaced character";
+    case kPPE_EmptyCapture:        return "found empty capture";
+    case kPPE_MisplacedCtrlChar:   return "found an unexpected control character";
+    case kPPE_EmptyPattern:        return "pattern is empty";
+    default:                       return "unknown error";
+    }
+}
+
+int m::Matcher::matches()
 {
     List<StackEntry> stack(4);
-    //List<String> groups;
-    PatternNode *node = m_root;
-    CStringIterator it = str.raw();
-    int remLen = str.length();
+    PatternNode *node = m_pat->m_root;
+    CStringIterator it = m_str.raw() + m_strPos;
+    int remLen = m_str.length() - m_strPos;
 
     while(true) {
         if(node->matches(it, remLen)) {
@@ -680,7 +702,7 @@ m::Matcher *m::Pattern::matcher(const String &str)
         } else {
             //Roll back
             if(stack.isEmpty())
-                return nullptr; //No more arrows :(
+                return -1; //No more arrows :(
 
             node = stack.last().node;
             it = stack.last().it;
@@ -694,19 +716,42 @@ m::Matcher *m::Pattern::matcher(const String &str)
         }
     }
 
-    return new Matcher; //TODO
+    return static_cast<int>(it - m_str.raw()) - m_strPos;
 }
 
-const char *m::Pattern::parseErrorString() const
+bool m::Matcher::next()
 {
-    switch(m_err) {
-    case kPPE_NoError:             return "no error";
-    case kPPE_UnclosedParenthesis: return "found opening parenthesis, but the closing one is missing";
-    case kPPE_UnclosedBracket:     return "found opening bracket, but the closing one is missing";
-    case kPPE_InvalidRange:        return "found invalid range";
-    case kPPE_MisplacedEscape:     return "found misplaced character";
-    case kPPE_EmptyCapture:        return "found empty capture";
-    case kPPE_MisplacedCtrlChar:   return "found an unexpected control character";
-    default:                       return "unknown error";
+    m_captures.cleanup();
+    m_starts.cleanup();
+    m_ends.cleanup();
+
+    int l;
+
+    if(m_pat->m_flags & kPF_Start) {
+        if(m_strPos > 0)
+            return false;
+
+        l = matches();
+    } else {
+        while(m_strPos < m_str.length()) {
+            l = matches(); //We could pre-check m_pat->m_root to avoid useless expensive calls
+            if(l >= 0)
+                break;
+
+            m_strPos++;
+        }
     }
+
+    if(l < 0)
+        return false;
+
+    if((m_pat->m_flags & kPF_End) != 0 && m_strPos + l < m_str.length())
+        return false;
+
+    m_starts.add(m_strPos);
+    m_strPos += l;
+    m_ends.add(m_strPos);
+    m_captures.add(m_str.substr(m_starts[0], m_strPos));
+    //TODO: Add other captures
+    return true;
 }

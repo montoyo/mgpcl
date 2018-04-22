@@ -283,7 +283,7 @@ namespace m
 
     static bool specialRange(char kind, List<PatternNodeMultiRange::Bounds> &dst, bool &containsRange)
     {
-        kind = tolower(kind);
+        kind = static_cast<char>(tolower(kind));
 
         if(kind == 's') {
             dst.add(PatternNodeMultiRange::Bounds(' '));
@@ -612,10 +612,6 @@ void m::PatternNode::optimize()
     }
 }
 
-m::Pattern::Pattern() : m_root(nullptr), m_flags(0), m_err(kPPE_NoError)
-{
-}
-
 m::Pattern::~Pattern()
 {
     destroyPat(m_root);
@@ -721,7 +717,6 @@ int m::Matcher::matches()
 
 bool m::Matcher::next()
 {
-    m_captures.cleanup();
     m_starts.cleanup();
     m_ends.cleanup();
 
@@ -751,7 +746,6 @@ bool m::Matcher::next()
     m_starts.add(m_strPos);
     m_strPos += l;
     m_ends.add(m_strPos);
-    m_captures.add(m_str.substr(m_starts[0], m_strPos));
     //TODO: Add other captures
     return true;
 }

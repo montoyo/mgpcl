@@ -272,25 +272,25 @@ TEST
 
     {
         m::Pattern pat;
-        testAssert( pat.compile("^a(bb)+a$"), "could not compile pattern #1");
-        testAssert(!pat.matcher("zdf"      ).next(), "pattern #1 test #1 shouldn't match");
-        testAssert(!pat.matcher("ab"       ).next(), "pattern #1 test #2 shouldn't match");
-        testAssert(!pat.matcher("aba"      ).next(), "pattern #1 test #3 shouldn't match");
-        testAssert( pat.matcher("abba"     ).next(), "pattern #1 test #4 should match");
-        testAssert(!pat.matcher("abbba"    ).next(), "pattern #1 test #5 shouldn't match");
-        testAssert( pat.matcher("abbbba"   ).next(), "pattern #1 test #6 should match");
+        testAssert(pat.compile("^a(bb)+a$"), "could not compile pattern #1");
+        testAssert(pat != "zdf"   , "pattern #1 test #1 shouldn't match");
+        testAssert(pat != "ab"    , "pattern #1 test #2 shouldn't match");
+        testAssert(pat != "aba"   , "pattern #1 test #3 shouldn't match");
+        testAssert(pat == "abba"  , "pattern #1 test #4 should match");
+        testAssert(pat != "abbba" , "pattern #1 test #5 shouldn't match");
+        testAssert(pat == "abbbba", "pattern #1 test #6 should match");
     }
 
     {
         m::Pattern pat;
         testAssert(pat.compile("^[E-T]+ *=%s*[ste]+$"), "could not compile pattern #2");
-        testAssert(!pat.matcher("zdf"          ).next(), "pattern #2 test #1 shouldn't match");
-        testAssert(!pat.matcher("="            ).next(), "pattern #2 test #2 shouldn't match");
-        testAssert(!pat.matcher("test = test"  ).next(), "pattern #2 test #3 shouldn't match");
-        testAssert( pat.matcher("TEST = test"  ).next(), "pattern #2 test #4 should match");
-        testAssert( pat.matcher("TEST=test"    ).next(), "pattern #2 test #5 should match");
-        testAssert( pat.matcher("TEST   = test").next(), "pattern #2 test #6 should match");
-        testAssert( pat.matcher("TEST= \t test").next(), "pattern #2 test #7 should match");
+        testAssert(pat != "zdf"          , "pattern #2 test #1 shouldn't match");
+        testAssert(pat != "="            , "pattern #2 test #2 shouldn't match");
+        testAssert(pat != "test = test"  , "pattern #2 test #3 shouldn't match");
+        testAssert(pat == "TEST = test"  , "pattern #2 test #4 should match");
+        testAssert(pat == "TEST=test"    , "pattern #2 test #5 should match");
+        testAssert(pat == "TEST   = test", "pattern #2 test #6 should match");
+        testAssert(pat == "TEST= \t test", "pattern #2 test #7 should match");
     }
 
     {

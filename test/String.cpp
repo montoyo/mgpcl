@@ -1,6 +1,6 @@
 #include "TestAPI.h"
 #include <sstream>
-#include <mgpcl/String.h>
+#include <mgpcl/Pattern.h>
 #include <mgpcl/Date.h>
 #include <mgpcl/CPUInfo.h>
 
@@ -235,3 +235,57 @@ TEST
 
     return true;
 };
+
+TEST
+{
+    volatile StackIntegrityChecker sic;
+
+    {
+        m::Pattern pat;
+        testAssert(!pat.compile("te(st"), "compilation of pattern #1 should have failed");
+        testAssert(pat.parseError() == m::kPPE_UnclosedParenthesis, "wrong parse error for pattern #1");
+
+        testAssert(!pat.compile("te[st"), "compilation of pattern #2 should have failed");
+        testAssert(pat.parseError() == m::kPPE_UnclosedBracket, "wrong parse error for pattern #2");
+
+        testAssert(!pat.compile("te[T-S]"), "compilation of pattern #3 should have failed");
+        testAssert(pat.parseError() == m::kPPE_InvalidRange, "wrong parse error for pattern #3");
+
+        testAssert(!pat.compile("te()st"), "compilation of pattern #4 should have failed");
+        testAssert(pat.parseError() == m::kPPE_EmptyCapture, "wrong parse error for pattern #4");
+
+        testAssert(!pat.compile("+test"), "compilation of pattern #5 should have failed");
+        testAssert(pat.parseError() == m::kPPE_MisplacedCtrlChar, "wrong parse error for pattern #5");
+
+        testAssert(!pat.compile("te[s*]+t"), "compilation of pattern #6 should have failed");
+        testAssert(pat.parseError() == m::kPPE_MisplacedCtrlChar, "wrong parse error for pattern #6");
+
+        testAssert(!pat.compile("te[A-$]+t"), "compilation of pattern #7 should have failed");
+        testAssert(pat.parseError() == m::kPPE_MisplacedCtrlChar, "wrong parse error for pattern #7");
+    }
+
+    {
+        m::Pattern pat;
+        testAssert(pat.compile("^a(bb)+a$"), "could not compile pattern #1");
+        testAssert(pat.matcher("zdf")    == nullptr, "pattern #1 test #1 shouldn't match");
+        testAssert(pat.matcher("ab")     == nullptr, "pattern #1 test #2 shouldn't match");
+        testAssert(pat.matcher("aba")    == nullptr, "pattern #1 test #3 shouldn't match");
+        testAssert(pat.matcher("abba")   != nullptr, "pattern #1 test #4 should match");
+        testAssert(pat.matcher("abbba")  == nullptr, "pattern #1 test #5 shouldn't match");
+        testAssert(pat.matcher("abbbba") != nullptr, "pattern #1 test #6 should match");
+    }
+
+    {
+        m::Pattern pat;
+        testAssert(pat.compile("^[E-T]+ *=%s*[ste]+$"), "could not compile pattern #2");
+        testAssert(pat.matcher("zdf")           == nullptr, "pattern #2 test #1 shouldn't match");
+        testAssert(pat.matcher("=")             == nullptr, "pattern #2 test #2 shouldn't match");
+        testAssert(pat.matcher("test = test")   == nullptr, "pattern #2 test #3 shouldn't match");
+        testAssert(pat.matcher("TEST = test")   != nullptr, "pattern #2 test #4 should match");
+        testAssert(pat.matcher("TEST=test")     != nullptr, "pattern #2 test #5 should match");
+        testAssert(pat.matcher("TEST   = test") != nullptr, "pattern #2 test #6 should match");
+        testAssert(pat.matcher("TEST= \t test") != nullptr, "pattern #2 test #7 should match");
+    }
+
+    return true;
+}

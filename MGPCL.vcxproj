@@ -134,6 +134,7 @@
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\MsgBox.cpp" />
     <ClCompile Include="src\NetLogger.cpp" />
+    <ClCompile Include="src\Pattern.cpp" />
     <ClCompile Include="src\Process.cpp" />
     <ClCompile Include="src\ProgramArgs.cpp" />
     <ClCompile Include="src\Random.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="include\mgpcl\HMAC.h" />
     <ClInclude Include="include\mgpcl\LineOStream.h" />
     <ClInclude Include="include\mgpcl\MathConstants.h" />
+    <ClInclude Include="include\mgpcl\Pattern.h" />
     <ClInclude Include="include\mgpcl\Ray.h" />
     <ClInclude Include="include\mgpcl\GUI.h" />
     <ClInclude Include="include\mgpcl\Hasher.h" />

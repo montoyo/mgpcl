@@ -63,6 +63,11 @@ namespace m
             return ~m_starts;
         }
 
+        const String &originalString() const
+        {
+            return m_str;
+        }
+
     private:
         Matcher()
         {
@@ -107,8 +112,8 @@ namespace m
         }
 
         ~Pattern();
-
         bool compile(const char *sIt, int sLen = -1);
+        const char *parseErrorString() const;
         
         Matcher matcher(const String &str)
         {
@@ -173,8 +178,6 @@ namespace m
         {
             return m_err;
         }
-
-        const char *parseErrorString() const;
 
         bool operator ! () const
         {

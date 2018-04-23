@@ -728,6 +728,8 @@ bool m::Matcher::next()
 
         l = matches();
     } else {
+        l = -1; //Just in case m_strPos >= m_str.length()
+
         while(m_strPos < m_str.length()) {
             l = matches(); //We could pre-check m_pat->m_root to avoid useless expensive calls
             if(l >= 0)

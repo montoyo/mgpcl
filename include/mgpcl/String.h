@@ -1175,13 +1175,15 @@ namespace m
                     ret.append(frmt + start, i - start - 1);
                     start = i + 1;
 
-                    if(frmt[i] == '%')
-                        ret += static_cast<T>('%');
-                    else
+                    if(frmt[i] == '%') {
+                        start--;
+                        lastChr = 0; //Whatever but not %
+                    } else {
                         ret += func(frmt[i], lst);
-                }
-
-                lastChr = frmt[i];
+                        lastChr = frmt[i];
+                    }
+                } else
+                    lastChr = frmt[i];
             }
 
             ret += frmt + start;
@@ -1203,9 +1205,10 @@ namespace m
                     ret.append(frmt + start, i - start - 1);
                     start = i + 1;
 
-                    if(frmt[i] == '%')
-                        ret += static_cast<T>('%');
-                    else {
+                    if(frmt[i] == '%') {
+                        start--;
+                        lastChr = 0; //Whatever but not %
+                    } else {
                         switch(static_cast<char>(frmt[i])) {
                         case 'i':
                         case 'd': ret += fromInteger(va_arg(lst->list, int)); break;
@@ -1218,10 +1221,11 @@ namespace m
                         case 'c': ret += TString<T>(static_cast<T>(va_arg(lst->list, int)), 1); break;
                         default:  break;
                         }
-                    }
-                }
 
-                lastChr = frmt[i];
+                        lastChr = frmt[i];
+                    }
+                } else
+                    lastChr = frmt[i];
             }
 
             ret += frmt + start;

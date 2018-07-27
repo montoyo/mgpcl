@@ -828,3 +828,12 @@ bool m::Process::enumerateProcesses(List<ProcessInfo> &lst)
     return errno == 0;
 #endif
 }
+
+uint32_t m::Process::getCurrentProcessID()
+{
+#ifdef MGPCL_WIN
+    return GetCurrentProcessId();
+#else
+    return static_cast<uint32_t>(getpid());
+#endif
+}

@@ -325,6 +325,7 @@ namespace m
 
         static String env(const String &var); //Parent env = this process' env
         static bool enumerateProcesses(List<ProcessInfo> &lst);
+        static uint32_t getCurrentProcessID();
 
     private:
         String m_workingDir;

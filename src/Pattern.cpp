@@ -283,7 +283,7 @@ namespace m
 
     static bool specialRange(char kind, List<PatternNodeMultiRange::Bounds> &dst, bool &containsRange)
     {
-        kind = tolower(kind);
+        kind = static_cast<char>(tolower(kind));
 
         if(kind == 's') {
             dst.add(PatternNodeMultiRange::Bounds(' '));
@@ -360,7 +360,6 @@ namespace m
         } else if(*it == '[') { //Range
             List<PatternNodeMultiRange::Bounds> ranges(2);
             bool hasRange = false; //true if 'ranges' contains at least one non-singleton range
-            bool escape = false;
             bool invert;
 
             it++;
@@ -373,50 +372,53 @@ namespace m
             } else
                 invert = false;
 
-            while(len > 0) {
-                if(escape) {
-                    if(!specialRange(*it, ranges, hasRange))
-                        ranges.add(PatternNodeMultiRange::Bounds(*it));
+            while(true) {
+                if(len < 1)
+                    return kPPE_UnclosedBracket;
 
-                    escape = false;
-                    it++;
-                    len--;
-                } else if(*it == ']')
+                char c1 = *(it++);
+                len--;
+
+                if(c1 == ']')
                     break;
-                else if(len >= 3 && it[1] == '-') { //============> FIXME: This prevents the use of control caracters in ranges. But is it really needed?
-                    if(isInternalChar(it[0]) || isInternalChar(it[2]))
+
+                if(c1 == '%') {
+                    if(len < 1)
+                        return kPPE_MisplacedEscape;
+
+                    c1 = *(it++);
+                    len--;
+                } else if(isInternalChar(c1))
+                    return kPPE_MisplacedCtrlChar;
+
+                if(len > 0 && *it == '-') { //Range
+                    if(len < 2)
                         return kPPE_MisplacedCtrlChar;
 
-                    if(it[0] > it[2])
+                    char c2 = it[1];
+                    it += 2;
+                    len -= 2;
+
+                    if(c2 == '%') {
+                        if(len < 1)
+                            return kPPE_MisplacedEscape;
+
+                        c2 = *(it++);
+                        len--;
+                    } else if(isInternalChar(c2))
+                        return kPPE_MisplacedCtrlChar;
+
+                    if(c1 > c2)
                         return kPPE_InvalidRange;
 
-                    ranges.add(PatternNodeMultiRange::Bounds(it[0], it[2]));
-                    it += 3;
-                    len -= 3;
-
-                    if(it[0] != it[2]) //Just in case someone does something stupid...
+                    if(c1 != c2)
                         hasRange = true;
-                } else {
-                    if(*it == '%') //Escape sequence
-                        escape = true;
-                    else if(isInternalChar(*it))
-                        return kPPE_MisplacedCtrlChar;
-                    else
-                        ranges.add(PatternNodeMultiRange::Bounds(*it));
 
-                    it++;
-                    len--;
-                }
+                    ranges.add(PatternNodeMultiRange::Bounds(c1, c2));
+                } else //Single char
+                    ranges.add(PatternNodeMultiRange::Bounds(c1));
             }
 
-            if(*it != ']')
-                return kPPE_UnclosedBracket;
-
-            if(escape)
-                return kPPE_MisplacedEscape;
-
-            it++;
-            len--;
             ret = makeNodeFromBoundList(ranges, hasRange, invert);
         } else { //Exact match
             char chr = *it;
@@ -612,10 +614,6 @@ void m::PatternNode::optimize()
     }
 }
 
-m::Pattern::Pattern() : m_root(nullptr), m_flags(0), m_err(kPPE_NoError)
-{
-}
-
 m::Pattern::~Pattern()
 {
     destroyPat(m_root);
@@ -721,7 +719,6 @@ int m::Matcher::matches()
 
 bool m::Matcher::next()
 {
-    m_captures.cleanup();
     m_starts.cleanup();
     m_ends.cleanup();
 
@@ -733,6 +730,8 @@ bool m::Matcher::next()
 
         l = matches();
     } else {
+        l = -1; //Just in case m_strPos >= m_str.length()
+
         while(m_strPos < m_str.length()) {
             l = matches(); //We could pre-check m_pat->m_root to avoid useless expensive calls
             if(l >= 0)
@@ -751,7 +750,6 @@ bool m::Matcher::next()
     m_starts.add(m_strPos);
     m_strPos += l;
     m_ends.add(m_strPos);
-    m_captures.add(m_str.substr(m_starts[0], m_strPos));
     //TODO: Add other captures
     return true;
 }

@@ -43,9 +43,9 @@ namespace m
     public:
         bool next();
 
-        const m::String &capture(int i = 0) const
+        String capture(int i = 0) const
         {
-            return m_captures[i];
+            return m_str.substr(m_starts[i], m_ends[i]);
         }
 
         int captureBegin(int i = 0) const
@@ -60,7 +60,12 @@ namespace m
 
         int numCaptures() const
         {
-            return ~m_captures;
+            return ~m_starts;
+        }
+
+        const String &originalString() const
+        {
+            return m_str;
         }
 
     private:
@@ -81,7 +86,6 @@ namespace m
         Pattern *m_pat;
         String m_str;
         int m_strPos;
-        List<String> m_captures;
         List<int> m_starts;
         List<int> m_ends;
     };
@@ -93,24 +97,76 @@ namespace m
         friend class Matcher;
 
     public:
-        Pattern();
-        ~Pattern();
+        Pattern() : m_root(nullptr), m_flags(0), m_err(kPPE_NoError)
+        {
+        }
 
+        explicit Pattern(const String &str) : m_root(nullptr), m_flags(0), m_err(kPPE_NoError)
+        {
+            compile(str.raw(), str.length());
+        }
+
+        explicit Pattern(const char *str, int len = -1) : m_root(nullptr), m_flags(0), m_err(kPPE_NoError)
+        {
+            compile(str, len);
+        }
+
+        ~Pattern();
         bool compile(const char *sIt, int sLen = -1);
+        const char *parseErrorString() const;
         
         Matcher matcher(const String &str)
         {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
             return Matcher(this, str);
         }
 
         Matcher matcher(String &&str)
         {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
             return Matcher(this, str);
         }
 
         Matcher matcher(const char *str, int len = -1)
         {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
             return Matcher(this, String(str, len));
+        }
+
+        bool operator == (const String &str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return Matcher(this, str).next();
+        }
+
+        bool operator == (String &&str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return Matcher(this, str).next();
+        }
+
+        bool operator == (const char *str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return Matcher(this, String(str)).next();
+        }
+
+        bool operator != (const String &str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return !Matcher(this, str).next();
+        }
+
+        bool operator != (String &&str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return !Matcher(this, str).next();
+        }
+
+        bool operator != (const char *str)
+        {
+            mAssert(m_root != nullptr, "can't make matcher out of invalid pattern");
+            return !Matcher(this, String(str)).next();
         }
 
         bool compile(const String &str)
@@ -123,7 +179,15 @@ namespace m
             return m_err;
         }
 
-        const char *parseErrorString() const;
+        bool operator ! () const
+        {
+            return m_root == nullptr;
+        }
+
+        bool isValid() const
+        {
+            return m_root != nullptr;
+        }
 
     private:
         PatternNode *m_root;

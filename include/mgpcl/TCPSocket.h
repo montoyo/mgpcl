@@ -78,6 +78,13 @@ namespace m
             m_writeTimeout = val;
         }
 
+        void setNonBlocking()
+        {
+            m_connTimeout = 0;
+            m_readTimeout = 0;
+            m_writeTimeout = 0;
+        }
+
         int connectionTimeout() const
         {
             return m_connTimeout;

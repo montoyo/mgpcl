@@ -26,6 +26,24 @@
 
 namespace m
 {
+    enum SSLWantedOperation
+    {
+        kSWO_None = 0,
+        kSWO_WantRead,
+        kSWO_WantWrite
+    };
+
+    enum SSLAcceptError
+    {
+        kSAE_NoError = 0,
+        kSAE_InvalidTCPSocket,
+        kSAE_InvalidContext,
+        kSAE_SSLError,
+        kSAE_SSLHandshakeTimeout,
+        kSAE_SocketError,
+        kSAE_UnknownError
+    };
+
     class SSLSocket : public Socket
     {
     public:
@@ -41,6 +59,17 @@ namespace m
         int receive(uint8_t *dst, int sz) override;
         int send(const uint8_t *src, int sz) override;
         void close() override;
+
+        /* initializeAndAccept() steals the socket from a TCPSocket instance
+         * and waits for the SSL handshake. This method should be called right
+         * after TCPSocket::accept().
+         */
+        SSLAcceptError initializeAndAccept(const SSLContext &ctx, TCPSocket &src);
+        SSLAcceptError initializeAndAccept(const SSLContext &ctx, TCPSocket &&src);
+
+        /* Resume method */
+        SocketConnectionError resumeConnectHandshake();
+        SSLAcceptError resumeAcceptHandshake();
 
         inet::SocketError lastError() const override
         {
@@ -71,12 +100,14 @@ namespace m
 
     private:
         template<class T> int sslRW(const T &data);
+        SSLAcceptError initializeAndAccept(const SSLContext &ctx, SOCKET sock);
 
         SOCKET m_sock;
         SSLContext m_ctx;
         void *m_ssl_;
         inet::SocketError m_lastErr;
         unsigned int m_lastSSLErr;
+        SSLWantedOperation m_lastWantedOp;
     };
 }
 

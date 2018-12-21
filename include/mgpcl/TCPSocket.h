@@ -27,12 +27,13 @@ namespace m
 {
     enum SocketConnectionError
     {
-        kSCE_NoError = 0,        //Everything went fine
-        kSCE_NotInitialized,    //Forgot to call TCPSocket::initialize()
+        kSCE_NoError = 0,         //Everything went fine
+        kSCE_NotInitialized,      //Forgot to call TCPSocket::initialize()
         kSCE_TimedOut,            //connectionTimeout elapsed
-        kSCE_SocketError,        //Use TCPSocket::lastError() for more info
-        kSCE_SSLError,            //Only for SSLSocket
-        kSCE_UnknownError        //Dunno what happened
+        kSCE_SocketError,         //Use TCPSocket::lastError() for more info
+        kSCE_SSLError,            //Only for SSLSocket, internal SSL error (see SSLSocket::lastSSLError())
+        kSCE_SSLHandshakeTimeout, //Only for SSLSocket, the handshake timed out (can be resumed with SSLSocket::resumeConnectHandshake())
+        kSCE_UnknownError         //Dunno what happened
     };
     
     class Socket
@@ -114,8 +115,12 @@ namespace m
         int m_writeTimeout;
     };
 
+    class SSLSocket;
+
     class TCPSocket : public Socket
     {
+        friend class SSLSocket;
+
     public:
         TCPSocket()
         {

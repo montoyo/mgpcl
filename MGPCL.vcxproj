@@ -126,8 +126,10 @@
     <ClCompile Include="src\FileIOStream.cpp" />
     <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\HMAC.cpp" />
+    <ClCompile Include="src\HTTPCommons.cpp" />
     <ClCompile Include="src\HTTPCookieJar.cpp" />
     <ClCompile Include="src\HTTPRequest.cpp" />
+    <ClCompile Include="src\HTTPServer.cpp" />
     <ClCompile Include="src\INet.cpp" />
     <ClCompile Include="src\IPv4Address.cpp" />
     <ClCompile Include="src\JSON.cpp" />
@@ -188,6 +190,8 @@
     <ClInclude Include="include\mgpcl\FlatMap.h" />
     <ClInclude Include="include\mgpcl\Future.h" />
     <ClInclude Include="include\mgpcl\HMAC.h" />
+    <ClInclude Include="include\mgpcl\HTTPCommons.h" />
+    <ClInclude Include="include\mgpcl\HTTPServer.h" />
     <ClInclude Include="include\mgpcl\LineOStream.h" />
     <ClInclude Include="include\mgpcl\MathConstants.h" />
     <ClInclude Include="include\mgpcl\Pattern.h" />

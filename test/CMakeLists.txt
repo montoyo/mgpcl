@@ -12,7 +12,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 #Source files
-set(MGPCL_TEST_SOURCE List.cpp String.cpp IO.cpp HashMap.cpp ProgramArgs.cpp FS.cpp Threading.cpp Net.cpp Logging.cpp Processes.cpp Random.cpp JSON.cpp Main.cpp TestAPI.cpp StackIntegrityChecker.cpp TestObject.cpp GUI.cpp Misc.cpp)
+set(MGPCL_TEST_SOURCE List.cpp String.cpp IO.cpp HashMap.cpp ProgramArgs.cpp FS.cpp Threading.cpp Net.cpp Logging.cpp Processes.cpp Random.cpp JSON.cpp Main.cpp TestAPI.cpp StackIntegrityChecker.cpp TestObject.cpp GUI.cpp Misc.cpp HTTPServerTest.cpp)
 
 #Link and include directories
 if(UNIX AND MGPCL_ENABLE_GUI)

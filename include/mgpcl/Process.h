@@ -23,7 +23,7 @@
 #include "List.h"
 #include "HashMap.h"
 #include "IOStream.h"
-#include "Atomic.h"
+#include "RefCounter.h"
 #include "SharedPtr.h"
 #include <initializer_list>
 
@@ -133,7 +133,7 @@ namespace m
         {
         }
 
-        Atomic m_refs;
+        AtomicRefCounter m_refs;
         ProcessPipe m_pipes[kPPI_Count];
     };
 

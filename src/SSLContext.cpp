@@ -57,7 +57,7 @@ m::SSLContext::SSLContext(SSLContextMethod method)
         m_refs = nullptr;
     } else {
         m_ctx = SSL_CTX_new(m);
-        m_refs = new Atomic(1);
+        m_refs = new AtomicRefCounter(1);
     }
 }
 
@@ -69,7 +69,7 @@ m::SSLContext::SSLContext(const SSLContext &src)
     } else {
         m_ctx_ = src.m_ctx_;
         m_refs = src.m_refs;
-        m_refs->increment();
+        m_refs->addRef();
     }
 }
 
@@ -84,7 +84,7 @@ m::SSLContext::SSLContext(SSLContext &&src)
 
 m::SSLContext::~SSLContext()
 {
-    if(m_refs != nullptr && m_refs->decrement()) {
+    if(m_refs != nullptr && m_refs->releaseRef()) {
         delete m_refs;
         SSL_CTX_free(m_ctx);
     }
@@ -92,7 +92,7 @@ m::SSLContext::~SSLContext()
 
 bool m::SSLContext::initialize(SSLContextMethod method)
 {
-    if(m_refs != nullptr && m_refs->decrement()) {
+    if(m_refs != nullptr && m_refs->releaseRef()) {
         delete m_refs;
         SSL_CTX_free(m_ctx);
     }
@@ -105,7 +105,7 @@ bool m::SSLContext::initialize(SSLContextMethod method)
     }
 
     m_ctx = SSL_CTX_new(m);
-    m_refs = new Atomic(1);
+    m_refs = new AtomicRefCounter(1);
     return true;
 }
 
@@ -114,7 +114,7 @@ m::SSLContext &m::SSLContext::operator = (const SSLContext &src)
     if(m_ctx_ == src.m_ctx_)
         return *this;
 
-    if(m_refs != nullptr && m_refs->decrement()) {
+    if(m_refs != nullptr && m_refs->releaseRef()) {
         delete m_refs;
         SSL_CTX_free(m_ctx);
     }
@@ -125,7 +125,7 @@ m::SSLContext &m::SSLContext::operator = (const SSLContext &src)
     } else {
         m_ctx_ = src.m_ctx_;
         m_refs = src.m_refs;
-        m_refs->increment();
+        m_refs->addRef();
     }
 
     return *this;
@@ -133,7 +133,7 @@ m::SSLContext &m::SSLContext::operator = (const SSLContext &src)
 
 m::SSLContext &m::SSLContext::operator = (SSLContext &&src)
 {
-    if(m_refs != nullptr && m_refs->decrement()) {
+    if(m_refs != nullptr && m_refs->releaseRef()) {
         delete m_refs;
         SSL_CTX_free(m_ctx);
     }
@@ -188,6 +188,31 @@ bool m::SSLContext::setVerifyDepth(int depth)
 
     SSL_CTX_set_verify_depth(m_ctx, depth);
     return true;
+}
+
+bool m::SSLContext::enableAutoECDH(bool autoECDH)
+{
+    if(m_refs == nullptr)
+        return false;
+
+    SSL_CTX_set_ecdh_auto(m_ctx, autoECDH ? 1 : 0);
+    return true;
+}
+
+bool m::SSLContext::useCertificateFile(const String &file)
+{
+    if(m_refs == nullptr)
+        return false;
+
+    return SSL_CTX_use_certificate_file(m_ctx, file.raw(), SSL_FILETYPE_PEM) > 0;
+}
+
+bool m::SSLContext::usePrivateKeyFile(const String &file)
+{
+    if(m_refs == nullptr)
+        return false;
+
+    return SSL_CTX_use_PrivateKey_file(m_ctx, file.raw(), SSL_FILETYPE_PEM) > 0;
 }
 
 #ifdef MGPCL_WIN

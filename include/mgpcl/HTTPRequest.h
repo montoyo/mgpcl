@@ -18,23 +18,13 @@
  */
 
 #pragma once
+#include "HTTPCommons.h"
 #include "SSLSocket.h"
 #include "HTTPCookieJar.h"
 #include "LineReader.h"
 
 namespace m
 {
-    enum HTTPRequestType
-    {
-        kHRT_Get = 0,
-        kHRT_Post,
-        kHRT_Put,
-        kHRT_Head,
-        kHRT_Delete,
-        kHRT_Trace,
-        kHRT_Connect
-    };
-
     class HTTPInputStream;
     class HTTPOutputStream;
     class HTTPRequest

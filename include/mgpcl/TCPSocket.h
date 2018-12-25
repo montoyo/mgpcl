@@ -79,11 +79,16 @@ namespace m
             m_writeTimeout = val;
         }
 
-        void setNonBlocking()
+        void setReadAndWriteTimeouts(int r, int w)
         {
-            m_connTimeout = 0;
-            m_readTimeout = 0;
-            m_writeTimeout = 0;
+            m_readTimeout = r;
+            m_writeTimeout = w;
+        }
+
+        void setReadAndWriteTimeouts(int to)
+        {
+            m_readTimeout = to;
+            m_writeTimeout = to;
         }
 
         int connectionTimeout() const
@@ -116,10 +121,21 @@ namespace m
     };
 
     class SSLSocket;
+    class TCPSocketSet;
 
+    /* TCPSocket can be blocking, non-blocking, or timeout driven.
+     * Blocking:       by setting timeouts to a negative value, all functions will wait indefinitely until their job is done
+     * Non-blocking:   by setting timeouts to zero, all functions will return immediately. If a function didn't have time to
+     *                 achieve its mission, it will return a negative value (or, for accept(), an invalid socket) and set the
+     *                 last socket error to inet::kSE_NoError.
+     *                 Note that setting the connect timeout (on a client socket) to 0 (= non-blocking) makes no sense and is
+     *                 very likely to cause issues.
+     * Timeout driven: (default) simply set the timeouts to a positive value
+     */
     class TCPSocket : public Socket
     {
         friend class SSLSocket;
+        friend class TCPSocketSet;
 
     public:
         TCPSocket()
@@ -135,7 +151,7 @@ namespace m
             src.m_sock = INVALID_SOCKET;
         }
 
-        ~TCPSocket()
+        virtual ~TCPSocket()
         {
             if(m_sock != INVALID_SOCKET)
                 closesocket(m_sock);
@@ -188,7 +204,7 @@ namespace m
             return m_sock;
         }
 
-    private:
+    protected:
         TCPSocket(SOCKET s, int c, int r, int w)
         {
             m_lastErr = inet::kSE_NoError;
@@ -204,6 +220,91 @@ namespace m
 
         inet::SocketError m_lastErr;
         SOCKET m_sock;
+    };
+
+    class TCPSocketSet
+    {
+        friend class TCPSocket;
+
+    public:
+        TCPSocketSet()
+        {
+            FD_ZERO(&m_data);
+
+#ifdef MGPCL_LINUX
+            m_maxFD = 0;
+#endif
+        }
+
+        TCPSocketSet &add(const TCPSocket &s)
+        {
+            mDebugAssert(s.m_sock != INVALID_SOCKET, "trying to add invalid socket to TCPSocketSet");
+            FD_SET(s.m_sock, &m_data);
+
+#ifdef MGPCL_LINUX
+            if(s.m_sock > m_maxFD)
+                m_maxFD = s->m_sock;
+#endif
+
+            return *this;
+        }
+
+        bool isSet(const TCPSocket &s) const
+        {
+            return FD_ISSET(s.m_sock, const_cast<fd_set*>(&m_data)) != 0;
+        }
+
+        static int waitForSets(TCPSocketSet *rd, TCPSocketSet *wr, TCPSocketSet *err, int timeoutMS)
+        {
+            struct timeval tv;
+            if(timeoutMS >= 0)
+                inet::fillTimeval(tv, static_cast<uint32_t>(timeoutMS));
+
+#ifdef MGPCL_LINUX
+            fd_set *rdSet, *wrSet, *errSet;
+            int maxFD;
+
+            if(rd == nullptr) {
+                rdSet = nullptr;
+                maxFD = 0;
+            } else {
+                rdSet = &rd->m_data;
+                maxFD = rd->m_maxFD;
+            }
+
+            if(wr == nullptr)
+                wrSet = nullptr;
+            else {
+                wrSet = &wr->m_data;
+
+                if(wr->m_maxFD > maxFD)
+                    maxFD = wr->m_maxFD;
+            }
+
+            if(err == nullptr)
+                errSet = nullptr;
+            else {
+                errSet = &err->m_data;
+
+                if(err->m_maxFD > maxFD)
+                    maxFD = err->m_maxFD;
+            }
+
+            return select(maxFD + 1, rdSet, wrSet, errSet, (timeoutMS >= 0) ? &tv : nullptr);
+#else
+            fd_set *rdSet  = (rd  == nullptr) ? nullptr :  &rd->m_data;
+            fd_set *wrSet  = (wr  == nullptr) ? nullptr :  &wr->m_data;
+            fd_set *errSet = (err == nullptr) ? nullptr : &err->m_data;
+
+            return select(0, rdSet, wrSet, errSet, (timeoutMS >= 0) ? &tv : nullptr);
+#endif
+        }
+
+    private:
+        fd_set m_data;
+#ifdef MGPCL_LINUX
+        int m_maxFD;
+#endif
     };
 
     class SocketIStream : public InputStream

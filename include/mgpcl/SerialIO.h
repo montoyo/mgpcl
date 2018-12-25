@@ -20,7 +20,7 @@
 #pragma once
 #include "IOStream.h"
 #include "String.h"
-#include "Atomic.h"
+#include "RefCounter.h"
 #include "SharedPtr.h"
 #include "List.h"
 
@@ -70,7 +70,7 @@ namespace m
 
         void addRef()
         {
-            m_refs.increment();
+            m_refs.addRef();
         }
 
         void releaseRef();
@@ -81,7 +81,7 @@ namespace m
         }
 
     private:
-        Atomic m_refs;
+        AtomicRefCounter m_refs;
         bool m_nbio;
 
 #ifdef MGPCL_WIN

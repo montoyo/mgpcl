@@ -67,7 +67,7 @@ namespace m
 
         bool releaseRef()
         {
-            return m_refs.decrement();
+            return m_refs.decrement() == 0;
         }
 
     private:

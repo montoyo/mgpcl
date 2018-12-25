@@ -73,6 +73,7 @@ namespace m
             kSE_SocketAlreadyConnected,
             kSE_TimedOut,
             kSE_NetworkUnreachable,
+            kSE_SSLError,
             kSE_UnknownError
         };
 

@@ -137,6 +137,7 @@
     <ClCompile Include="Processes.cpp" />
     <ClCompile Include="ProgramArgs.cpp" />
     <ClCompile Include="Random.cpp" />
+    <ClCompile Include="HTTPServerTest.cpp" />
     <ClCompile Include="StackIntegrityChecker.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="TestAPI.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Threading.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HTTPServerTest.h" />
     <ClInclude Include="StackIntegrityChecker.h" />
     <ClInclude Include="TestAPI.h" />
     <ClInclude Include="TestObject.h" />

@@ -4,6 +4,7 @@
 #include <string>
 #include <cstring>
 #include "TestAPI.h"
+#include "HTTPServerTest.h"
 #include <mgpcl/ConsoleUtils.h>
 #include <mgpcl/INet.h>
 
@@ -173,6 +174,9 @@ int main(int argc, char *argv[])
                 testAPI::testExcept(argv[i]);
             else
                 std::cout << "[?] Note: --except argument was specified with no following test name" << std::endl;
+        } else if(strcmp(argv[i], "--http-server") == 0) {
+            mTestHTTPServer();
+            return 0;
         } else
             std::cout << "[?] Note: ignoring unrecognized CLI argument \"" << argv[i] << "\"" << std::endl;
     }

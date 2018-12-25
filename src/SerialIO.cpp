@@ -33,7 +33,7 @@ m::SerialHandle::SerialHandle() : m_refs(1)
 
 void m::SerialHandle::releaseRef()
 {
-    if(m_refs.decrement()) {
+    if(m_refs.releaseRef()) {
 #ifdef MGPCL_WIN
         if(m_handle != INVALID_HANDLE_VALUE)
             CloseHandle(m_handle);

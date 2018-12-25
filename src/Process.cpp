@@ -252,12 +252,12 @@ void m::ProcessPipes::closeChildPipes()
 
 void m::ProcessPipes::addRef()
 {
-    m_refs.increment();
+    m_refs.addRef();
 }
 
 void m::ProcessPipes::releaseRef()
 {
-    if(m_refs.decrement()) {
+    if(m_refs.releaseRef()) {
         for(int i = 0; i < kPPI_Count; i++)
             m_pipes[i].destroy();
 

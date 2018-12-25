@@ -41,22 +41,20 @@ namespace m
 
         /*
          * Increments the atomic number.
-         * Returns true if it's now equals to zero.
-         *
+         * Returns the new value.
          */
-        bool increment()
+        long increment()
         {
-            return InterlockedIncrement(&m_data) == 0;
+            return InterlockedIncrement(&m_data);
         }
 
         /*
          * Decrements the atomic number.
-         * Returns true if it's now equals to zero.
-         *
+         * Returns the new value.
          */
-        bool decrement()
+        long decrement()
         {
-            return InterlockedDecrement(&m_data) == 0;
+            return InterlockedDecrement(&m_data);
         }
 
         long get()
@@ -98,23 +96,21 @@ namespace m
         }
 
         /*
-        * Increments the atomic number.
-        * Returns true if it's now equals to zero.
-        *
-        */
-        bool increment()
+         * Increments the atomic number.
+         * Returns the new value.
+         */
+        long increment()
         {
-            return __sync_add_and_fetch(&m_data, 1) == 0;
+            return __sync_add_and_fetch(&m_data, 1);
         }
 
         /*
-        * Decrements the atomic number.
-        * Returns true if it's now equals to zero.
-        *
-        */
-        bool decrement()
+         * Decrements the atomic number.
+         * Returns the new value.
+         */
+        long decrement()
         {
-            return __sync_sub_and_fetch(&m_data, 1) == 0;
+            return __sync_sub_and_fetch(&m_data, 1);
         }
 
         long get()

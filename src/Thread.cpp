@@ -313,14 +313,14 @@ void m::CallbackThread::run()
 }
 
 
-m::ThreadArray::ThreadArray()
+m::ThreadPool::ThreadPool()
 {
     m_count = 0;
     m_threads = nullptr;
     m_cpus = 0;
 }
 
-m::ThreadArray::ThreadArray(int cnt)
+m::ThreadPool::ThreadPool(int cnt)
 {
     mDebugAssert(cnt > 0, "can't have a negative amount of threads");
 
@@ -329,7 +329,7 @@ m::ThreadArray::ThreadArray(int cnt)
     m_cpus = 0;
 }
 
-m::ThreadArray::ThreadArray(int cnt, const String &name) : m_name(name)
+m::ThreadPool::ThreadPool(int cnt, const String &name) : m_name(name)
 {
     mDebugAssert(cnt > 0, "can't have a negative amount of threads");
 
@@ -338,13 +338,13 @@ m::ThreadArray::ThreadArray(int cnt, const String &name) : m_name(name)
     m_cpus = 0;
 }
 
-m::ThreadArray::~ThreadArray()
+m::ThreadPool::~ThreadPool()
 {
     if(m_threads != nullptr)
         delete[] m_threads;
 }
 
-m::ThreadArray &m::ThreadArray::setCount(int cnt)
+m::ThreadPool &m::ThreadPool::setCount(int cnt)
 {
     mDebugAssert(cnt > 0, "can't have a negative amount of threads");
     if(m_threads != nullptr)
@@ -359,13 +359,13 @@ m::ThreadArray &m::ThreadArray::setCount(int cnt)
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::setName(const String &name)
+m::ThreadPool &m::ThreadPool::setName(const String &name)
 {
     m_name = name;
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::setCallback(CallbackThread::Callback cb)
+m::ThreadPool &m::ThreadPool::setCallback(CallbackThread::Callback cb)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     for(int i = 0; i < m_count; i++)
@@ -374,7 +374,7 @@ m::ThreadArray &m::ThreadArray::setCallback(CallbackThread::Callback cb)
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::setCallback(CallbackThread::Callback cb, void *ud)
+m::ThreadPool &m::ThreadPool::setCallback(CallbackThread::Callback cb, void *ud)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     for(int i = 0; i < m_count; i++)
@@ -383,7 +383,7 @@ m::ThreadArray &m::ThreadArray::setCallback(CallbackThread::Callback cb, void *u
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::setUserdata(void *ud)
+m::ThreadPool &m::ThreadPool::setUserdata(void *ud)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     for(int i = 0; i < m_count; i++)
@@ -392,7 +392,7 @@ m::ThreadArray &m::ThreadArray::setUserdata(void *ud)
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::setUserdata(int id, void *ud)
+m::ThreadPool &m::ThreadPool::setUserdata(int id, void *ud)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     mDebugAssert(id >= 0 && id < m_count, "invalid thread index");
@@ -401,13 +401,13 @@ m::ThreadArray &m::ThreadArray::setUserdata(int id, void *ud)
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::dispatchOnCores(uint8_t numCpus)
+m::ThreadPool &m::ThreadPool::dispatchOnCores(uint8_t numCpus)
 {
     m_cpus = numCpus;
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::start()
+m::ThreadPool &m::ThreadPool::start()
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
 
@@ -426,7 +426,7 @@ m::ThreadArray &m::ThreadArray::start()
     return *this;
 }
 
-m::ThreadArray &m::ThreadArray::joinAll()
+m::ThreadPool &m::ThreadPool::joinAll()
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     for(int i = 0; i < m_count; i++)
@@ -435,26 +435,26 @@ m::ThreadArray &m::ThreadArray::joinAll()
     return *this;
 }
 
-m::CallbackThread::Callback m::ThreadArray::callback() const
+m::CallbackThread::Callback m::ThreadPool::callback() const
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     return m_threads->callback();
 }
 
-void *m::ThreadArray::userdata() const
+void *m::ThreadPool::userdata() const
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     return m_threads->userdata();
 }
 
-void *m::ThreadArray::userdata(int id) const
+void *m::ThreadPool::userdata(int id) const
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     mDebugAssert(id >= 0 && id < m_count, "invalid thread index");
     return m_threads[id].userdata();
 }
 
-m::CallbackThread &m::ThreadArray::access(int idx)
+m::CallbackThread &m::ThreadPool::access(int idx)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     mDebugAssert(idx >= 0 && idx < m_count, "invalid thread index");
@@ -462,7 +462,7 @@ m::CallbackThread &m::ThreadArray::access(int idx)
     return m_threads[idx];
 }
 
-m::CallbackThread &m::ThreadArray::operator[] (int idx)
+m::CallbackThread &m::ThreadPool::operator[] (int idx)
 {
     mDebugAssert(m_threads != nullptr, "forgot to set thread count");
     mDebugAssert(idx >= 0 && idx < m_count, "invalid thread index");

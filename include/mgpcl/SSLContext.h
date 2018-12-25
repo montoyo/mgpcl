@@ -18,7 +18,7 @@
  */
 
 #pragma once
-#include "Atomic.h"
+#include "RefCounter.h"
 #include "String.h"
 #include "Config.h"
 
@@ -56,6 +56,9 @@ namespace m
         bool loadOSVerify();
         bool setVerifyFlags(int flags);
         bool setVerifyDepth(int depth);
+        bool enableAutoECDH(bool autoECDH);
+        bool useCertificateFile(const String &file);
+        bool usePrivateKeyFile(const String &file);
 
         SSLContext &operator = (const SSLContext &src);
         SSLContext &operator = (SSLContext &&src);
@@ -77,7 +80,7 @@ namespace m
 
     private:
         void *m_ctx_;
-        Atomic *m_refs;
+        AtomicRefCounter *m_refs;
     };
 }
 

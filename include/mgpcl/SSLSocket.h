@@ -44,7 +44,7 @@ namespace m
         kSAE_UnknownError
     };
 
-    class SSLSocket : public Socket
+    class SSLSocket : public TCPSocket
     {
     public:
         SSLSocket();
@@ -59,6 +59,8 @@ namespace m
         int receive(uint8_t *dst, int sz) override;
         int send(const uint8_t *src, int sz) override;
         void close() override;
+        bool close(bool sslShutdown);
+        bool shutdown();
 
         /* initializeAndAccept() steals the socket from a TCPSocket instance
          * and waits for the SSL handshake. This method should be called right
@@ -98,14 +100,17 @@ namespace m
             return m_ctx;
         }
 
+        SSLWantedOperation lastWantedOperation()
+        {
+            return m_lastWantedOp;
+        }
+
     private:
         template<class T> int sslRW(const T &data);
         SSLAcceptError initializeAndAccept(const SSLContext &ctx, SOCKET sock);
 
-        SOCKET m_sock;
         SSLContext m_ctx;
         void *m_ssl_;
-        inet::SocketError m_lastErr;
         unsigned int m_lastSSLErr;
         SSLWantedOperation m_lastWantedOp;
     };

@@ -37,11 +37,11 @@
 
 namespace m
 {
-    class ThreadArray;
+    class ThreadPool;
 
     class Thread
     {
-        friend class ThreadArray;
+        friend class ThreadPool;
         M_NON_COPYABLE(Thread)
 
     public:
@@ -219,23 +219,23 @@ namespace m
         void *m_userdata;
     };
 
-    class ThreadArray
+    class ThreadPool
     {
     public:
-        ThreadArray();
-        ThreadArray(int cnt);
-        ThreadArray(int cnt, const String &name);
-        ~ThreadArray();
+        ThreadPool();
+        ThreadPool(int cnt);
+        ThreadPool(int cnt, const String &name);
+        ~ThreadPool();
 
-        ThreadArray &setCount(int cnt);
-        ThreadArray &setName(const String &name);
-        ThreadArray &setCallback(CallbackThread::Callback cb);
-        ThreadArray &setCallback(CallbackThread::Callback cb, void *ud);
-        ThreadArray &setUserdata(void *ud);
-        ThreadArray &setUserdata(int id, void *ud);
-        ThreadArray &dispatchOnCores(uint8_t numCpus);
-        ThreadArray &start();
-        ThreadArray &joinAll();
+        ThreadPool &setCount(int cnt);
+        ThreadPool &setName(const String &name);
+        ThreadPool &setCallback(CallbackThread::Callback cb);
+        ThreadPool &setCallback(CallbackThread::Callback cb, void *ud);
+        ThreadPool &setUserdata(void *ud);
+        ThreadPool &setUserdata(int id, void *ud);
+        ThreadPool &dispatchOnCores(uint8_t numCpus);
+        ThreadPool &start();
+        ThreadPool &joinAll();
 
         int count() const
         {

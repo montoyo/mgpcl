@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2018 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -18,59 +18,31 @@
  */
 
 #pragma once
-#include "Config.h"
-#include "String.h"
-#include "RefCounter.h"
-
-#ifdef M_WMI_DECLARE
-#define M_WMI_PREFIX
+#ifdef HTTP_COMMONS_C
+#define HTTP_COMMONS_FUNC
 #else
-#define M_WMI_PREFIX extern
+#define HTTP_COMMONS_FUNC extern
 #endif
 
-#ifdef MGPCL_WIN
-#include <comdef.h>
-#include <Wbemidl.h>
+#include "String.h"
 
 namespace m
 {
-    class WMIResult;
-
-    namespace wmi
+    enum HTTPRequestType
     {
-        M_WMI_PREFIX bool acquire();
-        M_WMI_PREFIX WMIResult *query(const char *q);
-        M_WMI_PREFIX const String &lastError();
-        M_WMI_PREFIX void release();
-    }
-
-    //Note: I think we can remove the ref-counting bs here...
-    class WMIResult
-    {
-        friend WMIResult *wmi::query(const char *q);
-
-    public:
-        bool next();
-        void addRef();
-        void releaseRef();
-        String getString(LPCWSTR key);
-        uint32_t getUInt32(LPCWSTR key);
-
-    private:
-        WMIResult(IEnumWbemClassObject *ienum);
-        WMIResult()
-        {
-        }
-
-        ~WMIResult()
-        {
-        }
-
-        AtomicRefCounter m_refs;
-        IEnumWbemClassObject *m_enumerator;
-        IWbemClassObject *m_entry;
+        kHRT_Get = 0,
+        kHRT_Post,
+        kHRT_Put,
+        kHRT_Head,
+        kHRT_Delete,
+        kHRT_Trace,
+        kHRT_Connect
     };
 
+    namespace http
+    {
+        HTTP_COMMONS_FUNC String encodeURIComponent(const String &cmp);
+        HTTP_COMMONS_FUNC String decodeURIComponent(const String &cmp);
+        HTTP_COMMONS_FUNC String smartEncodePathname(const String &pathname);
+    }
 }
-
-#endif

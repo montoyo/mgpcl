@@ -28,22 +28,17 @@
 
 m::SSLSocket::SSLSocket()
 {
-    m_sock = INVALID_SOCKET;
-    m_lastErr = inet::kSE_NoError;
     m_lastSSLErr = 0;
     m_lastWantedOp = kSWO_None;
     m_ssl = nullptr;
 }
 
-m::SSLSocket::SSLSocket(SSLSocket &&src) : Socket(src), m_ctx(std::move(src.m_ctx))
+m::SSLSocket::SSLSocket(SSLSocket &&src) : TCPSocket(src), m_ctx(std::move(src.m_ctx))
 {
-    m_sock = src.m_sock;
-    m_lastErr = src.m_lastErr;
     m_lastSSLErr = src.m_lastSSLErr;
     m_lastWantedOp = src.m_lastWantedOp;
-    m_ssl_ = src.m_ssl_;
 
-    src.m_sock = INVALID_SOCKET;
+    m_ssl_ = src.m_ssl_;
     src.m_ssl_ = nullptr;
 }
 
@@ -81,7 +76,13 @@ bool m::SSLSocket::initialize(const SSLContext &ctx)
 
     m_ctx = ctx;
     m_ssl = SSL_new(static_cast<SSL_CTX*>(ctx.raw()));
-    return m_ssl != nullptr;
+    if(m_ssl == nullptr) {
+        m_lastErr = inet::kSE_SSLError;
+        m_lastSSLErr = ERR_get_error();
+        return false;
+    }
+
+    return true;
 }
 
 m::SSLAcceptError m::SSLSocket::initializeAndAccept(const SSLContext &ctx, TCPSocket &src)
@@ -240,7 +241,7 @@ template<class T> int m::SSLSocket::sslRW(const T &data)
 
     //ERROR
     m_lastSSLErr = ERR_get_error();
-    m_lastErr = inet::kSE_NoError;
+    m_lastErr = inet::kSE_SSLError;
     return -1;
 }
 
@@ -251,9 +252,6 @@ m::SSLSocket::~SSLSocket()
         sslRW<SSLRWShutdown>(crap);
         SSL_free(m_ssl);
     }
-
-    if(m_sock != INVALID_SOCKET)
-        closesocket(m_sock);
 }
 
 m::SSLAcceptError m::SSLSocket::initializeAndAccept(const SSLContext &ctx, SOCKET sock)
@@ -276,8 +274,11 @@ m::SSLAcceptError m::SSLSocket::initializeAndAccept(const SSLContext &ctx, SOCKE
     m_sock = sock;
     m_ctx = ctx;
     m_ssl = SSL_new(static_cast<SSL_CTX*>(ctx.raw()));
-    if(m_ssl == nullptr)
+    if(m_ssl == nullptr) {
+        m_lastErr = inet::kSE_SSLError;
+        m_lastSSLErr = ERR_get_error();
         return kSAE_SSLError; //socket will be closed later by destructor
+    }
 
     if(SSL_set_fd(m_ssl, static_cast<int>(sock)) == 0)
         return kSAE_UnknownError;
@@ -287,51 +288,13 @@ m::SSLAcceptError m::SSLSocket::initializeAndAccept(const SSLContext &ctx, SOCKE
 
 m::SocketConnectionError m::SSLSocket::connect(const IPv4Address &addr)
 {
-    if(m_sock == INVALID_SOCKET || m_ssl == nullptr)
+    if(m_ssl == nullptr)
         return kSCE_NotInitialized;
 
     //Establish connection
-    if(::connect(m_sock, reinterpret_cast<const struct sockaddr*>(addr.raw()), sizeof(struct sockaddr_in)) != 0) {
-        inet::SocketError err = inet::socketError();
-
-        if(err == inet::kSE_WouldBlock) {
-            bool doesTimeout = m_connTimeout >= 0;
-            fd_set wSet, eSet;
-            struct timeval tv;
-
-            FD_ZERO(&wSet);
-            FD_ZERO(&eSet);
-            FD_SET(m_sock, &wSet);
-            FD_SET(m_sock, &eSet);
-
-            inet::fillTimeval(tv, static_cast<uint32_t>(m_connTimeout));
-
-            int cnt = select(m_sock + 1, nullptr, &wSet, &eSet, doesTimeout ? &tv : nullptr);
-            if(cnt < 0)
-                return kSCE_UnknownError; //Select should not fail
-            else if(cnt == 0)
-                return kSCE_TimedOut;
-
-            int serror;
-            socklen_t slen = sizeof(int);
-            if(getsockopt(m_sock, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&serror), &slen) != 0)
-                return kSCE_UnknownError; //getsockopt should not fail
-
-            if(serror != 0) {
-                err = inet::socketError(serror);
-                if(err == inet::kSE_TimedOut)
-                    return kSCE_TimedOut;
-
-                m_lastErr = err;
-                return kSCE_SocketError;
-            }
-        } else if(err == inet::kSE_TimedOut)
-            return kSCE_TimedOut;
-        else {
-            m_lastErr = err;
-            return kSCE_SocketError;
-        }
-    }
+    SocketConnectionError sce = m::TCPSocket::connect(addr);
+    if(sce != kSCE_NoError)
+        return sce;
 
     if(SSL_set_fd(m_ssl, static_cast<int>(m_sock)) == 0)
         return kSCE_UnknownError;
@@ -379,31 +342,53 @@ m::SSLSocket &m::SSLSocket::operator = (SSLSocket &&src)
 
 void m::SSLSocket::close()
 {
+    close(true);
+}
+
+bool m::SSLSocket::close(bool sslShutdown)
+{
+    bool ret = true;
     if(m_ssl != nullptr) {
-        SSLRWShutdown crap;
-        sslRW<SSLRWShutdown>(crap);
+        if(sslShutdown) {
+            SSLRWShutdown crap;
+            ret = sslRW<SSLRWShutdown>(crap) > 0;
+        }
+
         SSL_free(m_ssl);
         m_ssl = nullptr;
     }
 
-    if(m_sock != INVALID_SOCKET) {
-        closesocket(m_sock);
-        m_sock = INVALID_SOCKET;
-    }
+    TCPSocket::close();
+    return ret;
+}
+
+bool m::SSLSocket::shutdown()
+{
+    if(m_ssl == nullptr)
+        return true;
+
+    SSLRWShutdown crap;
+    if(sslRW<SSLRWShutdown>(crap) <= 0)
+        return false;
+
+    SSL_free(m_ssl);
+    m_ssl = nullptr;
+    return true;
 }
 
 m::String m::SSLSocket::lastSSLErrorString() const
 {
-    String ret(119);
-    ERR_error_string(m_lastSSLErr, ret.begin());
-    return ret;
+    char tmp[119];
+    ERR_error_string(m_lastSSLErr, tmp);
+
+    return String(tmp);
 }
 
 m::SocketConnectionError m::SSLSocket::resumeConnectHandshake()
 {
     SSLRWConnect crap;
     if(sslRW<SSLRWConnect>(crap) <= 0)
-        return m_lastSSLErr == 0 ? (m_lastErr == inet::kSE_NoError ? kSCE_SSLHandshakeTimeout : kSCE_SocketError) : kSCE_SSLError;
+        return m_lastErr == inet::kSE_NoError ? kSCE_SSLHandshakeTimeout : (m_lastErr == inet::kSE_SSLError ? kSCE_SSLError : kSCE_SocketError);
 
     return kSCE_NoError;
 }

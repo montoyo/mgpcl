@@ -160,12 +160,12 @@ uint32_t m::WMIResult::getUInt32(LPCWSTR key)
 
 void m::WMIResult::addRef()
 {
-    m_refs.increment();
+    m_refs.addRef();
 }
 
 void m::WMIResult::releaseRef()
 {
-    if(m_refs.decrement()) {
+    if(m_refs.releaseRef()) {
         if(m_entry != nullptr)
             m_entry->Release();
 

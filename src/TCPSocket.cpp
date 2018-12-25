@@ -162,8 +162,10 @@ m::TCPSocket m::TCPSocket::accept(IPv4Address &addr)
         remaining -= static_cast<int>(time::getTimeMsUInt() - begin);
     }
 
-    if(se != inet::kSE_WouldBlock)
-        m_lastErr = se; //If se is WouldBlock then remaining <= 0, which means timed out
+    if(se == inet::kSE_WouldBlock)
+        m_lastErr = inet::kSE_NoError; //Timed out
+    else
+        m_lastErr = se;
 
     return TCPSocket();
 }

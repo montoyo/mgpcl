@@ -37,6 +37,7 @@ static inline void backupAttributes(WORD def)
 #include <unistd.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <signal.h>
 
 static int toLinuxColor(m::ConsoleColor cc)
 {
@@ -254,4 +255,63 @@ void m::console::resetColor()
 #else
     std::cout << "\033[0m";
 #endif
+}
+
+static m::ConsoleCtrlCHandler *g_ctrlCHandler = nullptr;
+
+#ifdef MGPCL_WIN
+static BOOL WINAPI g_consoleHandlerFunc(DWORD sig)
+{
+    if(sig == CTRL_C_EVENT && g_ctrlCHandler != nullptr)
+        g_ctrlCHandler->handleCtrlC();
+
+    return TRUE;
+}
+#else
+static void g_consoleHandlerFunc(int sig)
+{
+    if(g_ctrlCHandler != nullptr)
+        g_ctrlCHandler->handleCtrlC();
+}
+#endif
+
+void m::console::setCtrlCHandler(ConsoleCtrlCHandler *h)
+{
+    if(h != g_ctrlCHandler) {
+        if(g_ctrlCHandler != nullptr)
+            delete g_ctrlCHandler;
+
+        g_ctrlCHandler = h;
+
+#ifdef MGPCL_WIN
+        if(h == nullptr)
+            SetConsoleCtrlHandler(nullptr, FALSE);
+        else
+            SetConsoleCtrlHandler(g_consoleHandlerFunc, TRUE);
+#else
+        if(h == nullptr)
+            signal(SIGINT, SIG_DFL);
+        else
+            signal(SIGINT, g_consoleHandlerFunc);
+#endif
+    }
+}
+
+class FuncCtrlCHandler : public m::ConsoleCtrlCHandler
+{
+public:
+    FuncCtrlCHandler(std::function<void()> func) : m_func(func) {}
+
+    void handleCtrlC() override
+    {
+        m_func();
+    }
+
+private:
+    std::function<void()> m_func;
+};
+
+void m::console::setCtrlCHandler(std::function<void()> func)
+{
+    setCtrlCHandler(new FuncCtrlCHandler(func));
 }

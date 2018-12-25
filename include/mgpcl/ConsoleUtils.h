@@ -49,6 +49,13 @@ namespace m
         kCC_White
     };
 
+    class ConsoleCtrlCHandler
+    {
+    public:
+        virtual ~ConsoleCtrlCHandler() {}
+        virtual void handleCtrlC() = 0;
+    };
+
     namespace console
     {
         M_CUTILS_PREFIX void setTitle(const String &title);
@@ -61,6 +68,8 @@ namespace m
         M_CUTILS_PREFIX void clearLastLine();
         M_CUTILS_PREFIX void clear();
         M_CUTILS_PREFIX void resetColor();
+        M_CUTILS_PREFIX void setCtrlCHandler(ConsoleCtrlCHandler *h);
+        M_CUTILS_PREFIX void setCtrlCHandler(std::function<void()> func);
 
         inline void setCursorPos(const Vector2i &pos)
         {

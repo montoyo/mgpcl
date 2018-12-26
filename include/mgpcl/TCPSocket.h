@@ -243,7 +243,7 @@ namespace m
 
 #ifdef MGPCL_LINUX
             if(s.m_sock > m_maxFD)
-                m_maxFD = s->m_sock;
+                m_maxFD = s.m_sock;
 #endif
 
             return *this;

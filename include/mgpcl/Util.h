@@ -26,11 +26,11 @@
 
 #define M_NON_COPYABLE(cls) private: \
                                 cls(const cls &src) {} \
-                                cls &operator = (const cls &src) {}
+                                cls &operator = (const cls &src) { return *this; }
 
 #define M_NON_COPYABLE_T(cls, ...)    private: \
                                         cls(const cls<__VA_ARGS__> &src) {} \
-                                        cls<__VA_ARGS__> &operator = (const cls<__VA_ARGS__> &src) {}
+                                        cls<__VA_ARGS__> &operator = (const cls<__VA_ARGS__> &src) { return *this; }
 
 #define M_MAXSZ(t1, t2) (sizeof(t1) > sizeof(t2) ? sizeof(t1) : sizeof(t2))
 

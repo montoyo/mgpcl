@@ -82,3 +82,36 @@ TEST
     testAssert(sos.data().trimmed().toInteger() == test.hash(), "result is wrong");
     return true;
 }
+
+#ifdef MGPCL_LINUX
+TEST
+{
+    volatile StackIntegrityChecker sic;
+    uid_t someUID;
+    gid_t someGID;
+
+    testAssert(!m::linux::getUserUID("jaaj", someUID), "user jaaj shouldn't exist");
+    testAssert(!m::linux::getGroupGID("jaaj", someGID), "group jaaj shouldn't exist");
+    testAssert(m::linux::getUserUID("montoyo", someUID), "user montoyo should exist");
+    testAssert(m::linux::getGroupGID("sudo", someGID), "group sudo should exist");
+
+    std::cout << "[i]\tCurrent UID is " << m::linux::getCurrentUID() << std::endl;
+    std::cout << "[i]\tCurrent GID is " << m::linux::getCurrentGID() << std::endl;
+    std::cout << "[i]\tUser ID of montoyo is " << someUID << std::endl;
+    std::cout << "[i]\tGroup ID of sudo is " << someGID << std::endl;
+
+    m::Process proc;
+    proc.setExecutable("whoami").redirectSTDIO();
+    m::linux::setProcessUID(proc, someUID);
+
+    testAssert(proc.start().hasStarted(), "process didn't start");
+
+    m::StringOStream sos;
+    m::SSharedPtr<m::PipeInputStream> pis(proc.stdOut<m::RefCounter>());
+    testAssert(m::IO::transfer(&sos, pis.ptr(), 64), "couldn't read stdout!");
+    pis->close();
+
+    testAssert(sos.data().trimmed() == "montoyo", "whoami should have printed montoyo");
+    return true;
+}
+#endif

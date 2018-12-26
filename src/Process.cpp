@@ -30,7 +30,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
 #endif
 
 /************************************************************** ProcessInfo ***********************************************************************/
@@ -440,6 +439,11 @@ m::Process::Process()
     m_started = false;
     m_finished = false;
     m_retCode = -1;
+
+    m_setUID = false;
+    m_targetUID = 0;
+    m_setGID = false;
+    m_targetGID = 0;
 #endif
 }
 
@@ -610,6 +614,12 @@ m::Process &m::Process::start()
             dup2(nullFd, STDERR_FILENO);
             close(nullFd);
         }
+
+        if(m_setUID)
+            setuid(m_targetUID);
+
+        if(m_setGID)
+            setgid(m_targetGID);
 
         if(env == nullptr)
             execvp(args[0], const_cast<char * const *>(args));

@@ -30,6 +30,8 @@
 #ifdef MGPCL_WIN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#else
+#include "LinuxSpecific.h"
 #endif
 
 namespace m
@@ -196,6 +198,11 @@ namespace m
     {
         M_NON_COPYABLE(Process)
 
+#ifdef MGPCL_LINUX
+        friend void m::linux::setProcessUID(Process &p, uid_t uid);
+        friend void m::linux::setProcessGID(Process &p, gid_t gid);
+#endif
+
     public:
 #ifdef MGPCL_WIN
         typedef HashMap<String, String, StringLowerHasher> EnvMap;
@@ -343,6 +350,11 @@ namespace m
         bool m_started;
         bool m_finished;
         int m_retCode;
+
+        bool m_setUID;
+        uid_t m_targetUID;
+        bool m_setGID;
+        gid_t m_targetGID;
 #endif
     };
 }

@@ -182,13 +182,25 @@ namespace m
         JSONElement &operator [] (const String &name)
         {
             mAssert(m_type == kJT_Object, "not an object");
-            return dataAs<JSONMap>()[ConstString(name)];
+
+            bool isNew;
+            JSONElement &ret = dataAs<JSONMap>().get(ConstString(name), isNew);
+            if(isNew)
+                ret.setName(name);
+
+            return ret;
         }
 
         JSONElement &operator [] (const char *name)
         {
             mAssert(m_type == kJT_Object, "not an object");
-            return dataAs<JSONMap>()[ConstString(name)];
+            
+            bool isNew;
+            JSONElement &ret = dataAs<JSONMap>().get(ConstString(name), isNew);
+            if(isNew)
+                ret.setName(name);
+
+            return ret;
         }
 
         JSONType type() const

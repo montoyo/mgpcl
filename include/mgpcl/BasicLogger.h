@@ -34,6 +34,7 @@ namespace m
         BasicLogger() : m_out(STDHandle::HOutput), m_err(STDHandle::HError)
         {
             m_useErrStream = true;
+            m_fnamePad = 24;
         }
 
         ~BasicLogger() override
@@ -56,11 +57,22 @@ namespace m
             m_useErrStream = err;
         }
 
+        void setFileNamePadding(int p)
+        {
+            m_fnamePad = p;
+        }
+
+        int fileNamePadding() const
+        {
+            return m_fnamePad;
+        }
+
     private:
         Mutex m_lock;
         STDOutputStream m_out;
         STDOutputStream m_err;
         bool m_useErrStream;
+        int m_fnamePad;
     };
 
 }

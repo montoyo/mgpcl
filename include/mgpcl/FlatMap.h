@@ -118,6 +118,34 @@ namespace m
             }
         }
 
+        V &get(const K &key, bool &isNew)
+        {
+            if(m_data.isEmpty()) {
+                isNew = true;
+                m_data.add(Pair(key));
+                return m_data.last().value;
+            } else {
+                int begin = 0;
+                int end = m_data.size();
+
+                do {
+                    int pos = (begin + end) / 2;
+
+                    if(key == m_data[pos].key) {
+                        isNew = false;
+                        return m_data[pos].value;
+                    } else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
+
+                isNew = true;
+                m_data.insert(begin, Pair(key));
+                return m_data[begin].value;
+            }
+        }
+
         bool hasKey(const K &key) const
         {
             if(m_data.isEmpty())

@@ -73,7 +73,14 @@ void m::BasicLogger::vlog(LogLevel level, const char *fname, int line, const cha
 
     str.append(fname + slashPos, fnameLen - slashPos);
     str += ':';
-    str += String::fromUInteger(static_cast<uint32_t>(line));
+
+    String lineStr(String::fromUInteger(static_cast<uint32_t>(line)));
+    str += lineStr;
+
+    int pad = m_fnamePad - (fnameLen - slashPos + 1 + lineStr.length());
+    if(pad > 0)
+        str.append(' ', pad);
+
     str.append("] ", 2);
     str += String::vformat(format, lst);
     

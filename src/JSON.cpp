@@ -659,11 +659,14 @@ bool g_m_json_serializeHumanReadable(m::OutputStream *out, m::JSONElement &src, 
         break;
 
     case m::kJT_Number:
-    {
-        m::String nbr(m::String::fromDouble(src.asDouble(), 8));
-        status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        if(src.asDouble() == std::floor(src.asDouble())) {
+            m::String nbr(m::String::fromInteger(static_cast<int>(src.asDouble())));
+            status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        } else {
+            m::String nbr(m::String::fromDouble(src.asDouble(), 8));
+            status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        }
         break;
-    }
 
     case m::kJT_String:
         status = g_m_json_serializeStr(out, src.asString());

@@ -196,9 +196,19 @@ namespace m
             m_inactivityTimeout = ia;
         }
 
+        void setAccessLog(SSharedPtr<OutputStream> dst)
+        {
+            m_accessLog = dst;
+        }
+
         uint32_t inactivityTimeout() const
         {
             return m_inactivityTimeout;
+        }
+
+        SSharedPtr<OutputStream> accessLog() const
+        {
+            return m_accessLog;
         }
 
     private:
@@ -217,11 +227,13 @@ namespace m
             kHRRP_Content
         };
 
+        class Worker;
+
         class Client
         {
         public:
-            Client(HTTPServer *p, const IPv4Address &addr, TCPSocket *sock, bool ssl);
-            Client(HTTPServer *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp);
+            Client(Worker *p, const IPv4Address &addr, TCPSocket *sock, bool ssl);
+            Client(Worker *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp);
             ~Client();
 
             void comReady();
@@ -241,7 +253,7 @@ namespace m
                 return m_isSSL ? (m_sslOP == kSWO_WantWrite) : (m_phase == kHRP_Write);
             }
 
-            HTTPServer *m_parent;
+            Worker *m_parent;
             bool m_isSSL;
             IPv4Address m_addr;
             TCPSocket *m_socket;
@@ -278,6 +290,7 @@ namespace m
             List<Client*> m_clients;
             List<Client*> m_selectedClients;
             Mutex m_clientLock;
+            String m_accessBuf;
         };
 
         class Node
@@ -310,6 +323,8 @@ namespace m
         uint32_t m_inactivityTimeout;
         Node *m_root;
         HTTPRequestHandler *m_404handler;
+        SSharedPtr<OutputStream> m_accessLog;
+        Mutex m_accessLogLock;
     };
 
     class SimpleHTTPRequestHandler : public HTTPRequestHandler

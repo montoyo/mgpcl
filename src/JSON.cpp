@@ -120,7 +120,9 @@ m::JSONElement &m::JSONElement::operator = (const JSONElement &src)
 
     deallocate();
     m_type = src.m_type;
-    m_name = src.m_name;
+
+    if(!src.m_name.isEmpty()) //Allow things such as 'jsonObject["newKey"] = otherJsonElementWithNoName'
+        m_name = src.m_name;
 
     switch(m_type) {
     case kJT_Boolean:
@@ -154,7 +156,9 @@ m::JSONElement &m::JSONElement::operator = (JSONElement &&src)
 {
     deallocate();
     m_type = src.m_type;
-    m_name = std::move(src.m_name);
+
+    if(!src.m_name.isEmpty()) //Allow things such as 'jsonObject["newKey"] = otherJsonElementWithNoName'
+        m_name = std::move(src.m_name);
 
     switch(m_type) {
     case kJT_Boolean:
@@ -569,11 +573,14 @@ bool g_m_json_serializeCompact(m::OutputStream *out, m::JSONElement &src)
         break;
 
     case m::kJT_Number:
-    {
-        m::String nbr(m::String::fromDouble(src.asDouble(), 8));
-        status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        if(src.asDouble() == std::floor(src.asDouble())) {
+            m::String nbr(m::String::fromInteger(static_cast<int>(src.asDouble())));
+            status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        } else {
+            m::String nbr(m::String::fromDouble(src.asDouble(), 8));
+            status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
+        }
         break;
-    }
 
     case m::kJT_String:
         status = g_m_json_serializeStr(out, src.asString());

@@ -251,10 +251,10 @@ bool m::FileOutputStream::open(const String &fname, OpenMode mode)
 
         mbstowcs_s(&sz, tmp, 5, "\\\\?\\", _TRUNCATE);
         mbstowcs_s(&sz, tmp + 4, fname.length() + 1, fname.raw(), _TRUNCATE);
-        m_file = CreateFileW(tmp, GENERIC_WRITE, 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_file = CreateFileW(tmp, GENERIC_WRITE, FILE_SHARE_READ, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
         delete[] tmp;
     } else
-        m_file = CreateFileA(fname.raw(), GENERIC_WRITE, 0, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_file = CreateFileA(fname.raw(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 
     if(m_file == INVALID_HANDLE_VALUE)
         return false;

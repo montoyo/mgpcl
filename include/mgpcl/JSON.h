@@ -139,10 +139,47 @@ namespace m
             }
         }
 
+        void addElement(JSONElement &&src)
+        {
+            if(m_type == kJT_Array)
+                dataAs<JSONList>().add(std::move(src));
+            else {
+                mAssert(m_type == kJT_Object, "not an array/object");
+                mAssert(!src.m_name.isEmpty(), "can't add unnamed element to object");
+                dataAs<JSONMap>().put(ConstString(src.m_name), std::move(src));
+            }
+        }
+
         void setName(const String &name)
         {
             mAssert(m_name.isEmpty(), "can't change name after it has been set");
             m_name = name;
+        }
+
+        bool has(const String &str) const
+        {
+            mAssert(m_type == kJT_Object, "not an object");
+            return dataAs<JSONMap>().hasKey(ConstString(str));
+        }
+
+        bool has(const char *str) const
+        {
+            mAssert(m_type == kJT_Object, "not an object");
+            return dataAs<JSONMap>().hasKey(ConstString(str));
+        }
+
+        bool has(const String &str, JSONType ofType) const
+        {
+            mAssert(m_type == kJT_Object, "not an object");
+            const JSONElement *e;
+            return dataAs<JSONMap>().getIfExists(ConstString(str), e) && e->m_type == ofType;
+        }
+
+        bool has(const char *str, JSONType ofType) const
+        {
+            mAssert(m_type == kJT_Object, "not an object");
+            const JSONElement *e;
+            return dataAs<JSONMap>().getIfExists(ConstString(str), e) && e->m_type == ofType;
         }
 
         const String &name() const

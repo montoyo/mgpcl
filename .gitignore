@@ -22,6 +22,7 @@
 /test/insert_result.ini
 /test/test.ini
 /test/random.csv
+/Debug/
 CMakeCache.txt
 Makefile
 CMakeFiles/

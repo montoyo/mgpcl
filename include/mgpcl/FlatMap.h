@@ -33,6 +33,10 @@ namespace m
             {
             }
 
+            Pair(const K &k, V &&v) : key(k), value(std::move(v))
+            {
+            }
+
             Pair(const K &k) : key(k)
             {
             }
@@ -93,6 +97,30 @@ namespace m
             }
         }
 
+        void put(const K &key, V &&value)
+        {
+            if(m_data.isEmpty())
+                m_data.add(Pair(key, std::move(value)));
+            else {
+                int begin = 0;
+                int end = m_data.size();
+
+                do {
+                    int pos = (begin + end) / 2;
+
+                    if(key == m_data[pos].key) {
+                        m_data[pos].value = std::move(value);
+                        return;
+                    } else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
+
+                m_data.insert(begin, Pair(key, std::move(value)));
+            }
+        }
+
         V &operator [] (const K &key)
         {
             if(m_data.isEmpty()) {
@@ -143,6 +171,32 @@ namespace m
                 isNew = true;
                 m_data.insert(begin, Pair(key));
                 return m_data[begin].value;
+            }
+        }
+
+        bool getIfExists(const K &key, const V *&dst) const
+        {
+            if(m_data.isEmpty()) {
+                dst = nullptr;
+                return false;
+            } else {
+                int begin = 0;
+                int end = m_data.size();
+
+                do {
+                    int pos = (begin + end) / 2;
+
+                    if(key == m_data[pos].key) {
+                        dst = &m_data[pos].value;
+                        return true;
+                    } else if(key > m_data[pos].key)
+                        begin = pos + 1;
+                    else
+                        end = pos;
+                } while(begin != end);
+
+                dst = nullptr;
+                return false;
             }
         }
 

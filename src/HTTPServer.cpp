@@ -20,6 +20,7 @@
 #include "mgpcl/HTTPServer.h"
 #include "mgpcl/Time.h"
 #include "mgpcl/Math.h"
+#include "mgpcl/Date.h"
 #include <iostream>
 
 //#define M_TRACE_HTTPSERVER
@@ -102,7 +103,7 @@ bool m::HTTPServer::start(const IPv4Address &listenAddr, int numThreads)
 
     //Configure threads
     m_threadPool.setCount(numThreads);
-    m_threadPool.setName("HTTP-Server");
+    m_threadPool.setName("HSW-");
     m_threadPool.setCallback(Worker::run);
 
     for(int i = 0; i < numThreads; i++)
@@ -260,16 +261,16 @@ void m::HTTPServer::Worker::addClient(const IPv4Address &addr, TCPSocket &&cli)
         SSLAcceptError err = ssls->initializeAndAccept(m_parent->m_sslCtx, cli);
 
         if(err == kSAE_NoError) {
-            hsc = new Client(m_parent, addr, ssls, true);
+            hsc = new Client(this, addr, ssls, true);
             M_TRACE("handshake on accept ok");
         } else if(err == kSAE_SSLHandshakeTimeout)
-            hsc = new Client(m_parent, addr, ssls, ssls->lastWantedOperation());
+            hsc = new Client(this, addr, ssls, ssls->lastWantedOperation());
         else {
             delete ssls;
             return;
         }
     } else
-        hsc = new Client(m_parent, addr, new TCPSocket(std::move(cli)), false);
+        hsc = new Client(this, addr, new TCPSocket(std::move(cli)), false);
 
     m_clientLock.lock();
     m_clients.add(hsc);
@@ -288,21 +289,21 @@ void m::HTTPServer::Worker::run(void *data)
     static_cast<Worker*>(data)->run();
 }
 
-m::HTTPServer::Client::Client(HTTPServer *p, const IPv4Address &addr, TCPSocket *sock, bool ssl) : m_parent(p), m_isSSL(ssl), m_addr(addr),
-                                                                                                   m_socket(sock), m_sslOP(kSWO_WantRead), m_phase(kHRP_Read),
-                                                                                                   m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
-                                                                                                   m_writingHeaders(true), m_handler(nullptr), m_remDataLen(0),
-                                                                                                   m_sentLinePos(0)
+m::HTTPServer::Client::Client(Worker *p, const IPv4Address &addr, TCPSocket *sock, bool ssl) : m_parent(p), m_isSSL(ssl), m_addr(addr),
+                                                                                               m_socket(sock), m_sslOP(kSWO_WantRead), m_phase(kHRP_Read),
+                                                                                               m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
+                                                                                               m_writingHeaders(true), m_handler(nullptr), m_remDataLen(0),
+                                                                                               m_sentLinePos(0)
 {
     m_time = time::getTimeMsUInt();
     m_req = new HTTPServerRequest;
 }
 
-m::HTTPServer::Client::Client(HTTPServer *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp) : m_parent(p), m_isSSL(true), m_addr(addr),
-                                                                                                                         m_socket(sock), m_sslOP(handshakeOp), m_phase(kHRP_Handshake),
-                                                                                                                         m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
-                                                                                                                         m_writingHeaders(true), m_req(nullptr), m_handler(nullptr),
-                                                                                                                         m_remDataLen(0), m_sentLinePos(0)
+m::HTTPServer::Client::Client(Worker *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp) : m_parent(p), m_isSSL(true), m_addr(addr),
+                                                                                                                     m_socket(sock), m_sslOP(handshakeOp), m_phase(kHRP_Handshake),
+                                                                                                                     m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
+                                                                                                                     m_writingHeaders(true), m_req(nullptr), m_handler(nullptr),
+                                                                                                                     m_remDataLen(0), m_sentLinePos(0)
 {
     m_time = time::getTimeMsUInt();
 }
@@ -381,8 +382,8 @@ void m::HTTPServer::Client::comReady()
                         if(lineEnd < 14)
                             removeDueToError("request line is malformed");
                         else {
-                            String upperLine(buf, lineEnd);
-                            upperLine.toUpper();
+                            m_responseBuffer.append(buf, lineEnd);
+                            m::String upperLine(m_responseBuffer.upper());
 
                             if(!upperLine.endsWith(" HTTP/1.1", 9) && !upperLine.endsWith(" HTTP/1.0", 9))
                                 removeDueToError("invalid protocol");
@@ -492,6 +493,7 @@ void m::HTTPServer::Client::comReady()
         } else if(written == 0)
             removeDueToError("client connection closed unexpectedly");
         else {
+            m_time = time::getTimeMsUInt();
             m_remDataLen -= static_cast<uint64_t>(written);
 
             if(m_remDataLen <= 0) {
@@ -555,7 +557,7 @@ void m::HTTPServer::Client::onHeadersReceived()
     List<String> components;
     splitPathname(m_req->m_pathname, components);
 
-    Node *n = m_parent->m_root;
+    Node *n = m_parent->m_parent->m_root;
     for(const String &component: components) {
         Node *child = n->child(component);
 
@@ -575,7 +577,7 @@ void m::HTTPServer::Client::onHeadersReceived()
         m_req->m_queryLength = m_remDataLen;
     }
 
-    m_handler = (n == nullptr || n->m_handler == nullptr) ? m_parent->m_404handler : n->m_handler;
+    m_handler = (n == nullptr || n->m_handler == nullptr) ? m_parent->m_parent->m_404handler : n->m_handler;
     m_handler->beginRequest(m_req);
     m_sslOP = kSWO_WantWrite;
 }
@@ -585,8 +587,34 @@ void m::HTTPServer::Client::startResponse()
     M_TRACE("beginning response");
 
     m_phase = kHRP_Write;
-    m_handler->processRequest(m_req);
 
+    double took = m::time::getTimeMs();
+    m_handler->processRequest(m_req);
+    took = m::time::getTimeMs() - took;
+
+    if(!m_parent->m_parent->m_accessLog.isNull()) {
+        m::String &buf = m_parent->m_accessBuf;
+
+        buf.cleanup();
+        buf += m_addr.toString(false);
+        buf.append(" - - [", 6);
+        buf += Date::now().format("%D/%n/%y:%H:%M:%S");
+        buf.append("] \"", 3);
+        buf += m_responseBuffer;
+        buf.append("\" ", 2);
+        buf += m::String::fromInteger(m_req->m_responseCode);
+        buf.append(' ', 1);
+        buf += m::String::fromUInteger(static_cast<uint32_t>(m_req->m_responseLength));
+        buf.append(' ', 1);
+        buf += m::String::fromDouble(took, 4);
+        buf += M_OS_LINEEND;
+
+        m_parent->m_parent->m_accessLogLock.lock();
+        m_parent->m_parent->m_accessLog->write(reinterpret_cast<const uint8_t*>(buf.raw()), buf.length());
+        m_parent->m_parent->m_accessLogLock.unlock();
+    }
+
+    m_responseBuffer.cleanup();
     m_responseBuffer.append("HTTP/1.1 ", 9);
     m_responseBuffer += String::fromInteger(m_req->m_responseCode);
     m_responseBuffer.append(' ', 1);

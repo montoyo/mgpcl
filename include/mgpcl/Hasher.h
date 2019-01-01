@@ -40,6 +40,20 @@ namespace m
         }
     };
 
+    template<> class DefaultHasher<long long>
+    {
+    public:
+        static int hash(long long i_)
+        {
+            uint64_t i = static_cast<uint64_t>(i_);
+            i = ((i >> 33) ^ i) * 0xff51afd7ed558ccd;
+            i = ((i >> 33) ^ i) * 0xc4ceb9fe1a85ec53;
+            i = (i >> 33) ^ i;
+
+            return static_cast<int>(i);
+        }
+    };
+
     template<> class DefaultHasher<int>
     {
     public:
@@ -64,6 +78,19 @@ namespace m
 
     template<> class DefaultHasher<long> : public StaticCastHasher<long>
     {
+    };
+
+    template<> class DefaultHasher<unsigned long long>
+    {
+    public:
+        static int hash(unsigned long long i)
+        {
+            i = ((i >> 33) ^ i) * 0xff51afd7ed558ccd;
+            i = ((i >> 33) ^ i) * 0xc4ceb9fe1a85ec53;
+            i = (i >> 33) ^ i;
+
+            return static_cast<int>(i);
+        }
     };
 
     template<> class DefaultHasher<unsigned int>

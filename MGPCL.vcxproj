@@ -245,6 +245,7 @@
     <ClInclude Include="include\mgpcl\TextIOStream.h" />
     <ClInclude Include="include\mgpcl\TextSerializer.h" />
     <ClInclude Include="include\mgpcl\Thread.h" />
+    <ClInclude Include="include\mgpcl\ThreadLocal.h" />
     <ClInclude Include="include\mgpcl\Time.h" />
     <ClInclude Include="include\mgpcl\URL.h" />
     <ClInclude Include="include\mgpcl\Util.h" />

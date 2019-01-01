@@ -95,6 +95,24 @@ namespace m
             return running;
         }
 
+        uint64_t threadID() const
+        {
+#ifdef MGPCL_WIN
+            return static_cast<uint64_t>(GetThreadId(m_handle));
+#else
+            return reinterpret_cast<uint64_t>(m_thread);
+#endif
+        }
+
+        static uint64_t currentThreadID()
+        {
+#ifdef MGPCL_WIN
+            return static_cast<uint64_t>(GetCurrentThreadId());
+#else
+            return reinterpret_cast<uint64_t>(pthread_self());
+#endif
+        }
+
         static String currentThreadName();
 
     protected:

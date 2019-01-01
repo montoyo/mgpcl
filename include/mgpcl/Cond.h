@@ -49,6 +49,7 @@ namespace m
 #endif
         }
 
+        /* returns false on timeout */
         bool waitFor(Mutex &m, uint32_t ms)
         {
 #ifdef MGPCL_WIN

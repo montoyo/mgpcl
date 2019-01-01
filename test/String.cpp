@@ -3,6 +3,8 @@
 #include <mgpcl/Pattern.h>
 #include <mgpcl/Date.h>
 #include <mgpcl/CPUInfo.h>
+#include <mgpcl/UUID.h>
+#include <mgpcl/Random.h>
 
 Declare Test("strings"), Priority(2.0);
 
@@ -301,6 +303,24 @@ TEST
         m::Matcher matcher(pat.matcher("The date is 01/11/2024 lol"));
         testAssert(matcher.next(), "pattern #3 test #2 should match");
         testAssert(matcher.capture() == "01/11/2024", "pattern #3 test #2 captured match is wrong");
+    }
+
+    return true;
+}
+
+TEST
+{
+    volatile StackIntegrityChecker sic;
+    m::prng::Xoroshiro x;
+
+    for(int i = 0; i < 8; i++) {
+        m::UUID test(x);
+        m::String uuidStr(test.toString());
+
+        std::cout << "[i]\tUUID is " << uuidStr.raw() << std::endl;
+        testAssert(uuidStr.length() == 36, "failed to convert UUID to string");
+        testAssert(uuidStr[14] == '4', "invalid UUID version");
+        testAssert(uuidStr[19] == '8' || uuidStr[19] == '9' || uuidStr[19] == 'a' || uuidStr[19] == 'b', "invalid UUID version");
     }
 
     return true;

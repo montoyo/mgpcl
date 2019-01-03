@@ -329,5 +329,12 @@ TEST
         testAssert(test == test3, "failed to re-parse UUID (strict = false)");
     }
 
+    m::UUID nilTest(x);
+    testAssert(nilTest.setFromString("00000000-0000-0000-0000-000000000000", true), "parsing nil shouldn't have failed (strict = true)");
+    testAssert(nilTest.isNil(), "parsing nil failed (strict = true)");
+    nilTest.regenerate(x);
+    testAssert(nilTest.setFromString("0-0-0-0-0"), "parsing nil shouldn't have failed (strict = false)");
+    testAssert(nilTest.isNil(), "parsing nil failed (strict = false)");
+
     return true;
 }

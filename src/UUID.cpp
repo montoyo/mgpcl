@@ -104,6 +104,9 @@ bool m::UUID::setFromString(const String &str, bool strict)
         if(!parseHex(str.raw(), 0, 8, p1) || !parseHex(str.raw(), 9, 4, p2[0]) || !parseHex(str.raw(), 14, 4, p2[1]) || !parseHex(str.raw(), 19, 4, p2[2]) || !parseHex(str.raw(), 24, 12, p3))
             return false;
     } else {
+        if(str.length() < 9)
+            return false; //Too short to be a valid UUID
+
         List<String> parts;
         str.splitOn('-', parts);
 
@@ -125,11 +128,13 @@ bool m::UUID::setFromString(const String &str, bool strict)
     uint64_t msb = (static_cast<uint64_t>(p1) << 32) | (static_cast<uint64_t>(p2[0]) << 16) | static_cast<uint64_t>(p2[1]);
     uint64_t lsb = (static_cast<uint64_t>(p2[2]) << 48) | p3;
 
-    if((msb & M_UUID_VERSION_MASK) != M_UUID_V4_BITS)
-        return false; //Not a v4 UUID
+    if(msb != 0 || lsb != 0) { //Allows nil UUID to be parsed
+        if((msb & M_UUID_VERSION_MASK) != M_UUID_V4_BITS)
+            return false; //Not a v4 UUID
 
-    if((lsb & M_UUID_SEQ_MASK) != M_UUID_SEQ_BITS)
-        return false; //Not a v4 UUID
+        if((lsb & M_UUID_SEQ_MASK) != M_UUID_SEQ_BITS)
+            return false; //Not a v4 UUID
+    }
 
     m_msb = msb;
     m_lsb = lsb;

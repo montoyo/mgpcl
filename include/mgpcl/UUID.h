@@ -28,6 +28,7 @@ namespace m
     public:
         UUID();
         UUID(uint64_t msb, uint64_t lsb) : m_msb(msb), m_lsb(lsb) {}
+        UUID(const String &str, bool strict = false); //Will be nil if parse error
 
         template<class PRNG> UUID(PRNG &p)
         {
@@ -59,6 +60,17 @@ namespace m
             m_lsb = lsb;
         }
 
+        void setToNil()
+        {
+            m_msb = 0;
+            m_lsb = 0;
+        }
+
+        bool isNil() const
+        {
+            return m_msb == 0 && m_lsb == 0;
+        }
+
         uint64_t msb() const
         {
             return m_msb;
@@ -69,7 +81,8 @@ namespace m
             return m_lsb;
         }
 
-        m::String toString() const;
+        String toString() const;
+        bool setFromString(const String &str, bool strict = false);
 
         int hash() const
         {
@@ -77,6 +90,16 @@ namespace m
             static_assert(sizeof(int) << 1 == sizeof(uint64_t), "unsupported int size");
             const int *me = reinterpret_cast<const int*>(this);
             return me[0] ^ me[1] ^ me[2] ^ me[3];
+        }
+
+        bool operator == (const UUID &src) const
+        {
+            return m_msb == src.m_msb && m_lsb == src.m_lsb;
+        }
+
+        bool operator != (const UUID &src) const
+        {
+            return m_msb != src.m_msb || m_lsb != src.m_lsb;
         }
 
     private:

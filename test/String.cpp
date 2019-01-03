@@ -321,6 +321,12 @@ TEST
         testAssert(uuidStr.length() == 36, "failed to convert UUID to string");
         testAssert(uuidStr[14] == '4', "invalid UUID version");
         testAssert(uuidStr[19] == '8' || uuidStr[19] == '9' || uuidStr[19] == 'a' || uuidStr[19] == 'b', "invalid UUID version");
+
+        m::UUID test2(uuidStr, true);
+        testAssert(test == test2, "failed to re-parse UUID (strict = true)");
+
+        m::UUID test3(uuidStr, false);
+        testAssert(test == test3, "failed to re-parse UUID (strict = false)");
     }
 
     return true;

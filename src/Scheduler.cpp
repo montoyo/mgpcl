@@ -121,17 +121,27 @@ void m::Scheduler::Worker::run()
         }
 
         uint32_t now = time::getTimeMsUInt();
-        if(task->m_nextRun > now) {
+        bool cont = false;
+
+        while(task->m_nextRun > now) {
             uint32_t diff = task->m_nextRun - now;
-            if(m_newTask.waitFor(m_lock, diff))
-                continue; //New task has arrived, this one might not be the first one to run
+            if(m_newTask.waitFor(m_lock, diff)) {
+                cont = true; //New task has arrived, this one might not be the first one to run
+                break;
+            }
 
             if(task->m_cancelled.get() != 0) {
                 m_tasks.remove(nextTask);
                 delete task;
-                continue;
+                cont = true;
+                break;
             }
+
+            now = time::getTimeMsUInt();
         }
+
+        if(cont)
+            continue;
 
         m_lock.unlock();
         task->m_func();

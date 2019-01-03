@@ -28,6 +28,16 @@
 
 namespace m
 {
+    template<class T> struct IsPRNG
+    {
+        template<class U> static auto testFunc(bool) -> decltype(reinterpret_cast<U*>(0)->next());
+        template<class U> static void testFunc(...);
+
+        enum
+        {
+            value = std::is_same<decltype(testFunc<T>(true)), uint64_t>::value
+        };
+    };
 
     namespace prng
     {
@@ -72,14 +82,17 @@ namespace m
             uint64_t m_s[2];
         };
 
+        static_assert(IsPRNG<Xoroshiro>::value, "Xoroshiro not a valid PRNG");
+
 #ifndef MGPCL_NO_SSL
         class OpenSSL
         {
         public:
             uint64_t next();
         };
-#endif
 
+        static_assert(IsPRNG<OpenSSL>::value, "OpenSSL not a valid PRNG");
+#endif
     }
 
     template<typename PRNG = prng::Xoroshiro> class Random

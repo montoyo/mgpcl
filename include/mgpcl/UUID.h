@@ -19,6 +19,7 @@
 
 #pragma once
 #include "String.h"
+#include "Random.h"
 
 namespace m
 {
@@ -29,8 +30,9 @@ namespace m
         UUID();
         UUID(uint64_t msb, uint64_t lsb) : m_msb(msb), m_lsb(lsb) {}
         UUID(const String &str, bool strict = false); //Will be nil if parse error
+        UUID(const UUID &src) : m_msb(src.m_msb), m_lsb(src.m_lsb) {}
 
-        template<class PRNG> UUID(PRNG &p)
+        template<class PRNG> UUID(PRNG &p, typename std::enable_if<IsPRNG<PRNG>::value>::type *dontCare = nullptr)
         {
             m_msb = p.next();
             m_lsb = p.next();

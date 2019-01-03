@@ -51,9 +51,11 @@ namespace m
 
     class Scheduler
     {
+        M_NON_COPYABLE(Scheduler)
+
     public:
-        Scheduler() : m_running(false), m_threads(4, "SW-") {}
-        Scheduler(int threadCount) : m_running(false), m_threads(threadCount, "SW-") {}
+        Scheduler() : m_running(false), m_threads(4, "SCHED-") {}
+        Scheduler(int threadCount) : m_running(false), m_threads(threadCount, "SCHED-") {}
 
         ~Scheduler()
         {

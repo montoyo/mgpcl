@@ -33,6 +33,11 @@ void m::BasicLogger::vlog(LogLevel level, const char *fname, int line, const cha
     }
 
     String str(32);
+    if(format[0] == '\r' && format[1] != '\n') {
+        str += '\r';
+        format++;
+    }
+
     str += '[';
 
     switch(level) {

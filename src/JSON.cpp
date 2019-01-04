@@ -640,8 +640,10 @@ bool m::json::serializeCompact(SSharedPtr<OutputStream> out, JSONElement &src)
 
 bool g_m_json_writeTabs(m::OutputStream *out, int tabs)
 {
+    tabs <<= 2; //4 spaces
+
     for(int i = 0; i < tabs; i++) {
-        if(!G_M_JSON_WRITECHR(out, "\t"))
+        if(!G_M_JSON_WRITECHR(out, " "))
             return false;
     }
 

@@ -615,11 +615,11 @@ m::Process &m::Process::start()
             close(nullFd);
         }
 
-        if(m_setUID)
-            setuid(m_targetUID);
-
         if(m_setGID)
             setgid(m_targetGID);
+
+        if(m_setUID)
+            setuid(m_targetUID);
 
         if(env == nullptr)
             execvp(args[0], const_cast<char * const *>(args));

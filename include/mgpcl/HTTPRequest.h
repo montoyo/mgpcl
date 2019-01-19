@@ -44,6 +44,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
+            m_requestHdr["Connection"] = "close";
         }
 
         HTTPRequest(const URL &u)
@@ -58,6 +59,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
+            m_requestHdr["Connection"] = "close";
         }
 
         HTTPRequest(const String &url) : m_url(url)
@@ -71,6 +73,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
+            m_requestHdr["Connection"] = "close";
         }
 
         ~HTTPRequest()
@@ -84,10 +87,7 @@ namespace m
             m_type = rt;
         }
 
-        void setURL(const URL &url)
-        {
-            m_url = url;
-        }
+        void setURL(const URL &url);
 
         void setRequestHeader(const String &prop, const String &val)
         {
@@ -214,7 +214,14 @@ namespace m
             return m_jar != nullptr;
         }
 
-        /* Please not that followLocation won't work if doesOutput is set. */
+        void setKeepAlive(bool ka) {
+            if(ka)
+                m_requestHdr["Connection"] = "keep-alive";
+            else
+                m_requestHdr["Connection"] = "close";
+        }
+
+        /* Please note that followLocation won't work if doesOutput is set. */
         void setFollowsLocation(bool fl)
         {
             m_followsLoc = fl;
@@ -251,6 +258,8 @@ namespace m
 #endif
 
     private:
+        bool receiveResponse(bool keepAlive);
+
         URL m_url;
         HTTPRequestType m_type;
         HTTPCookieJar *m_jar;
@@ -313,6 +322,7 @@ namespace m
         uint32_t m_pos;
         bool m_hasLen;
         uint32_t m_len;
+        bool m_keepAlive;
     };
 
     //Doesn't need to buffer, Nagle's algorithm is here for that

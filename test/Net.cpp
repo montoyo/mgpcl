@@ -203,6 +203,27 @@ TEST
     return true;
 }
 
+TEST
+{
+    static StackIntegrityChecker sic;
+    m::HTTPRequest req("http://montoyo.net/ShareX/test");
+    req.setKeepAlive(true);
+
+    for(int i = 0; i < 10; i++) {
+        testAssert(req.perform(), "Could not perform HTTP request");
+        //testAssert(req.receiveResponse(), "Could not receive HTTP response"); //req.perform() already does the job
+        testAssert(req.responseCode() == 200, "Expected response code to be 200");
+        testAssert(req.status() == "OK", "Expected status to be OK");
+
+        m::SSharedPtr<m::InputStream> his(req.inputStream<m::RefCounter>());
+        m::StringOStream sos;
+        testAssert(m::IO::transfer(&sos, his.ptr(), 256), "could not transfer http data to string");
+        testAssert(sos.data().trimmed() == "it works", "data does not match");
+    }
+
+    return true;
+}
+
 class ClSvTest : public m::SlotCapable
 {
 public:
@@ -332,6 +353,27 @@ TEST
     m::SSharedPtr<m::StringOStream> sos(new m::StringOStream);
     testAssert(m::IO::transfer(sos.ptr(), his.ptr(), 256), "could not transfer HTTPS data to string");
     testAssert(sos->data().trimmed() == "it works", "HTTPS data does not match");
+    return true;
+}
+
+TEST
+{
+    static StackIntegrityChecker sic;
+    m::HTTPRequest req("https://montoyo.net/ShareX/test");
+    req.setKeepAlive(true);
+
+    for(int i = 0; i < 10; i++) {
+        testAssert(req.perform(), "Could not perform HTTP request");
+        //testAssert(req.receiveResponse(), "Could not receive HTTP response"); //req.perform() already does the job
+        testAssert(req.responseCode() == 200, "Expected response code to be 200");
+        testAssert(req.status() == "OK", "Expected status to be OK");
+
+        m::SSharedPtr<m::InputStream> his(req.inputStream<m::RefCounter>());
+        m::StringOStream sos;
+        testAssert(m::IO::transfer(&sos, his.ptr(), 256), "could not transfer http data to string");
+        testAssert(sos.data().trimmed() == "it works", "data does not match");
+    }
+
     return true;
 }
 

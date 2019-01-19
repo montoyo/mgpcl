@@ -19,44 +19,61 @@
 
 #include "mgpcl/HTTPRequest.h"
 
-bool m::HTTPRequest::perform()
+void m::HTTPRequest::setURL(const URL &url)
 {
-    for(uint8_t maxRedir = 0; maxRedir < 16; maxRedir++) {
-        if(m_conn != nullptr) {
+    if(m_conn != nullptr && m_requestHdr["Connection"].equalsIgnoreCase("keep-alive")) {
+        if(!url.protocol().equalsIgnoreCase(m_url.protocol()) || !url.host().equalsIgnoreCase(m_url.host()) || url.port() != m_url.port()) {
+            //Not the same server; destroy connection
             delete m_conn;
             m_conn = nullptr;
         }
+    }
 
-        if(!m_url.isValid() || (m_url.protocol() != "http" && m_url.protocol() != "https"))
-            return false;
+    m_url = url;
+}
 
-        IPv4Address addr;
-        if(addr.resolve(m_url.host(), m_url.port()) != kRE_NoError)
-            return false;
+bool m::HTTPRequest::perform()
+{
+    const bool keepAlive = m_requestHdr["Connection"].equalsIgnoreCase("keep-alive");
 
-        if(m_url.protocol().equals("https", 5)) {
-#ifndef MGPCL_NO_SSL
-            if(!m_sslCtx.isValid()) {
-                m_sslCtx.initialize(kSCM_v23Client);
-                m_sslCtx.loadOSVerify();
-                m_sslCtx.setVerifyFlags(kSVF_VerifyPeer);
-                m_sslCtx.setVerifyDepth(16); //Is that a good value?
+    for(uint8_t maxRedir = 0; maxRedir < 16; maxRedir++) {
+        if(!keepAlive || m_conn == nullptr) {
+            if(m_conn != nullptr) {
+                delete m_conn;
+                m_conn = nullptr;
             }
 
-            m_conn = new SSLSocket;
-            if(!static_cast<SSLSocket*>(m_conn)->initialize(m_sslCtx))
+            if(!m_url.isValid() || (m_url.protocol() != "http" && m_url.protocol() != "https"))
                 return false;
+
+            IPv4Address addr;
+            if(addr.resolve(m_url.host(), m_url.port()) != kRE_NoError)
+                return false;
+
+            if(m_url.protocol().equals("https", 5)) {
+#ifndef MGPCL_NO_SSL
+                if(!m_sslCtx.isValid()) {
+                    m_sslCtx.initialize(kSCM_v23Client);
+                    m_sslCtx.loadOSVerify();
+                    m_sslCtx.setVerifyFlags(kSVF_VerifyPeer);
+                    m_sslCtx.setVerifyDepth(16); //Is that a good value?
+                }
+
+                m_conn = new SSLSocket;
+                if(!static_cast<SSLSocket*>(m_conn)->initialize(m_sslCtx))
+                    return false;
 #else
-            return false;
+                return false;
 #endif
-        } else {
-            m_conn = new TCPSocket;
-            if(!m_conn->initialize())
+            } else {
+                m_conn = new TCPSocket;
+                if(!m_conn->initialize())
+                    return false;
+            }
+
+            if(m_conn->connect(addr) != kSCE_NoError)
                 return false;
         }
-
-        if(m_conn->connect(addr) != kSCE_NoError)
-            return false;
 
         String request(16);
         switch(m_type) {
@@ -178,10 +195,12 @@ bool m::HTTPRequest::perform()
         if(!m_followsLoc || !m_responseHdr.hasKey("Location"))
             return true; //Redirection disabled or end of redirection
 
-        if(m_url.parseRelative(m_url, m_responseHdr["Location"]) != kUPE_NoError)
+        URL redir;
+        if(redir.parseRelative(m_url, m_responseHdr["Location"]) != kUPE_NoError)
             return false; //Couldn't parse redirection URL
 
         //URL has changed to the new location, start over...
+        setURL(redir); //Use setURL to close connection if keep-alive is enabled and server changed
     }
 
     //If this happens, then we reached the maximum number of redirections
@@ -190,6 +209,11 @@ bool m::HTTPRequest::perform()
 }
 
 bool m::HTTPRequest::receiveResponse()
+{
+    return receiveResponse(m_requestHdr["Connection"].equalsIgnoreCase("keep-alive"));
+}
+
+bool m::HTTPRequest::receiveResponse(bool keepAlive)
 {
     if(m_gotResponse)
         return true;
@@ -246,7 +270,7 @@ bool m::HTTPRequest::receiveResponse()
     }
 
     m_gotResponse = true;
-    if(!m_doesIn) //The server won't return any data, close stream now
+    if(!keepAlive && !m_doesIn) //The server won't return any data, close stream now
         m_conn->close();
 
     return true;
@@ -275,7 +299,9 @@ int m::HTTPInputStream::read(uint8_t *dst, int sz)
 
     if(usz > 0) {
         if(m_hasLen && m_pos >= m_len) {
-            m_req->m_conn->close();
+            if(!m_keepAlive)
+                m_req->m_conn->close();
+
             return ret;
         }
 
@@ -310,6 +336,8 @@ m::HTTPInputStream::HTTPInputStream(HTTPRequest *p)
         m_hasLen = false;
         m_len = 0;
     }
+
+    m_keepAlive = p->m_requestHdr["Connection"].equalsIgnoreCase("keep-alive");
 }
 
 float m::HTTPInputStream::progress() const

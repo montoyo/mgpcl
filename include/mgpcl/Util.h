@@ -106,7 +106,7 @@ namespace m
     {
         M_UTIL_PREFIX bool readFully(InputStream *dst, uint8_t *data, int len);
         M_UTIL_PREFIX bool writeFully(OutputStream *dst, const uint8_t *data, int len);
-        M_UTIL_PREFIX bool transfer(OutputStream *dst, InputStream *src, int bufSz = 65536);
+        M_UTIL_PREFIX bool transfer(OutputStream *dst, InputStream *src, int bufSz = 65536); //dst can be null, equivalent to '> /dev/null'
         M_UTIL_PREFIX bool writeLine(const TString<char> &str, OutputStream *dst, LineEnding le = M_OS_LINEENDING);
     }
 

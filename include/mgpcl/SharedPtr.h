@@ -72,6 +72,11 @@ namespace m
             return m_refs == nullptr;
         }
 
+        bool operator ! () const
+        {
+            return m_refs == nullptr;
+        }
+
         void setNull()
         {
             if(m_refs != nullptr && m_refs->releaseRef()) {

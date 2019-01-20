@@ -60,9 +60,10 @@ bool m::IO::transfer(OutputStream *dst, InputStream *src, int bufSz)
     while(keepGoing) {
         int rd = src->read(buf, bufSz);
 
-        if(rd > 0)
-            writeFully(dst, buf, rd);
-        else {
+        if(rd > 0) {
+            if(dst != nullptr)
+                writeFully(dst, buf, rd);
+        } else {
             keepGoing = false;
             ret = rd == 0;
         }

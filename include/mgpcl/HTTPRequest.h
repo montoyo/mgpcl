@@ -82,6 +82,13 @@ namespace m
                 delete m_conn;
         }
 
+        void killConnection() {
+            if(m_conn != nullptr) {
+                delete m_conn;
+                m_conn = nullptr;
+            }
+        }
+
         void setRequestType(HTTPRequestType rt)
         {
             m_type = rt;

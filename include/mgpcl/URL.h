@@ -77,9 +77,9 @@ namespace m
             m_host = host;
         }
 
-        void setPort(const String &port)
+        void setPort(uint16_t port)
         {
-            m_proto = port;
+            m_port = port;
         }
 
         void setLocation(const String &loc)

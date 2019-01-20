@@ -574,7 +574,7 @@ bool g_m_json_serializeCompact(m::OutputStream *out, m::JSONElement &src)
 
     case m::kJT_Number:
         if(src.asDouble() == std::floor(src.asDouble())) {
-            m::String nbr(m::String::fromInteger(static_cast<int>(src.asDouble())));
+            m::String nbr(m::String::fromInteger64(static_cast<int64_t>(src.asDouble())));
             status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
         } else {
             m::String nbr(m::String::fromDouble(src.asDouble(), 8));
@@ -669,7 +669,7 @@ bool g_m_json_serializeHumanReadable(m::OutputStream *out, m::JSONElement &src, 
 
     case m::kJT_Number:
         if(src.asDouble() == std::floor(src.asDouble())) {
-            m::String nbr(m::String::fromInteger(static_cast<int>(src.asDouble())));
+            m::String nbr(m::String::fromInteger64(static_cast<int64_t>(src.asDouble())));
             status = g_m_json_writeStr(out, nbr.raw(), nbr.length());
         } else {
             m::String nbr(m::String::fromDouble(src.asDouble(), 8));

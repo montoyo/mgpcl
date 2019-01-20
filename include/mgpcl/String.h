@@ -1096,6 +1096,36 @@ namespace m
             return ret + fromUInteger(static_cast<uint32_t>(iintg), base);
         }
 
+        static TString<T> fromUInteger64(uint64_t iintg, uint8_t base = 10)
+        {
+            int numLen = intLen(iintg, base);
+            if(numLen <= 0)
+                numLen = 1;
+
+            TString<T> ret(numLen);
+            for(int i = numLen - 1; i >= 0; i--) {
+                char c = static_cast<char>(iintg % base);
+                ret.m_data[ret.m_len + i] = hexChar<T>(c);
+
+                iintg /= base;
+            }
+
+            ret.m_len += numLen;
+            ret.m_data[ret.m_len] = 0;
+            return ret;
+        }
+
+        static TString<T> fromInteger64(int64_t iintg, uint8_t base = 10)
+        {
+            TString<T> ret;
+            if(iintg < 0) {
+                ret += '-';
+                iintg = -iintg;
+            }
+
+            return ret + fromUInteger64(static_cast<uint32_t>(iintg), base);
+        }
+
         static TString<T> fromDouble(double f, int maxPrec = 6)
         {
             TString<T> ret(4);
@@ -1123,10 +1153,10 @@ namespace m
                 return ret;
             }
 
-            int intPart = static_cast<int>(f);
+            int64_t intPart = static_cast<int64_t>(f);
             double fracPartD = f - static_cast<double>(intPart);
             fracPartD *= pow(10.0, static_cast<double>(maxPrec));
-            int fracPart = static_cast<int>(fracPartD);
+            int64_t fracPart = static_cast<int64_t>(fracPartD);
 
             if(intPart > 0) {
                 int intSz = static_cast<int>(log10(f)) + 1; //log10 is better than intLen, especially if intPart >= 1000

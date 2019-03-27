@@ -99,7 +99,7 @@ namespace m
             if(m_size >= m_alloc)
                 grow(Size(1));
 
-            new(m_data + m_size++) T(obj);
+            new(m_data + m_size++) T(std::move(obj));
             return *this;
         }
 

@@ -61,17 +61,23 @@ public class LogTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public Color getColorForRow(int r)
+    public void clear()
+    {
+        rows.clear();
+        fireTableDataChanged();
+    }
+
+    public Color getColorForRow(int r, boolean sel)
     {
         byte l = rows.get(r).level;
         if(l == 0 || l == -1)
-            return Color.white;
+            return sel ? Color.lightGray : Color.white;
         else if(l == 2)
-            return Color.orange;
+            return sel ? Color.yellow : Color.orange;
         else if(l == 3)
-            return Color.red;
+            return sel ? new Color(255, 50, 50) : Color.red;
 
-        return new Color(0, 190, 255);
+        return sel ? new Color(83, 225, 255) : new Color(57, 185, 255);
     }
 
     public boolean isRowItalic(int r) {
@@ -96,6 +102,11 @@ public class LogTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         return rows.get(rowIndex).cols[columnIndex];
+    }
+
+    public String rowToString(int y) {
+        final String[] r = rows.get(y).cols;
+        return (new StringBuilder()).append('[').append(r[0]).append("] [").append(r[1]).append("] [").append(r[2]).append(':').append(r[3]).append("] ").append(r[4]).toString();
     }
 
 }

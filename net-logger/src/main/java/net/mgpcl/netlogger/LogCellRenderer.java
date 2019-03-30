@@ -1,6 +1,8 @@
 package net.mgpcl.netlogger;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
@@ -12,14 +14,14 @@ public class LogCellRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         LogTableModel mdl = (LogTableModel) table.getModel();
-        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        Component c = super.getTableCellRendererComponent(table, value, false, false, row, column);
 
         if(normalFont == null || italicFont == null) {
             normalFont = c.getFont();
             italicFont = normalFont.deriveFont(Font.ITALIC);
         }
 
-        Color color = mdl.getColorForRow(row);
+        Color color = mdl.getColorForRow(row, table.getSelectedRow() == row);
 		if(color.equals(Color.white)) {
 			//Don't change if it's white; use default background color
 			c.setBackground(null);

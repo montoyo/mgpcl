@@ -4,6 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.*;
 import java.net.InetAddress;
@@ -24,23 +25,27 @@ public class NetLogger implements WindowListener, ActionListener {
     private OutputStream sockOut;
 
     private JFrame window;
-    private LogTableModel table;
+    private JTable table;
+    private LogTableModel tableContent;
     private JCheckBox levels[] = new JCheckBox[4];
+    private JCheckBox autoScroll;
     private JButton filterButton;
+    private JScrollPane scrollPane;
     private boolean closeOnDisconnect = false;
+    private int oldHorizontalScroll = 0;
 
     private class CheckBoxChanger implements MouseListener {
 
-        private int id;
+        private JCheckBox cb;
 
-        CheckBoxChanger(int id) {
-            this.id = id;
+        CheckBoxChanger(JCheckBox cb) {
+            this.cb = cb;
         }
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            levels[id].setSelected(!levels[id].isSelected());
-            actionPerformed(new ActionEvent(levels[id], 0, null));
+            cb.setSelected(!cb.isSelected());
+            actionPerformed(new ActionEvent(cb, 0, null));
         }
 
         @Override
@@ -123,38 +128,99 @@ public class NetLogger implements WindowListener, ActionListener {
         window = new JFrame("MGPCL's NetLogger");
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         window.addWindowListener(this);
-        window.setSize(600, 250);
+        window.setSize(750, 350);
 
         JPanel pane = new JPanel();
         pane.setLayout(new GridBagLayout());
         pane.setBorder(new EmptyBorder(3, 3, 3, 3));
 
-        this.table = new LogTableModel();
-        JTable table = new JTable(this.table);
-        JScrollPane scroll = new JScrollPane(table);
+        tableContent = new LogTableModel();
+        table = new JTable(this.tableContent);
+        scrollPane = new JScrollPane(table);
 
         table.setFillsViewportHeight(true);
         table.setDefaultRenderer(Object.class, new LogCellRenderer());
+        table.setShowGrid(false);
+
+        scrollPane.getVerticalScrollBar().addAdjustmentListener(e -> {
+            if(autoScroll.isSelected()) {
+                if(e.getValueIsAdjusting())
+                    autoScroll.setSelected(false);
+                else
+                    e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
+
+        scrollPane.getHorizontalScrollBar().addAdjustmentListener(e -> {
+            if(e.getValueIsAdjusting())
+                oldHorizontalScroll = e.getValue();
+            else
+                e.getAdjustable().setValue(oldHorizontalScroll);
+        });
+
+        scrollPane.addMouseWheelListener(e -> {
+            if(autoScroll.isSelected()) {
+                autoScroll.setSelected(false);
+
+                /* //FIXME: The first scroll is canceled... sadly the fix below doesn't work
+                JScrollBar bar = scrollPane.getVerticalScrollBar();
+                int mul = e.getWheelRotation() / Math.abs(e.getWheelRotation());
+
+                if(e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL)
+                    bar.setValue(bar.getValue() + mul * bar.getBlockIncrement());
+                else
+                    bar.setValue(bar.getValue() + mul * bar.getUnitIncrement());
+                 */
+            }
+        });
+
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem copyCellItem = new JMenuItem("Copy cell");
+        JMenuItem copyLineItem = new JMenuItem("Copy whole line");
+
+        copyCellItem.addActionListener(e -> {
+            int x = table.getSelectedColumn();
+            int y = table.getSelectedRow();
+
+            if(x >= 0 && x < tableContent.getColumnCount() && y >= 0 && y < tableContent.getRowCount())
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection((String) tableContent.getValueAt(y, x)), null);
+        });
+
+        copyLineItem.addActionListener(e -> {
+            int y = table.getSelectedRow();
+
+            if(y >= 0 && y < tableContent.getRowCount())
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(tableContent.rowToString(y)), null);
+        });
+
+        menu.add(copyCellItem);
+        menu.add(copyLineItem);
+        table.setComponentPopupMenu(menu);
 
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
-        c.gridwidth = 5;
+        c.gridwidth = levels.length + 2;
         c.insets = new Insets(0, 0, 2, 0);
 
-        pane.add(scroll, c);
-        putCheckbox(pane, 0, "Debug");
-        putCheckbox(pane, 1, "Info");
-        putCheckbox(pane, 2, "Warning");
-        putCheckbox(pane, 3, "Error");
+        pane.add(scrollPane, c);
+        createLevelCheckbox(pane, 0, "Debug");
+        createLevelCheckbox(pane, 1, "Info");
+        createLevelCheckbox(pane, 2, "Warning");
+        createLevelCheckbox(pane, 3, "Error");
+
+        autoScroll = new JCheckBox();
+        autoScroll.setSelected(true);
+        autoScroll.addActionListener(this);
+        putCheckbox(pane, levels.length, autoScroll, null, "Scroll");
 
         filterButton = new JButton("Filter...");
         filterButton.addActionListener(this);
 
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 4;
+        c.gridx = levels.length + 1;
         c.gridy = 1;
         c.weightx = 2.0 / 6.0;
 
@@ -168,10 +234,11 @@ public class NetLogger implements WindowListener, ActionListener {
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(40);
+        //table.getColumnModel().getColumn(4).setPreferredWidth(table.getWidth() - (50 + 50 + 100 + 40));
         table.getColumnModel().getColumn(4).setPreferredWidth(1000);
     }
 
-    private void putCheckbox(JPanel pane, int x, String name)
+    private void createLevelCheckbox(JPanel pane, int x, String name)
     {
         Icon ico = null;
         try {
@@ -184,15 +251,25 @@ public class NetLogger implements WindowListener, ActionListener {
         levels[x].setSelected(true);
         levels[x].addActionListener(this);
 
-        JLabel lbl = new JLabel(name, ico, JLabel.LEFT);
-        lbl.addMouseListener(new CheckBoxChanger(x));
+        putCheckbox(pane, x, levels[x], ico, name);
+    }
+
+    private void putCheckbox(JPanel pane, int xPos, JCheckBox cb, Icon icon, String label)
+    {
+        JLabel lbl;
+        if(icon == null)
+            lbl = new JLabel(label, JLabel.LEFT);
+        else
+            lbl = new JLabel(label, icon, JLabel.LEFT);
+
+        lbl.addMouseListener(new CheckBoxChanger(cb));
 
         JPanel inner = new JPanel();
         inner.setLayout(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
-        inner.add(levels[x], c);
+        inner.add(cb, c);
 
         c = new GridBagConstraints();
         c.gridx = 1;
@@ -207,7 +284,7 @@ public class NetLogger implements WindowListener, ActionListener {
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0 / 6.0;
-        c.gridx = x;
+        c.gridx = xPos;
         c.gridy = 1;
 
         pane.add(inner, c);
@@ -251,6 +328,8 @@ public class NetLogger implements WindowListener, ActionListener {
 
                 //Send current config (disabled levels)
                 SwingUtilities.invokeLater(() -> {
+                    tableContent.clear();
+
                     for(int i = 0; i < levels.length; i++) {
                         if(!levels[i].isSelected())
                             sendLevel(false, i);
@@ -316,7 +395,7 @@ public class NetLogger implements WindowListener, ActionListener {
             } catch(Throwable t) {}
 
             client = null;
-            SwingUtilities.invokeLater(() -> table.addLine(new LogTableModel.LogRow()));
+            SwingUtilities.invokeLater(() -> tableContent.addLine(new LogTableModel.LogRow()));
             return true; //Client disconnected normally
         } catch(IOException ex) {
             if(running.get())
@@ -330,7 +409,7 @@ public class NetLogger implements WindowListener, ActionListener {
     {
         SwingUtilities.invokeLater(() -> {
             try {
-                table.addLine(new LogTableModel.LogRow(dis));
+                tableContent.addLine(new LogTableModel.LogRow(dis));
             } catch(IOException ex) {
                 ex.printStackTrace();
             }

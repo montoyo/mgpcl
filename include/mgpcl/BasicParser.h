@@ -109,7 +109,7 @@ namespace m
                 m_numChar++;
 
             m_last = ret;
-            return static_cast<int>(ret);
+            return static_cast<int>(ret & 0xFF);
         }
 
         int nextNonBlankChar() //Returns -1 on EOF/error

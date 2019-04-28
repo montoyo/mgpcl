@@ -3,6 +3,9 @@
 #include <mgpcl/Process.h>
 #include <mgpcl/StringIOStream.h>
 
+#define TEST_USER_NAME "montoyo"
+#define TEST_GROUP_NAME "sudoers"
+
 Declare Test("processes"), Priority(11.0);
 
 TEST
@@ -92,8 +95,8 @@ TEST
 
     testAssert(!m::linux::getUserUID("jaaj", someUID), "user jaaj shouldn't exist");
     testAssert(!m::linux::getGroupGID("jaaj", someGID), "group jaaj shouldn't exist");
-    testAssert(m::linux::getUserUID("montoyo", someUID), "user montoyo should exist");
-    testAssert(m::linux::getGroupGID("sudo", someGID), "group sudo should exist");
+    testAssert(m::linux::getUserUID(TEST_USER_NAME, someUID), "user " TEST_USER_NAME " should exist");
+    testAssert(m::linux::getGroupGID(TEST_GROUP_NAME, someGID), "group " TEST_GROUP_NAME " should exist");
 
     std::cout << "[i]\tCurrent UID is " << m::linux::getCurrentUID() << std::endl;
     std::cout << "[i]\tCurrent GID is " << m::linux::getCurrentGID() << std::endl;

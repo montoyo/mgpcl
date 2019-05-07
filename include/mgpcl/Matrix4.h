@@ -418,7 +418,7 @@ namespace m
         {
             Matrix4<T> ret;
 
-            float f = T(1) / math::tan(angle);
+            float f = T(1) / math::tan(angle * T(0.5));
             M_SET_ROW_OF(&ret, 0,   f / ratio, T(0), T(0),  T(0));
             M_SET_ROW_OF(&ret, 1,   T(0),      f,    T(0),  T(0));
             M_SET_ROW_OF(&ret, 2,   T(0),      T(0), (near_ + far_) / (near_ - far_), (T(2) * near_ * far_) / (near_ - far_));

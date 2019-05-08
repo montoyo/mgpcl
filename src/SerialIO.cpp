@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -342,8 +342,8 @@ bool m::SerialPort::open(const String &port, int accessFlags)
 
     m_tty.c_cflag |= (CLOCAL | CREAD);
     m_tty.c_lflag &= ~(ISIG | ICANON | XCASE | ECHO | ECHOE);
-    m_tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY | INLCR | ICRNL | IUCLC | PARMRK);
-    m_tty.c_iflag |= (INPCK | ISTRIP); //Force parity check on. Is that a good thing?
+    m_tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY | INLCR | ICRNL | IUCLC | PARMRK | ISTRIP);
+    m_tty.c_iflag |= INPCK; //Force parity check on. Is that a good thing?
     m_tty.c_oflag &= ~(OPOST | OLCUC | ONLCR | OCRNL | ONLRET | OFILL | NLDLY | CRDLY | TABDLY | BSDLY);
     m_tty.c_oflag &= ~(VTDLY | FFDLY);
     m_tty.c_cc[VMIN] = 0;

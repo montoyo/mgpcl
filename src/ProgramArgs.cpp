@@ -264,6 +264,8 @@ m::ArgParseError m::ProgramArgs::parse()
         }
     }
 
+    const bool ignoreReqs = m_helpIgnoreReqs && m_helpSwitch != nullptr && !m_helpSwitch->m_values.isEmpty();
+
     //Make sure everyone has its value
     for(ArgDescriptor *d: m_descr) {
         if(d->m_type == kAT_Switch && d->m_values.isEmpty()) {
@@ -273,7 +275,7 @@ m::ArgParseError m::ProgramArgs::parse()
 
             av->addRef(); //Ref will be destroyed by ArgDescriptor
             d->m_values.add(av);
-        } if(!d->isSatisfied() && (!m_helpIgnoreReqs || m_helpSwitch == nullptr)) {
+        } if(!d->isSatisfied() && !ignoreReqs) {
             d->m_lastErr = kAE_Required;
 
             m_err = d;

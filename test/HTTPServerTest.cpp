@@ -60,7 +60,10 @@ void mTestHTTPServer()
     server.bindHandler("/form/*/echo", new EchoHandler);
     server.bindHandler("/shutdown", new ShutdownHandler);
 
+#ifndef MGPCL_NO_SSL
     server.enableSSL("certificate.pem", "key.pem");
+#endif
+
     server.start(m::IPv4Address(127, 0, 0, 1, 1234), 4);
 
     while(g_running.get() != 0)

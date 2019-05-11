@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -71,6 +71,8 @@ m::HTTPServer::~HTTPServer()
         delete m_root;
 }
 
+#ifndef MGPCL_NO_SSL
+
 bool m::HTTPServer::enableSSL(const String &certFile, const String &keyFile)
 {
     if(!m_sslCtx.initialize(kSCM_v23Server))
@@ -88,6 +90,8 @@ bool m::HTTPServer::enableSSL(const SSLContext &ctx)
     m_sslCtx = ctx;
     return true;
 }
+
+#endif
 
 bool m::HTTPServer::start(const IPv4Address &listenAddr, int numThreads)
 {
@@ -256,6 +260,10 @@ void m::HTTPServer::Worker::run()
 void m::HTTPServer::Worker::addClient(const IPv4Address &addr, TCPSocket &&cli)
 {
     Client *hsc;
+
+#ifdef MGPCL_NO_SSL
+    hsc = new Client(this, addr, new TCPSocket(std::move(cli)), false);
+#else
     if(m_parent->m_sslCtx.isValid()) {
         SSLSocket *ssls = new SSLSocket;
         SSLAcceptError err = ssls->initializeAndAccept(m_parent->m_sslCtx, cli);
@@ -271,6 +279,7 @@ void m::HTTPServer::Worker::addClient(const IPv4Address &addr, TCPSocket &&cli)
         }
     } else
         hsc = new Client(this, addr, new TCPSocket(std::move(cli)), false);
+#endif
 
     m_clientLock.lock();
     m_clients.add(hsc);
@@ -289,6 +298,17 @@ void m::HTTPServer::Worker::run(void *data)
     static_cast<Worker*>(data)->run();
 }
 
+#ifdef MGPCL_NO_SSL
+m::HTTPServer::Client::Client(Worker *p, const IPv4Address &addr, TCPSocket *sock, bool ssl) : m_parent(p), m_addr(addr),
+                                                                                               m_socket(sock), m_phase(kHRP_Read),
+                                                                                               m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
+                                                                                               m_writingHeaders(true), m_handler(nullptr), m_remDataLen(0),
+                                                                                               m_sentLinePos(0)
+{
+    m_time = time::getTimeMsUInt();
+    m_req = new HTTPServerRequest;
+}
+#else
 m::HTTPServer::Client::Client(Worker *p, const IPv4Address &addr, TCPSocket *sock, bool ssl) : m_parent(p), m_isSSL(ssl), m_addr(addr),
                                                                                                m_socket(sock), m_sslOP(kSWO_WantRead), m_phase(kHRP_Read),
                                                                                                m_shouldRemove(false), m_lineLength(0), m_readPhase(kHRRP_QueryLine),
@@ -307,6 +327,7 @@ m::HTTPServer::Client::Client(Worker *p, const IPv4Address &addr, SSLSocket *soc
 {
     m_time = time::getTimeMsUInt();
 }
+#endif
 
 m::HTTPServer::Client::~Client()
 {
@@ -325,6 +346,7 @@ m::HTTPServer::Client::~Client()
 void m::HTTPServer::Client::comReady()
 {
     if(m_phase == kHRP_Handshake) {
+#ifndef MGPCL_NO_SSL
         SSLAcceptError sae = static_cast<SSLSocket*>(m_socket)->resumeAcceptHandshake();
 
         if(sae == kSAE_NoError) {
@@ -335,14 +357,17 @@ void m::HTTPServer::Client::comReady()
             M_TRACE("client handshake successful");
         } else if(sae != kSAE_SSLHandshakeTimeout)
             removeDueToError("SSL handshake error");
+#endif
     } else if(m_phase == kHRP_Read) {
         int diff = M_HTTP_SERVER_RBUF_SZ - m_lineLength;
         int rd = m_socket->receive(m_recvBuf, diff);
 
         if(rd < 0) {
             if(m_socket->lastError() == inet::kSE_NoError) {
+#ifndef MGPCL_NO_SSL
                 if(m_isSSL)
                     m_sslOP = static_cast<SSLSocket*>(m_socket)->lastWantedOperation();
+#endif
             } else
                 removeDueToError("read failure");
         } else if(rd == 0)
@@ -486,8 +511,10 @@ void m::HTTPServer::Client::comReady()
 
         if(written < 0) {
             if(m_socket->lastError() == inet::kSE_NoError) {
+#ifndef MGPCL_NO_SSL
                 if(m_isSSL)
                     m_sslOP = static_cast<SSLSocket*>(m_socket)->lastWantedOperation();
+#endif
             } else
                 removeDueToError("write failure");
         } else if(written == 0)
@@ -511,11 +538,13 @@ void m::HTTPServer::Client::comReady()
             }
         }
     } else if(m_phase == kHRP_Shutdown) {
+#ifndef MGPCL_NO_SSL
         if(static_cast<SSLSocket*>(m_socket)->shutdown()) {
             m_shouldRemove = true;
             M_TRACE("SSL shutdown complete");
         } else if(m_socket->lastError() != inet::kSE_NoError)
             removeDueToError("SSL shutdown error");
+#endif
     }
 }
 
@@ -579,7 +608,10 @@ void m::HTTPServer::Client::onHeadersReceived()
 
     m_handler = (n == nullptr || n->m_handler == nullptr) ? m_parent->m_parent->m_404handler : n->m_handler;
     m_handler->beginRequest(m_req);
+
+#ifndef MGPCL_NO_SSL
     m_sslOP = kSWO_WantWrite;
+#endif
 }
 
 void m::HTTPServer::Client::startResponse()
@@ -640,18 +672,26 @@ void m::HTTPServer::Client::finish()
     delete m_req;
     m_req = nullptr;
 
+#ifdef MGPCL_NO_SSL
+    m_shouldRemove = true;
+#else
     if(m_isSSL)
         m_phase = kHRP_Shutdown;
     else
         m_shouldRemove = true;
+#endif
 }
 
 void m::HTTPServer::Client::stopClient()
 {
+#ifdef MGPCL_NO_SSL
+    m_socket->close();
+#else
     if(m_isSSL)
         static_cast<SSLSocket*>(m_socket)->close(false);
     else
         m_socket->close();
+#endif
 
     m_shouldRemove = true;
 }

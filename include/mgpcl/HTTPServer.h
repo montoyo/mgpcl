@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -184,8 +184,11 @@ namespace m
         HTTPServer();
         ~HTTPServer();
 
+#ifndef MGPCL_NO_SSL
         bool enableSSL(const String &certFile, const String &keyFile);
         bool enableSSL(const SSLContext &ctx);
+#endif
+
         bool start(const IPv4Address &listenAddr, int numThreads);
         void stop(bool graceful = true); //Right now graceful shutdown does nothing
         void set404Handler(HTTPRequestHandler *h);
@@ -233,7 +236,6 @@ namespace m
         {
         public:
             Client(Worker *p, const IPv4Address &addr, TCPSocket *sock, bool ssl);
-            Client(Worker *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp);
             ~Client();
 
             void comReady();
@@ -242,6 +244,19 @@ namespace m
             void startResponse();
             void finish();
             void stopClient();
+
+#ifdef MGPCL_NO_SSL
+            bool shouldRead() const
+            {
+                return m_phase == kHRP_Read;
+            }
+
+            bool shouldWrite() const
+            {
+                return m_phase == kHRP_Write;
+            }
+#else
+            Client(Worker *p, const IPv4Address &addr, SSLSocket *sock, SSLWantedOperation handshakeOp);
 
             bool shouldRead() const
             {
@@ -252,12 +267,21 @@ namespace m
             {
                 return m_isSSL ? (m_sslOP == kSWO_WantWrite) : (m_phase == kHRP_Write);
             }
+#endif
 
             Worker *m_parent;
+
+#ifndef MGPCL_NO_SSL
             bool m_isSSL;
+#endif
+
             IPv4Address m_addr;
             TCPSocket *m_socket;
+
+#ifndef MGPCL_NO_SSL
             SSLWantedOperation m_sslOP;
+#endif
+
             RequestPhase m_phase;
             bool m_shouldRemove;
             uint32_t m_time;
@@ -319,7 +343,11 @@ namespace m
         ThreadPool m_threadPool;
         Atomic m_running;
         Atomic m_dispatcher;
+
+#ifndef MGPCL_NO_SSL
         SSLContext m_sslCtx;
+#endif
+
         uint32_t m_inactivityTimeout;
         Node *m_root;
         HTTPRequestHandler *m_404handler;

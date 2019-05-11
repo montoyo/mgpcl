@@ -40,8 +40,8 @@
 #define MGPCL_PREFIX
 
 //Other settings
-/* #undef MGPCL_NO_GUI */
-/* #undef MGPCL_NO_SSL */
+#define MGPCL_NO_GUI
+#define MGPCL_NO_SSL
 /* #undef MGPCL_ENABLE_PATTERNS */
 
 //The size given to SetupComm(...) when using the SerialPort class

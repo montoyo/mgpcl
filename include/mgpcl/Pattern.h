@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -19,6 +19,8 @@
 
 #pragma once
 #include "String.h"
+
+#ifdef MGPCL_ENABLE_PATTERNS
 
 namespace m
 {
@@ -195,3 +197,5 @@ namespace m
         PatternParseError m_err;
     };
 }
+
+#endif

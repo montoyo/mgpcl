@@ -236,7 +236,9 @@ TEST
     testAssert(m::mem::cmp(testBuf, origHex, 8) == 0, "un-hexed data does not match hex data");
 
     return true;
-};
+}
+
+#ifdef MGPCL_ENABLE_PATTERNS
 
 TEST
 {
@@ -307,6 +309,8 @@ TEST
 
     return true;
 }
+
+#endif
 
 TEST
 {

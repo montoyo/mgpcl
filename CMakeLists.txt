@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(MGPCL)
 
-#GUI and SSL
+#Optional things
 option(MGPCL_ENABLE_GUI "Enable GUI features (requires GTK on Linux)" ON)
 option(MGPCL_ENABLE_SSL "Enable SSL and crypto features (requires OpenSSL)" ON)
+option(MGPCL_ENABLE_PATTERNS "Enable patterns (experimental)" OFF)
 
 #Configuration
 if(NOT MGPCL_ENABLE_GUI)

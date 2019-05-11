@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -18,6 +18,8 @@
  */
 
 #include "mgpcl/Pattern.h"
+
+#ifdef MGPCL_ENABLE_PATTERNS
 //#define M_PAT_TEST_MEMLEAK
 
 #ifdef M_PAT_TEST_MEMLEAK
@@ -753,3 +755,5 @@ bool m::Matcher::next()
     //TODO: Add other captures
     return true;
 }
+
+#endif

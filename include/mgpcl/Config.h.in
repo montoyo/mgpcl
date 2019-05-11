@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2019 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -42,6 +42,7 @@
 //Other settings
 #cmakedefine MGPCL_NO_GUI
 #cmakedefine MGPCL_NO_SSL
+#cmakedefine MGPCL_ENABLE_PATTERNS
 
 //The size given to SetupComm(...) when using the SerialPort class
 //This has no effect on Linux.

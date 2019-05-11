@@ -240,7 +240,7 @@ m::ArgParseError m::ProgramArgs::parse()
 
     m_args.cleanup();
     m_err = nullptr;
-    m_remainingIdx = -1;
+    m_remainingIdx = 0;
     m_unrecognized.clear();
 
     //Parse from descriptors
@@ -261,8 +261,12 @@ m::ArgParseError m::ProgramArgs::parse()
 
             m_args.add(v);
             v->addRef();
+            m_remainingIdx++;
         }
     }
+
+    if(argc <= 0) //<=> argFound == true
+        m_remainingIdx = -1; //No remaining args
 
     const bool ignoreReqs = m_helpIgnoreReqs && m_helpSwitch != nullptr && !m_helpSwitch->m_values.isEmpty();
 
@@ -291,8 +295,6 @@ m::ArgParseError m::ProgramArgs::parse()
             m_lastErr = kAPE_UnknownArgFound;
             return kAPE_UnknownArgFound;
         }
-
-        m_remainingIdx = m_args.size();
     }
 
     while(argc > 0) {

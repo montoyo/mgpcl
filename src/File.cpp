@@ -603,7 +603,7 @@ bool m::File::renameTo(const String &nf)
             return false; //Well this should have worked...
     }
 
-    String npath(m_path.substr(0, pos));
+    String npath(m_path.substr(0, pos + 1));
     npath += nf;
 
 #ifdef MGPCL_WIN

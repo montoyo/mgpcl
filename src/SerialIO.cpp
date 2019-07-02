@@ -445,14 +445,17 @@ void m::SerialPort::setParity(Parity p)
     switch(p) {
     case kP_Odd:
         m_cfg.Parity = ODDPARITY;
+        m_cfg.fParity = TRUE;
         break;
 
     case kP_Even:
         m_cfg.Parity = EVENPARITY;
+        m_cfg.fParity = TRUE;
         break;
 
     default:
         m_cfg.Parity = NOPARITY;
+        m_cfg.fParity = FALSE;
         break;
     }
 #else
@@ -613,6 +616,8 @@ uint8_t m::SerialPort::byteSize() const
 void m::SerialPort::setArduinoConfig(BaudRate br)
 {
 #ifdef MGPCL_WIN
+    m_cfg.fRtsControl = RTS_CONTROL_DISABLE;
+    m_cfg.fParity = FALSE;
     m_cfg.BaudRate = static_cast<DWORD>(br);
     m_cfg.StopBits = ONESTOPBIT;
     m_cfg.Parity = NOPARITY;

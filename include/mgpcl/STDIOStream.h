@@ -152,6 +152,7 @@ namespace m
 
     class STDInputStream : public InputStream
     {
+    public:
         STDInputStream()
         {
 #ifdef MGPCL_WIN

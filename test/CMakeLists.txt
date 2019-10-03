@@ -16,7 +16,6 @@ set(MGPCL_TEST_SOURCE List.cpp String.cpp IO.cpp HashMap.cpp ProgramArgs.cpp FS.
 
 #Link and include directories
 if(UNIX AND MGPCL_ENABLE_GUI)
-	link_directories(${GTK3_LIBRARY_DIRS})
 	include_directories(${GTK3_INCLUDE_DIRS})
 endif()
 
@@ -28,16 +27,4 @@ add_executable(mgpcl-test ${MGPCL_TEST_SOURCE})
 
 #Libraries
 target_link_libraries(mgpcl-test mgpcl)
-
-if(UNIX)
-	if(MGPCL_ENABLE_GUI)
-		target_link_libraries(mgpcl-test ${GTK3_LIBRARIES})
-	endif()
-
-	if(MGPCL_ENABLE_SSL)
-		target_link_libraries(mgpcl-test crypto ssl)
-	endif()
-
-	target_link_libraries(mgpcl-test pthread)
-endif()
 

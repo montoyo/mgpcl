@@ -20,10 +20,25 @@ endforeach(f)
 
 #Link and include directories
 if(UNIX AND MGPCL_ENABLE_GUI)
+	link_directories(${GTK3_LIBRARY_DIRS})
 	include_directories(${GTK3_INCLUDE_DIRS})
 endif()
 
 include_directories(${MGPCL_INCLUDE_DIR})
 
 #Actual library
-add_library(mgpcl STATIC ${MGPCL_LIB_SOURCE})
+add_library(mgpcl SHARED ${MGPCL_LIB_SOURCE})
+
+#Libraries
+if(UNIX)
+	if(MGPCL_ENABLE_GUI)
+		target_link_libraries(mgpcl ${GTK3_LIBRARIES})
+	endif()
+
+	if(MGPCL_ENABLE_SSL)
+		target_link_libraries(mgpcl crypto ssl)
+	endif()
+
+	target_link_libraries(mgpcl pthread)
+endif()
+

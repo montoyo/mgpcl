@@ -4,7 +4,7 @@
 #include <mgpcl/StringIOStream.h>
 
 #define TEST_USER_NAME "montoyo"
-#define TEST_GROUP_NAME "sudoers"
+#define TEST_GROUP_NAME "sudo"
 
 Declare Test("processes"), Priority(11.0);
 

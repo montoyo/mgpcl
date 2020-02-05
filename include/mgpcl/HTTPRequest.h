@@ -44,7 +44,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
-            m_requestHdr["Connection"] = "close";
+            m_requestHdr["Connection"_m] = "close"_m;
         }
 
         HTTPRequest(const URL &u)
@@ -59,7 +59,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
-            m_requestHdr["Connection"] = "close";
+            m_requestHdr["Connection"_m] = "close"_m;
         }
 
         HTTPRequest(const String &url) : m_url(url)
@@ -73,7 +73,7 @@ namespace m
             m_jar = nullptr;
             m_conn = nullptr;
             m_lr.setLineEnding(LineEnding::CRLF);
-            m_requestHdr["Connection"] = "close";
+            m_requestHdr["Connection"_m] = "close"_m;
         }
 
         ~HTTPRequest()
@@ -98,26 +98,26 @@ namespace m
 
         void setRequestHeader(const String &prop, const String &val)
         {
-            if(prop.lower() != "host")
+            if(prop.lower() != "host"_m)
                 m_requestHdr[prop] = val;
         }
 
         /* Sets the request content type, shortcut for setRequestHeader("Content-Type", ct) */
         void setContentType(const String &ct)
         {
-            m_requestHdr["Content-Type"] = ct;
+            m_requestHdr["Content-Type"_m] = ct;
         }
 
         /* Sets the request content length */
         void setContentLength(uint32_t clen)
         {
-            m_requestHdr["Content-Length"] = String::fromUInteger(clen);
+            m_requestHdr["Content-Length"_m] = String::fromUInteger(clen);
         }
 
         /* Checks if the response header contains the content length */
         bool hasContentLength() const
         {
-            return m_responseHdr.hasKey("Content-Length");
+            return m_responseHdr.hasKey("Content-Length"_m);
         }
 
         /* Returns the response content length */
@@ -125,7 +125,7 @@ namespace m
         {
             //The non-const version is supposed to be faster
             //since it doesn't copy the content length string...
-            const String key("Content-Length");
+            const String key("Content-Length"_m);
 
             if(m_responseHdr.hasKey(key))
                 return m_responseHdr[key].toUInteger();
@@ -136,7 +136,7 @@ namespace m
         /* Returns the response content length */
         uint32_t contentLength() const
         {
-            const String key("Content-Length");
+            const String key("Content-Length"_m);
 
             if(m_responseHdr.hasKey(key))
                 return m_responseHdr[key].toUInteger();
@@ -223,9 +223,9 @@ namespace m
 
         void setKeepAlive(bool ka) {
             if(ka)
-                m_requestHdr["Connection"] = "keep-alive";
+                m_requestHdr["Connection"_m] = "keep-alive"_m;
             else
-                m_requestHdr["Connection"] = "close";
+                m_requestHdr["Connection"_m] = "close"_m;
         }
 
         /* Please note that followLocation won't work if doesOutput is set. */

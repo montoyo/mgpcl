@@ -8,7 +8,7 @@ TEST
     volatile StackIntegrityChecker sic;
 
     m::File wd(m::File::workingDirectory());
-    m::File dot(".");
+    m::File dot("."_m);
 
     dot.canonicalize();
     testAssert(!dot.isEmpty(), "'.' canonicalization failed!");
@@ -34,7 +34,7 @@ TEST
 TEST
 {
     volatile StackIntegrityChecker sic;
-    m::File cd(".");
+    m::File cd("."_m);
     m::List<m::File> files;
     
     //std::cout << "[i]\tReal path of . is: " << cd.canonicalized().path().raw() << std::endl;

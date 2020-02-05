@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -220,18 +220,6 @@ namespace m
         {
             mAssert(m_type == kJT_Object, "not an object");
 
-            bool isNew;
-            JSONElement &ret = dataAs<JSONMap>().get(ConstString(name), isNew);
-            if(isNew)
-                ret.setName(name);
-
-            return ret;
-        }
-
-        JSONElement &operator [] (const char *name)
-        {
-            mAssert(m_type == kJT_Object, "not an object");
-            
             bool isNew;
             JSONElement &ret = dataAs<JSONMap>().get(ConstString(name), isNew);
             if(isNew)

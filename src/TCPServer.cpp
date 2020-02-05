@@ -21,7 +21,7 @@
 
 #define M_TCPSERVER_BUFSZ 8192
 
-m::TCPServer::TCPServer() : m_thread("TCP-Server")
+m::TCPServer::TCPServer() : m_thread("TCP-Server"_m)
 {
     m_maxError = 16;
     m_errorCount = 0;

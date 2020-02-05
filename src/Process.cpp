@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -57,9 +57,9 @@ bool m::ProcessInfo::commandLine(String &dst) const
     return false;
 #else
     String clPath(16);
-    clPath.append("/proc/", 6);
+    clPath += "/proc/"_m;
     clPath += String::fromUInteger(m_pid);
-    clPath.append("/cmdline", 8);
+    clPath += "/cmdline"_m;
 
     int fd = open(clPath.raw(), O_RDONLY);
     if(fd < 0)
@@ -472,21 +472,21 @@ m::Process &m::Process::start()
     for(const String &a: m_args) {
         //This could be faster really...
         if(a.indexOfAnyOf("\"\\", 0, 2) >= 0) {
-            cmdLine.append(" \"", 2);
+            cmdLine += " \"";
 
             //Escape string!
             for(int i = 0; i < a.length(); i++) {
                 if(a[i] == '\"')
-                    cmdLine.append("\\\"", 2);
+                    cmdLine += "\\\"";
                 else if(a[i] == '\\')
-                    cmdLine.append("\\\\", 2);
+                    cmdLine += "\\\\";
                 else
                     cmdLine += a[i];
             }
 
             cmdLine += '\"';
         } else if(a.indexOfAnyOf(" \t\r\n", 0, 4) >= 0) {
-            cmdLine.append(" \"", 2);
+            cmdLine += " \"";
             cmdLine += a;
             cmdLine += '\"';
         } else {
@@ -794,12 +794,12 @@ bool m::Process::enumerateProcesses(List<ProcessInfo> &lst)
 
         if(fnameLen > 0 && isPid) {
             String path(fnameLen + 11); /* We have to add /proc/ (6 chars) but also /comm (5 chars) */
-            path.append("/proc/", 6);
+            path += "/proc/"_m;
             path.append(entry->d_name, fnameLen);
 
             if(stat(path.raw(), &props) == 0 && S_ISDIR(props.st_mode)) {
                 //This is a valid process path, try to read command name
-                path.append("/comm", 5);
+                path += "/comm"_m;
 
                 int fd = open(path.raw(), O_RDONLY);
                 if(fd < 0) {

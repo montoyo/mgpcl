@@ -10,12 +10,12 @@ TEST
     volatile StackIntegrityChecker sic;
     m::HashMap<m::String, TestObject> map;
 
-    map["abcdef"] = TestObject();
-    map.get("ghijkl") = TestObject(0xBADC0FFE);
+    map["abcdef"_m] = TestObject();
+    map.get("ghijkl"_m) = TestObject(0xBADC0FFE);
 
     testAssert(map.size() == 2, "invalid map size 1");
-    testAssert(!map.hasKey("abcjkl"), "found key \"abcjkl\", which shouldn't exist...");
-    testAssert(map.hasKey("abcdef"), "could not found key \"abcdef\"...");
+    testAssert(!map.hasKey("abcjkl"_m), "found key \"abcjkl\", which shouldn't exist...");
+    testAssert(map.hasKey("abcdef"_m), "could not found key \"abcdef\"...");
 
     std::cout << "[i]\tTesting direct order..." << std::endl;
     for(m::HashMap<m::String, TestObject>::Pair &p : map)
@@ -30,10 +30,10 @@ TEST
 
     std::cout << std::endl;
     
-    map.removeKey("abcdef");
+    map.removeKey("abcdef"_m);
     testAssert(map.size() == 1, "invalid map size 2");
-    testAssert(!map.hasKey("abcdef"), "found key \"abcdef\", which has been removed...");
-    testAssert(map.hasKey("ghijkl"), "could not found key \"ghijkl\"...");
+    testAssert(!map.hasKey("abcdef"_m), "found key \"abcdef\", which has been removed...");
+    testAssert(map.hasKey("ghijkl"_m), "could not found key \"ghijkl\"...");
 
     map.clear();
     testAssert(TestObject::instances() == 0, "some instances of TestObject are STILL alive!!");
@@ -49,7 +49,7 @@ TEST
         map[i * 128] = m::String::fromInteger(i);
 
     const int tIdx = 4 * 128 + 42;
-    map.put(tIdx, "I like trains");
+    map.put(tIdx, "I like trains"_m);
 
     bool hadSpecial = false;
     int prevIdx = -1;
@@ -82,6 +82,3 @@ TEST
 
     return true;
 }
-
-//Tweeted by @Snowden (SHA-2?) ffdae96f8dd292374a966ec8b57d9cc680ce1d23cb7072c522efe32a1a7e34b0
-

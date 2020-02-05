@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -21,7 +21,7 @@
 
 void m::HTTPRequest::setURL(const URL &url)
 {
-    if(m_conn != nullptr && m_requestHdr["Connection"].equalsIgnoreCase("keep-alive")) {
+    if(m_conn != nullptr && m_requestHdr["Connection"_m].equalsIgnoreCase("keep-alive"_m)) {
         if(!url.protocol().equalsIgnoreCase(m_url.protocol()) || !url.host().equalsIgnoreCase(m_url.host()) || url.port() != m_url.port()) {
             //Not the same server; destroy connection
             delete m_conn;
@@ -34,7 +34,7 @@ void m::HTTPRequest::setURL(const URL &url)
 
 bool m::HTTPRequest::perform()
 {
-    const bool keepAlive = m_requestHdr["Connection"].equalsIgnoreCase("keep-alive");
+    const bool keepAlive = m_requestHdr["Connection"_m].equalsIgnoreCase("keep-alive"_m);
 
     for(uint8_t maxRedir = 0; maxRedir < 16; maxRedir++) {
         if(!keepAlive || m_conn == nullptr) {
@@ -43,14 +43,14 @@ bool m::HTTPRequest::perform()
                 m_conn = nullptr;
             }
 
-            if(!m_url.isValid() || (m_url.protocol() != "http" && m_url.protocol() != "https"))
+            if(!m_url.isValid() || (m_url.protocol() != "http"_m && m_url.protocol() != "https"_m))
                 return false;
 
             IPv4Address addr;
             if(addr.resolve(m_url.host(), m_url.port()) != kRE_NoError)
                 return false;
 
-            if(m_url.protocol().equals("https", 5)) {
+            if(m_url.protocol() == "https"_m) {
 #ifndef MGPCL_NO_SSL
                 if(!m_sslCtx.isValid()) {
                     m_sslCtx.initialize(kSCM_v23Client);
@@ -78,31 +78,31 @@ bool m::HTTPRequest::perform()
         String request(16);
         switch(m_type) {
         case kHRT_Get:
-            request.append("GET", 3);
+            request += "GET"_m;
             break;
 
         case kHRT_Post:
-            request.append("POST", 4);
+            request += "POST"_m;
             break;
 
         case kHRT_Put:
-            request.append("PUT", 3);
+            request += "PUT"_m;
             break;
 
         case kHRT_Head:
-            request.append("HEAD", 4);
+            request += "HEAD"_m;
             break;
 
         case kHRT_Delete:
-            request.append("DELETE", 6);
+            request += "DELETE"_m;
             break;
 
         case kHRT_Trace:
-            request.append("TRACE", 5);
+            request += "TRACE"_m;
             break;
 
         case kHRT_Connect:
-            request.append("CONNECT", 7);
+            request += "CONNECT"_m;
             break;
 
         default:
@@ -112,27 +112,27 @@ bool m::HTTPRequest::perform()
 
         request += ' ';
         if(m_url.location().isEmpty())
-            request.append("/ HTTP/1.1\r\n", 12);
+            request += "/ HTTP/1.1\r\n"_m;
         else {
             request += m_url.location();
-            request.append(" HTTP/1.1\r\n", 11);
+            request += " HTTP/1.1\r\n"_m;
         }
 
-        request.append("Host: ", 6);
+        request += "Host: "_m;
         request += m_url.host();
-        request.append("\r\n", 2);
+        request += "\r\n"_m;
 
-        if(!m_requestHdr.hasKey("User-Agent"))
-            m_requestHdr["User-Agent"] = "MGPCL v" MGPCL_VERSION_STRING;
+        if(!m_requestHdr.hasKey("User-Agent"_m))
+            m_requestHdr["User-Agent"_m] = "MGPCL v" MGPCL_VERSION_STRING;
 
-        if(m_doesOut && !m_requestHdr.hasKey("Content-Type"))
-            m_requestHdr["Content-Type"] = "application/x-www-form-urlencoded";
+        if(m_doesOut && !m_requestHdr.hasKey("Content-Type"_m))
+            m_requestHdr["Content-Type"_m] = "application/x-www-form-urlencoded"_m;
 
         for(HashMap<String, String, StringLowerHasher>::Pair &p : m_requestHdr) {
             request += p.key;
-            request.append(": ", 2);
+            request += ": "_m;
             request += p.value;
-            request.append("\r\n", 2);
+            request += "\r\n"_m;
         }
 
         time_t now = Date::unixTime();
@@ -153,7 +153,7 @@ bool m::HTTPRequest::perform()
                     if(first)
                         first = false;
                     else
-                        tmp.append("; ", 2);
+                        tmp += "; "_m;
 
                     tmp += p.key;
                     tmp += '=';
@@ -162,13 +162,13 @@ bool m::HTTPRequest::perform()
             }
 
             if(!first) { //Same as !tmp.isEmpty()
-                request.append("Cookie: ", 8);
+                request += "Cookie: "_m;
                 request += tmp;
-                request.append("\r\n", 2);
+                request += "\r\n"_m;
             }
         }
 
-        request.append("\r\n", 2);
+        request += "\r\n"_m;
 
         const char *str = request.raw();
         int len = request.length();
@@ -192,11 +192,11 @@ bool m::HTTPRequest::perform()
         if(!receiveResponse())
             return false;
 
-        if(!m_followsLoc || !m_responseHdr.hasKey("Location"))
+        if(!m_followsLoc || !m_responseHdr.hasKey("Location"_m))
             return true; //Redirection disabled or end of redirection
 
         URL redir;
-        if(redir.parseRelative(m_url, m_responseHdr["Location"]) != kUPE_NoError)
+        if(redir.parseRelative(m_url, m_responseHdr["Location"_m]) != kUPE_NoError)
             return false; //Couldn't parse redirection URL
 
         //URL has changed to the new location, start over...
@@ -210,7 +210,7 @@ bool m::HTTPRequest::perform()
 
 bool m::HTTPRequest::receiveResponse()
 {
-    return receiveResponse(m_requestHdr["Connection"].equalsIgnoreCase("keep-alive"));
+    return receiveResponse(m_requestHdr["Connection"_m].equalsIgnoreCase("keep-alive"_m));
 }
 
 bool m::HTTPRequest::receiveResponse(bool keepAlive)
@@ -224,13 +224,15 @@ bool m::HTTPRequest::receiveResponse(bool keepAlive)
     m_responseHdr.clear();
 
     m_lr.setSource(m_conn->inputStream<RefCounter>());
-    if(m_lr.next() <= 0) {
+    int dbg = m_lr.next();
+
+    if(dbg <= 0) {
         m_conn->close();
         return false;
     }
 
     const String &rline = m_lr.line();
-    if(!rline.startsWith("HTTP/1.", 7)) {
+    if(!rline.startsWith("HTTP/1."_m)) {
         m_conn->close();
         return false;
     }
@@ -260,7 +262,7 @@ bool m::HTTPRequest::receiveResponse(bool keepAlive)
             return false;
 
         String name(rline.substr(0, sep).trimmed());
-        if(name.equalsIgnoreCase("Set-Cookie")) {
+        if(name.equalsIgnoreCase("Set-Cookie"_m)) {
             if(m_jar != nullptr)
                 m_jar->parseAndPutCookie(rline.substr(sep + 1).trimmed());
         } else
@@ -321,7 +323,7 @@ m::HTTPInputStream::HTTPInputStream(HTTPRequest *p)
     m_req = p;
     m_pos = 0;
 
-    const String key("Content-Length");
+    const String key("Content-Length"_m);
     if(p->m_responseHdr.hasKey(key)) {
         int ret = p->m_responseHdr[key].toInteger();
 
@@ -337,7 +339,7 @@ m::HTTPInputStream::HTTPInputStream(HTTPRequest *p)
         m_len = 0;
     }
 
-    m_keepAlive = p->m_requestHdr["Connection"].equalsIgnoreCase("keep-alive");
+    m_keepAlive = p->m_requestHdr["Connection"_m].equalsIgnoreCase("keep-alive"_m);
 }
 
 float m::HTTPInputStream::progress() const
@@ -368,7 +370,7 @@ int m::HTTPOutputStream::write(const uint8_t *src, int sz)
 
 unsigned long m::HTTPRequest::sslError() const
 {
-    if(m_conn == nullptr || !m_url.isValid() || !m_url.protocol().equals("https", 5))
+    if(m_conn == nullptr || !m_url.isValid() || m_url.protocol() == "https"_m)
         return 0;
 
     return static_cast<SSLSocket*>(m_conn)->lastSSLError();
@@ -376,8 +378,8 @@ unsigned long m::HTTPRequest::sslError() const
 
 m::String m::HTTPRequest::sslErrorString() const
 {
-    if(m_conn == nullptr || !m_url.isValid() || !m_url.protocol().equals("https", 5))
-        return String("not an https request");
+    if(m_conn == nullptr || !m_url.isValid() || m_url.protocol() != "https"_m)
+        return "not an https request"_m;
 
     return static_cast<SSLSocket*>(m_conn)->lastSSLErrorString();
 }

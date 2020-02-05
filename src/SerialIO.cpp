@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -219,7 +219,7 @@ void m::SerialOutputStream::close()
     }
 }
 
-m::SerialOutputStream & m::SerialOutputStream::operator=(SerialOutputStream &&src)
+m::SerialOutputStream &m::SerialOutputStream::operator = (SerialOutputStream &&src)
 {
     if(m_serial != nullptr)
         m_serial->releaseRef();
@@ -254,7 +254,7 @@ bool m::SerialPort::open(const String &port, int accessFlags)
         return false;
 
 #ifdef MGPCL_WIN
-    if(!port.startsWith("COM", 3))
+    if(!port.startsWith("COM"_m))
         return false;
 
     for(int i = 3; i < port.length(); i++) {
@@ -263,7 +263,7 @@ bool m::SerialPort::open(const String &port, int accessFlags)
     }
 
     String fname(4 + port.length());
-    fname.append("\\\\.\\", 4);
+    fname += "\\\\.\\"_m;
     fname += port;
 
     DWORD oMode = 0;
@@ -292,7 +292,7 @@ bool m::SerialPort::open(const String &port, int accessFlags)
     m_sh->m_nbio = false;
     return true;
 #else
-    if(!port.startsWith("/dev/tty", 8))
+    if(!port.startsWith("/dev/tty"_m))
         return false;
 
     int oMode;
@@ -742,7 +742,7 @@ bool m::SerialPort::listDevices(List<String> &dst)
     while(data->next()) {
         String dev(data->getString(L"DeviceID"));
 
-        if(dev.startsWith("COM"))
+        if(dev.startsWith("COM"_m))
             dst.add(dev);
     }
 
@@ -765,13 +765,13 @@ bool m::SerialPort::listDevices(List<String> &dst)
     while((entry = readdir(ttys)) != nullptr) {
         if(strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
             String fname(15 + 8 + 14);
-            fname.append("/sys/class/tty/", 15);
+            fname += "/sys/class/tty/"_m;
             fname += entry->d_name;
-            fname.append("/device/driver", 14);
+            fname += "/device/driver"_m;
 
             if(access(fname.raw(), F_OK) == 0) {
                 String dev(5 + 8);
-                dev.append("/dev/", 5);
+                dev += "/dev/"_m;
                 dev += entry->d_name;
 
                 dst.add(dev);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -255,13 +255,13 @@ static bool g_m_json_parseString(m::BasicParser &src, m::String &val, m::String 
     while(true) {
         int ic = src.nextCharRaw();
         if(ic < 0) {
-            err = "couldn't read from input";
+            err = "couldn't read from input"_m;
             return false;
         }
 
         c = static_cast<char>(ic);
         if(c == '\n' || c == '\r') {
-            err = "new line reached before end of string";
+            err = "new line reached before end of string"_m;
             return false;
         } if(escaped) {
             if(c == '\\')
@@ -306,7 +306,7 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
     {
         int ic = src.nextNonBlankChar();
         if(ic < 0) {
-            err = "couldn't read from input";
+            err = "couldn't read from input"_m;
             return false;
         }
 
@@ -321,7 +321,7 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
         while(true) {
             int ic = src.nextNonBlankChar();
             if(ic < 0) {
-                err = "couldn't read from input";
+                err = "couldn't read from input"_m;
                 return false;
             }
 
@@ -332,13 +332,13 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
                 first = false;
             else {
                 if(ic != ',') {
-                    err = "expected comma before next object element";
+                    err = "expected comma before next object element"_m;
                     return false;
                 }
 
                 ic = src.nextNonBlankChar();
                 if(ic < 0) {
-                    err = "couldn't read from input";
+                    err = "couldn't read from input"_m;
                     return false;
                 }
 
@@ -355,7 +355,7 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
                     key += static_cast<char>(ic);
                     ic = src.nextCharRaw();
                     if(ic < 0) {
-                        err = "couldn't read from input";
+                        err = "couldn't read from input"_m;
                         return false;
                     }
                 } while(G_M_JSON_ISKEYCHAR(ic));
@@ -363,21 +363,21 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
                 src.undo();
             } else {
                 if(ic == ':')
-                    err = "expected key before value";
+                    err = "expected key before value"_m;
                 else
-                    err = "unexpected character before key";
+                    err = "unexpected character before key"_m;
 
                 return false;
             }
 
             ic = src.nextNonBlankChar();
             if(ic < 0) {
-                err = "couldn't read from input";
+                err = "couldn't read from input"_m;
                 return false;
             }
 
             if(ic != ':') {
-                err = "missing ':' before value";
+                err = "missing ':' before value"_m;
                 return false;
             }
 
@@ -398,7 +398,7 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
         while(true) {
             int ic = src.nextNonBlankChar();
             if(ic < 0) {
-                err = "couldn't read from input";
+                err = "couldn't read from input"_m;
                 return false;
             }
 
@@ -409,13 +409,13 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
                 first = false;
             else {
                 if(ic != ',') {
-                    err = "expected comma before next array element";
+                    err = "expected comma before next array element"_m;
                     return false;
                 }
 
                 ic = src.nextNonBlankChar();
                 if(ic < 0) {
-                    err = "couldn't read from input";
+                    err = "couldn't read from input"_m;
                     return false;
                 }
 
@@ -450,14 +450,14 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
         while(true) {
             int ic = src.nextCharRaw();
             if(ic < 0) {
-                err = "couldn't read from input";
+                err = "couldn't read from input"_m;
                 return false;
             }
 
             c = static_cast<char>(ic);
             if(c == '.') {
                 if(hasDot) {
-                    err = "invalid number format";
+                    err = "invalid number format"_m;
                     return false;
                 }
 
@@ -497,7 +497,7 @@ static bool g_m_json_parse(m::BasicParser &src, m::JSONElement &dst, m::String &
         }
     }
 
-    err = "invalid token";
+    err = "invalid token"_m;
     return false;
 }
 
@@ -511,11 +511,11 @@ bool m::json::parse(SSharedPtr<InputStream> src, JSONElement &dst, String &err)
     if(g_m_json_parse(bp, dst, err2))
         return true;
 
-    err.append("line ", 5);
+    err += "line "_m;
     err += String::fromInteger(bp.line());
-    err.append(", column ", 9);
+    err += ", column "_m;
     err += String::fromInteger(bp.column());
-    err.append(": ", 2);
+    err += ": "_m;
     err += err2;
     return false;
 }

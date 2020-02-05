@@ -11,14 +11,14 @@ Declare Test("strings"), Priority(2.0);
 TEST
 {
     volatile StackIntegrityChecker sic;
-    m::String test("i love dicks");
+    m::String test("i love dicks"_m);
     test = test.substr(0, -1);
     test = test.substr(0, -6);
     test += "you";
 
     std::cout << "[i]\tGot string: \"" << test.raw() << "\", expecting \"i love you\"" << std::endl;
     testAssert(test == "i love you", "comparaison #1 failed!");
-    testAssert(test.upper().hash() == m::String("I LOVE YOU").hash(), "comparaison #2 failed!");
+    testAssert(test.upper().hash() == "I LOVE YOU"_m.hash(), "comparaison #2 failed!");
 
     m::String str2;
     str2 += test.substr(0, 2);
@@ -40,14 +40,14 @@ TEST
 
     test = "      \r    some test ";
     str2 = "\t   some test";
-    str3 = "some test\n \r";
+    str3 = "some test\n \r"_m;
 
     test = test.trimmed();
     str2 = str2.trimmedLeft();
     str3 = str3.trimmedRight();
 
     std::cout << "[i]\tStrings \"" << test.raw() << "\", \"" << str2.raw() << "\" and \"" << str3.raw() << "\" should match!" << std::endl;
-    testAssert(test == "some test", "trimming failed");
+    testAssert(test == "some test"_m, "trimming failed");
     testAssert(test == str2, "strings should match");
     testAssert(str2 == str3, "strings should match");
     return true;
@@ -57,9 +57,9 @@ TEST
 {
     volatile StackIntegrityChecker sic;
     testAssert(m::String("1234").isInteger() && m::String("1234").isNumber(), "expected 1234 to be an int and a number");
-    testAssert(!m::String("12.34").isInteger() && m::String("12.34").isNumber(), "expected 12.34 to be a number");
+    testAssert(!m::String("12.34").isInteger() && m::String("12.34"_m).isNumber(), "expected 12.34 to be a number");
     testAssert(!m::String(".1234").isInteger() && m::String(".1234").isNumber(), "expected .1234 to be a number");
-    testAssert(!m::String("1234.").isInteger() && m::String("1234.").isNumber(), "expected 1234. to be an number");
+    testAssert(!m::String("1234."_m).isInteger() && m::String("1234.").isNumber(), "expected 1234. to be an number");
     testAssert(!m::String("a456").isInteger() && !m::String("a456").isNumber(), "didn't expect a456 to be a number/int");
     testAssert(m::String("COFFEE").isInteger(16), "expected COFFEE to be an int");
     testAssert(m::String("1234").isInteger() && m::String("1234").isNumber(), "expected 1234 to be an int and a number");
@@ -110,7 +110,7 @@ TEST
     testAssert(!test.parseRFC6265_511("rzr45484,  /  rezrr re++"), "date parsing should have failed 1");
     testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:18:14 GMT"), "date parsing should have failed 2");
     testAssert(!test.parseRFC6265_511("Wed, Jan 2021 10:18:14 GMT"), "date parsing should have failed 3");
-    testAssert(!test.parseRFC6265_511("Wed, 09 Jan 10:18:14 GMT"), "date parsing should have failed 4");
+    testAssert(!test.parseRFC6265_511("Wed, 09 Jan 10:18:14 GMT"_m), "date parsing should have failed 4");
     testAssert(!test.parseRFC6265_511("Wed, 09 Jbn 2021 10:1x:14 GMT"), "date parsing should have failed 5");
 
     test = m::Date(); //Clear to be sure...
@@ -131,7 +131,7 @@ TEST
 {
     volatile StackIntegrityChecker sic;
 
-    m::String t1("i like trains");
+    m::String t1("i like trains"_m);
     m::String t2(t1);
     m::String t3(t1);
 
@@ -146,54 +146,54 @@ TEST
     t2 = t1;
     t3 = t1;
     testAssert(t2.take(6) == " trains", "take failed (end)");
-    testAssert(t3.erase(6) == "i like", "take failed (end)");
+    testAssert(t3.erase(6) == "i like"_m, "take failed (end)");
 
     m::String tmp;
     {
         makeSizeString(1, tmp);
-        testAssert(tmp == "1 byte", "invalid size parsing 1");
+        testAssert(tmp == "1 byte"_m, "invalid size parsing 1");
     }
 
     {
         tmp.cleanup();
         makeSizeString(5, tmp);
-        testAssert(tmp == "5 bytes", "invalid size parsing 2");
+        testAssert(tmp == "5 bytes"_m, "invalid size parsing 2");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1024, tmp);
-        testAssert(tmp == "1 KiB", "invalid size parsing 3");
+        testAssert(tmp == "1 KiB"_m, "invalid size parsing 3");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1024 * 1024, tmp);
-        testAssert(tmp == "1 MiB", "invalid size parsing 4");
+        testAssert(tmp == "1 MiB"_m, "invalid size parsing 4");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1024 * 1024 * 1024, tmp);
-        testAssert(tmp == "1 GiB", "invalid size parsing 5");
+        testAssert(tmp == "1 GiB"_m, "invalid size parsing 5");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1ULL << 40ULL, tmp);
-        testAssert(tmp == "1 TiB", "invalid size parsing 6");
+        testAssert(tmp == "1 TiB"_m, "invalid size parsing 6");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1ULL << 50ULL, tmp);
-        testAssert(tmp == "1024 TiB", "invalid size parsing 7");
+        testAssert(tmp == "1024 TiB"_m, "invalid size parsing 7");
     }
 
     {
         tmp.cleanup();
         makeSizeString(1024 + 256, tmp);
-        testAssert(tmp == "1.25 KiB", "invalid size parsing 8");
+        testAssert(tmp == "1.25 KiB"_m, "invalid size parsing 8");
     }
 
     return true;
@@ -226,9 +226,9 @@ TEST
     uint8_t testBuf[8];
     const uint32_t testSz = 8;
 
-    const m::String test1("this isn't valid");
-    const m::String test2("abcabcabcabcabc");
-    const m::String test3("0011aF3344556677");
+    const m::String test1("this isn't valid"_m);
+    const m::String test2("abcabcabcabcabc"_m);
+    const m::String test3("0011aF3344556677"_m);
 
     testAssert(m::unHexString(test1, testBuf, testSz) == 0, "un-hex test1 should have failed");
     testAssert(m::unHexString(test2, testBuf, testSz) == 0, "un-hex test2 should have failed");
@@ -334,7 +334,7 @@ TEST
     }
 
     m::UUID nilTest(x);
-    testAssert(nilTest.setFromString("00000000-0000-0000-0000-000000000000", true), "parsing nil shouldn't have failed (strict = true)");
+    testAssert(nilTest.setFromString("00000000-0000-0000-0000-000000000000"_m, true), "parsing nil shouldn't have failed (strict = true)");
     testAssert(nilTest.isNil(), "parsing nil failed (strict = true)");
     nilTest.regenerate(x);
     testAssert(nilTest.setFromString("0-0-0-0-0"), "parsing nil shouldn't have failed (strict = false)");

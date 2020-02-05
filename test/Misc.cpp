@@ -308,53 +308,53 @@ TEST
     volatile StackIntegrityChecker sic;
 
     {
-        m::File file("test.ini");
+        m::File file("test.ini"_m);
         if(file.exists())
             testAssert(file.deleteFileHarder(), "couldn't delete test.ini");
     }
 
     {
-        m::SimpleConfig cfg("test.ini");
-        cfg["test"]["prop1"].setBoolOO(true);
-        cfg["another"]["again"].setValue("this is a test ");
-        cfg["test"]["prop2"].setDoubleValue(72.1236);
+        m::SimpleConfig cfg("test.ini"_m);
+        cfg["test"_m]["prop1"_m].setBoolOO(true);
+        cfg["another"_m]["again"_m].setValue("this is a test "_m);
+        cfg["test"_m]["prop2"_m].setDoubleValue(72.1236);
         testAssert(cfg.save(), "couldn't save config 1");
     }
 
     {
-        m::SimpleConfig cfg("test.ini");
+        m::SimpleConfig cfg("test.ini"_m);
         testAssert(cfg.load() == m::kCLE_None, "could not load config 1");
-        testAssert(cfg["another"]["again"].value() == "this is a test", "another.again should be \"this is a test\"");
-        testAssert(cfg["test"]["prop1"].asBool(), "test.prop1 should be true");
-        std::cout << '\t' << cfg["test"]["prop2"].asDouble() << std::endl;
+        testAssert(cfg["another"_m]["again"_m].value() == "this is a test"_m, "another.again should be \"this is a test\"");
+        testAssert(cfg["test"_m]["prop1"_m].asBool(), "test.prop1 should be true");
+        std::cout << '\t' << cfg["test"_m]["prop2"_m].asDouble() << std::endl;
         //testAssert(cfg["test"]["prop2"].asDouble() == 72.1236, "test.prop2 should be 72.1236"); //FUCKIN SUX
     }
 
     {
-        m::File file("insert.ini");
+        m::File file("insert.ini"_m);
         testAssert(file.exists(), "missing test file insert.ini");
     }
 
     {
-        m::SimpleConfig cfg("insert.ini");
+        m::SimpleConfig cfg("insert.ini"_m);
         testAssert(cfg.load() == m::kCLE_None, "could not load config 2");
-        testAssert(cfg["first"]["prop1"].asInt() == 1, "first.prop1 should be 1");
-        testAssert(cfg["first"]["prop2"].asInt() == 2, "first.prop1 should be 2");
-        testAssert(cfg["first"]["prop3"].asInt() == 3, "first.prop1 should be 3");
+        testAssert(cfg["first"_m]["prop1"_m].asInt() == 1, "first.prop1 should be 1");
+        testAssert(cfg["first"_m]["prop2"_m].asInt() == 2, "first.prop1 should be 2");
+        testAssert(cfg["first"_m]["prop3"_m].asInt() == 3, "first.prop1 should be 3");
 
-        testAssert(cfg["second"]["prop1"].asInt() == 4, "second.prop1 should be 4");
-        testAssert(cfg["second"]["prop2"].asInt() == 5, "second.prop2 should be 5");
-        testAssert(cfg["second"]["prop3"].asInt() == 6, "second.prop3 should be 6");
+        testAssert(cfg["second"_m]["prop1"_m].asInt() == 4, "second.prop1 should be 4");
+        testAssert(cfg["second"_m]["prop2"_m].asInt() == 5, "second.prop2 should be 5");
+        testAssert(cfg["second"_m]["prop3"_m].asInt() == 6, "second.prop3 should be 6");
 
-        testAssert(cfg["third"]["prop1"].asInt() == 7, "third.prop1 should be 7");
-        testAssert(cfg["third"]["prop2"].asInt() == 8, "third.prop2 should be 8");
-        testAssert(cfg["third"]["prop3"].asInt() == 9, "third.prop3 should be 9");
+        testAssert(cfg["third"_m]["prop1"_m].asInt() == 7, "third.prop1 should be 7");
+        testAssert(cfg["third"_m]["prop2"_m].asInt() == 8, "third.prop2 should be 8");
+        testAssert(cfg["third"_m]["prop3"_m].asInt() == 9, "third.prop3 should be 9");
 
         //Change something and save somewhere else
-        cfg["first"]["prop2"].setValue("does this work?");
-        cfg["test"]["wow"].setBoolTF(true);
-        cfg["second"]["hello"].setIntValue(42);
-        cfg.setFileName("insert_result.ini");
+        cfg["first"_m]["prop2"_m].setValue("does this work?"_m);
+        cfg["test"_m]["wow"_m].setBoolTF(true);
+        cfg["second"_m]["hello"_m].setIntValue(42);
+        cfg.setFileName("insert_result.ini"_m);
         testAssert(cfg.save(), "couldn't save config 2");
     }
 
@@ -368,9 +368,9 @@ TEST
     volatile StackIntegrityChecker sic;
 
     try {
-        m::RSAPrivateKey priv(m::RSAPrivateKey::readPEM("test_private.pem"));
+        m::RSAPrivateKey priv(m::RSAPrivateKey::readPEM("test_private.pem"_m));
         std::cout << "[i]\tPrivate key size: " << priv.n().size() * 8 << std::endl;
-        m::RSAPublicKey pub(m::RSAPublicKey::readPEM("test_public.pem"));
+        m::RSAPublicKey pub(m::RSAPublicKey::readPEM("test_public.pem"_m));
         std::cout << "[i]\tPublic key size: " << pub.n().size() * 8 << std::endl;
     } catch(m::PEMParseException &ex) {
         testAssert(false, ex.what());

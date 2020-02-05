@@ -17,7 +17,7 @@ TEST
     testAssert(m::Process::enumerateProcesses(infos), "could not enumerate processes");
 
     for(m::ProcessInfo &pi : infos) {
-        if(!pi.commandName().startsWith("chrom")) { //Chrome, your dick is too big!
+        if(!pi.commandName().startsWith("chrom"_m)) { //Chrome, your dick is too big!
             if(pi.commandLine(cmdLine) && cmdLine.length() > 0)
                 std::cout << "[i]\t>> Command line of \"" << pi.commandName().raw() << "\" is \"" << cmdLine.raw() << '\"' << std::endl;
         }
@@ -53,9 +53,9 @@ TEST
 {
     volatile StackIntegrityChecker sic;
 
-    m::String test("blahblah");
+    m::String test("blahblah"_m);
     m::Process proc;
-    testAssert(proc.setExecutable(m::String(exeLoc)).pushArg("--print-env").setEnv("MGPCL_TEST", test).redirectSTDIO().start().hasStarted(), "process didn't start");
+    testAssert(proc.setExecutable(m::String(exeLoc)).pushArg("--print-env"_m).setEnv("MGPCL_TEST"_m, test).redirectSTDIO().start().hasStarted(), "process didn't start");
 
     m::StringOStream sos; // ...---...
     m::SSharedPtr<m::PipeInputStream> pis(proc.stdOut<m::RefCounter>());
@@ -70,9 +70,9 @@ TEST
 {
     volatile StackIntegrityChecker sic;
 
-    m::String test("some text");
+    m::String test("some text"_m);
     m::Process proc;
-    testAssert(proc.setExecutable(m::String(exeLoc)).pushArg("--print-hash").redirectSTDIO().start().hasStarted(), "process didn't start");
+    testAssert(proc.setExecutable(m::String(exeLoc)).pushArg("--print-hash"_m).redirectSTDIO().start().hasStarted(), "process didn't start");
 
     m::StringOStream sos;
     m::SSharedPtr<m::PipeOutputStream> pos(proc.stdIn<m::RefCounter>());
@@ -93,8 +93,8 @@ TEST
     uid_t someUID;
     gid_t someGID;
 
-    testAssert(!m::linux::getUserUID("jaaj", someUID), "user jaaj shouldn't exist");
-    testAssert(!m::linux::getGroupGID("jaaj", someGID), "group jaaj shouldn't exist");
+    testAssert(!m::linux::getUserUID("jaaj"_m, someUID), "user jaaj shouldn't exist");
+    testAssert(!m::linux::getGroupGID("jaaj"_m, someGID), "group jaaj shouldn't exist");
     testAssert(m::linux::getUserUID(TEST_USER_NAME, someUID), "user " TEST_USER_NAME " should exist");
     testAssert(m::linux::getGroupGID(TEST_GROUP_NAME, someGID), "group " TEST_GROUP_NAME " should exist");
 
@@ -104,7 +104,7 @@ TEST
     std::cout << "[i]\tGroup ID of sudo is " << someGID << std::endl;
 
     m::Process proc;
-    proc.setExecutable("whoami").redirectSTDIO();
+    proc.setExecutable("whoami"_m).redirectSTDIO();
     m::linux::setProcessUID(proc, someUID);
 
     testAssert(proc.start().hasStarted(), "process didn't start");
@@ -114,7 +114,7 @@ TEST
     testAssert(m::IO::transfer(&sos, pis.ptr(), 64), "couldn't read stdout!");
     pis->close();
 
-    testAssert(sos.data().trimmed() == "montoyo", "whoami should have printed montoyo");
+    testAssert(sos.data().trimmed() == "montoyo"_m, "whoami should have printed montoyo");
     return true;
 }
 #endif

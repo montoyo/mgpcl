@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -41,7 +41,7 @@ bool m::SimpleConfig::Property::asBool(bool def) const
     if(m_line->value.isEmpty())
         return def;
 
-    if(m_line->value.equalsIgnoreCase("false") || m_line->value.equalsIgnoreCase("off"))
+    if(m_line->value.equalsIgnoreCase("false"_m) || m_line->value.equalsIgnoreCase("off"_m))
         return false;
 
     for(int i = 0; i < m_line->value.length(); i++) {
@@ -285,29 +285,29 @@ m::String m::SimpleConfig::errorString() const
     m::String ret;
     switch(m_lastErr) {
     case kCLE_MissingFileName:
-        ret = "SimpleConfig wasn't initialized";
+        ret = "SimpleConfig wasn't initialized"_m;
         break;
 
     case kCLE_FileNotFound:
-        ret = "File ";
+        ret = "File "_m;
         ret += m_fname;
-        ret += " could not be found";
+        ret += " could not be found"_m;
         break;
 
     case kCLE_ReadError:
-        ret = "Could not read input file ";
+        ret = "Could not read input file "_m;
         ret += m_fname;
         break;
 
     case kCLE_FormattingError:
-        ret = "Config format error at line ";
+        ret = "Config format error at line "_m;
         ret += String::fromInteger(m_errLine);
-        ret += " of file ";
+        ret += " of file "_m;
         ret += m_fname;
         break;
 
     default:
-        ret = "No error";
+        ret = "No error"_m;
     }
 
     return ret;

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -39,11 +39,11 @@ void m::debugBreak(const char *fname, int line, const char *str)
 
     txt += '@';
     txt += String::fromInteger(line);
-    txt += ": ";
+    txt += ": "_m;
     txt += str;
 
 #ifdef MGPCL_WIN
-    txt += "\r\n";
+    txt += "\r\n"_m;
 
     OutputDebugStringA(txt.raw());
     DebugBreak();

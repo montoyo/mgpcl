@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -359,7 +359,7 @@ m::File m::File::usualDirectory(UsualDirectories ud)
 
     if(ud == kUD_SystemFonts) {
         File ret;
-        ret.m_path.append("/usr/share/fonts", 16);
+        ret.m_path += "/usr/share/fonts"_m;
 
         return ret;
     }
@@ -400,35 +400,35 @@ m::File m::File::usualDirectory(UsualDirectories ud)
 
     switch(ud) {
     case kUD_UserDesktop:
-        ret.m_path.append("/Desktop", 8);
+        ret.m_path += "/Desktop"_m;
         break;
 
     case kUD_UserDocuments:
-        ret.m_path.append("/Documents", 10);
+        ret.m_path += "/Documents"_m;
         break;
 
     case kUD_UserPictures:
-        ret.m_path.append("/Pictures", 9);
+        ret.m_path += "/Pictures"_m;
         break;
 
     case kUD_UserMusic:
-        ret.m_path.append("/Music", 6);
+        ret.m_path += "/Music"_m;
         break;
 
     case kUD_UserVideos:
-        ret.m_path.append("/Videos", 7);
+        ret.m_path += "/Videos"_m;
         break;
 
     case kUD_UserDownloads:
-        ret.m_path.append("/Downloads", 10);
+        ret.m_path += "/Downloads"_m;
         break;
 
     case kUD_UserAppData:
-        ret.m_path.append("/.appdata", 9);
+        ret.m_path += "/.appdata"_m;
         break;
 
     case kUD_UserTemplates:
-        ret.m_path.append("/Templates", 10);
+        ret.m_path += "/Templates"_m;
         break;
 
     default:
@@ -448,17 +448,17 @@ m::File m::File::parent() const
     if(m_path.length() == 2 && m_path[1] == ':')
         return File(); //Drive root has no parent
 
-    if(m_path.endsWith("\\..", 3)) {
+    if(m_path.endsWith("\\.."_m)) {
         File f(*this);
-        f.m_path.append("\\..", 3);
+        f.m_path += "\\.."_m;
         return f;
     }
 
     int slash = m_path.lastIndexOf('\\');
 #else
-    if(m_path.endsWith("/..", 3)) {
+    if(m_path.endsWith("/.."_m)) {
         File f(*this);
-        f.m_path.append("/..", 3);
+        f.m_path += "/.."_m;
         return f;
     }
 
@@ -479,16 +479,16 @@ m::File m::File::parent() const
         //No slashes in this path
         if(m_path.length() == 1 && m_path[0] == '.') {
             File f;
-            f.m_path.append("..", 2); //avoid call to fixPath()
+            f.m_path += ".."_m; //avoid call to fixPath()
 
             return f;
         } else {
             File f(*this);
 
 #ifdef MGPCL_WIN
-            f.m_path.append("\\..", 3); //avoid call to fixPath()
+            f.m_path += "\\.."_m; //avoid call to fixPath()
 #else
-            f.m_path.append("/..", 3); //avoid call to fixPath()
+            f.m_path += "/.."_m; //avoid call to fixPath()
 #endif
 
             return f;
@@ -671,7 +671,7 @@ bool m::File::deleteFileHarder() const
         return true;
 
     //Couldn't delete; find available name
-    String deleteMe("deleteMe", 8);
+    String deleteMe("deleteMe"_m);
     File p(parent());
     File f(p, deleteMe);
 

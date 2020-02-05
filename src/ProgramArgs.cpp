@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -82,7 +82,7 @@ m::ArgValue *m::ArgDescriptor::parse(int *argc, const char ***argv)
     ret->allocate(needed);
 
     if(m_type == kAT_Switch)
-        new(ret->m_values) String("true");
+        new(ret->m_values) String("true"_m);
     else {
         bool wrongFormat = false;
 
@@ -169,22 +169,22 @@ m::String m::ArgDescriptor::errorString() const
 {
     switch(m_lastErr) {
     case kAE_NoError:
-        return String("No error");
+        return "No error"_m;
 
     case kAE_MissingValues:
-        return String(m_type == kAT_Single ? "Missing value" : "Missing values");
+        return m_type == kAT_Single ? "Missing value"_m : "Missing values"_m;
 
     case kAE_NotNumeric:
-        return String("One or more value has an invalid numeric format");
+        return "One or more value has an invalid numeric format"_m;
 
     case kAE_AlreadySet:
-        return String("Multiple instances of this argument found");
+        return "Multiple instances of this argument found"_m;
 
     case kAE_Required:
-        return String("This argument is required and wasn't set");
+        return "This argument is required and wasn't set"_m;
 
     default:
-        return String("Unknown error");
+        return "Unknown error"_m;
     }
 }
 
@@ -275,7 +275,7 @@ m::ArgParseError m::ProgramArgs::parse()
         if(d->m_type == kAT_Switch && d->m_values.isEmpty()) {
             ArgValue *av = new ArgValue(d);
             av->allocate();
-            new(av->m_values) String("false");
+            new(av->m_values) String("false"_m);
 
             av->addRef(); //Ref will be destroyed by ArgDescriptor
             d->m_values.add(av);
@@ -354,17 +354,17 @@ void m::ProgramArgs::printHelp() const
 m::String m::ProgramArgs::errorString() const
 {
     if(m_lastErr == kAPE_NoError)
-        return String("No error");
+        return "No error"_m;
     else if(m_lastErr == kAPE_UnknownArgFound)
-        return String("Found unrecognized argument ") + m_unrecognized;
+        return "Found unrecognized argument "_m + m_unrecognized;
     else if(m_lastErr == kAPE_ArgError) {
-        String ret("Argument \"");
+        String ret("Argument \""_m);
         ret += m_err->name();
-        ret += "\" errored: ";
+        ret += "\" errored: "_m;
         ret += m_err->errorString();
 
         return ret;
     }
 
-    return String("Unknown error");
+    return "Unknown error"_m;
 }

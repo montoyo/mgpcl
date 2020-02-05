@@ -45,7 +45,7 @@ TEST
         std::cout << "[W]\tCould not start subprocess" << std::endl;
 
     m::Logger::setLoggerInstance(logger);
-    if(logger->connect("127.0.0.1:1234")) {
+    if(logger->connect("127.0.0.1:1234"_m)) {
         testLogger("TEST");
         logger->debug(M_LOG, "Pointer 2: %p", &sic);
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -124,7 +124,7 @@ namespace m
         void setResponseLength(uint64_t len)
         {
             m_responseLength = len;
-            m_responseHeaders["Content-Length"] = String::fromUInteger(static_cast<uint32_t>(len));
+            m_responseHeaders["Content-Length"_m] = String::fromUInteger(static_cast<uint32_t>(len));
         }
 
         uint64_t responseLength() const
@@ -412,9 +412,9 @@ namespace m
     class StaticHTTPRequestHandler : public HTTPRequestHandler
     {
     public:
-        StaticHTTPRequestHandler() : m_status(200), m_message("OK", 2), m_contentType("text/html") {}
-        StaticHTTPRequestHandler(const String &data) : m_status(200), m_message("OK", 2), m_contentType("text/html"), m_data(data) {}
-        StaticHTTPRequestHandler(String &&data) : m_status(200), m_message("OK", 2), m_contentType("text/html"), m_data(data) {}
+        StaticHTTPRequestHandler() : m_status(200), m_message("OK"_m), m_contentType("text/html"_m) {}
+        StaticHTTPRequestHandler(const String &data) : m_status(200), m_message("OK"_m), m_contentType("text/html"_m), m_data(data) {}
+        StaticHTTPRequestHandler(String &&data) : m_status(200), m_message("OK"_m), m_contentType("text/html"_m), m_data(data) {}
 
         void beginRequest(HTTPServerRequest *req) override;
         void receiveData(HTTPServerRequest *req, uint8_t *data, int sz) override;

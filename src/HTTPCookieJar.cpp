@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -63,18 +63,18 @@ bool m::HTTPCookie::parse(const String &hdr)
             eq = end;
 
         String name(hdr.substr(start, eq));
-        if(name.equalsIgnoreCase("Secure"))
+        if(name.equalsIgnoreCase("Secure"_m))
             m_secure = true;
-        else if(name.equalsIgnoreCase("HttpOnly"))
+        else if(name.equalsIgnoreCase("HttpOnly"_m))
             m_httpOnly = true;
-        else if(name.equalsIgnoreCase("Path")) {
+        else if(name.equalsIgnoreCase("Path"_m)) {
             if(eq + 1 < end && hdr[eq + 1] == '/') {
                 if(eq + 2 < end && hdr[end - 1] == '/')
                     m_path = hdr.substr(eq + 1, end - 1); //Because of the use of 'startsWith' in 'isSuitableFor'
                 else
                     m_path = hdr.substr(eq + 1, end);
             }
-        } else if(name.equalsIgnoreCase("Domain")) {
+        } else if(name.equalsIgnoreCase("Domain"_m)) {
             if(eq + 1 < end) {
                 if(hdr[eq + 1] == '.')
                     m_domain = hdr.substr(eq + 2, end); //Ignore the leading '.' character
@@ -83,14 +83,14 @@ bool m::HTTPCookie::parse(const String &hdr)
 
                 m_domain.toLower();
             }
-        } else if(name.equalsIgnoreCase("Max-Age")) {
+        } else if(name.equalsIgnoreCase("Max-Age"_m)) {
             if(eq + 1 < end) {
                 if(hdr[eq + 1] >= '0' && hdr[eq + 1] <= '9') {
                     m_maxAge = hdr.substr(eq + 1, end).toUInteger(); //This WILL NOT fail if there's a non-numeric character in here...
                     m_sessionLocal = false;
                 }
             }
-        } else if(name.equalsIgnoreCase("Expires")) {
+        } else if(name.equalsIgnoreCase("Expires"_m)) {
             //Gotta parse the date...
             if(eq + 1 < end) {
                 String dateStr(hdr.substr(eq + 1, end));
@@ -118,7 +118,7 @@ bool m::HTTPCookie::isValid(time_t now) const
 
 bool m::HTTPCookie::isSuitableFor(const URL &u) const
 {
-    if(m_secure && !u.protocol().equalsIgnoreCase("https"))
+    if(m_secure && !u.protocol().equalsIgnoreCase("https"_m))
         return false;
 
     if(!m_domain.isEmpty() && !u.host().lower().endsWith(m_domain))

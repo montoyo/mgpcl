@@ -8,7 +8,7 @@ Declare Test("threading"), Priority(9.0);
 TEST
 {
     static StackIntegrityChecker sic;
-    testAssert(m::Thread::currentThreadName() == "MAIN", "current thread name isn't main!");
+    testAssert(m::Thread::currentThreadName() == "MAIN"_m, "current thread name isn't main!");
 
     m::Mutex mtx;
     volatile bool ran = false;
@@ -19,13 +19,13 @@ TEST
         m::String tname(m::Thread::currentThreadName());
         std::cout << "[i]\tOther thread name is " << tname.raw() << std::endl;
 
-        if(tname != "TEST")
+        if(tname != "TEST"_m)
             err = true;
 
         mtx.lock();
         ran = true;
         mtx.unlock();
-    }, "TEST");
+    }, "TEST"_m);
 
     double start = m::time::getTimeMs();
     testAssert(ft.start(), "could not start thread");

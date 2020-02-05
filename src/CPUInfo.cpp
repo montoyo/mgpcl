@@ -38,7 +38,7 @@ m::CPUInfo m::CPUInfo::fetch()
     }
 
     if(!obj->next()) {
-        CPUInfo err(wmi::lastError().isEmpty() ? "Got no data" : wmi::lastError());
+        CPUInfo err(wmi::lastError().isEmpty() ? "Got no data"_m : wmi::lastError());
         wmi::release();
         return err;
     }

@@ -64,13 +64,13 @@ static void playSound(const m::String &snd)
     m::Process proc;
 
 #ifdef MGPCL_WIN
-    m::String cmd("(New-Object Media.SoundPlayer \"");
+    m::String cmd("(New-Object Media.SoundPlayer \""_m);
     cmd += snd;
-    cmd += "\").PlaySync();";
+    cmd += "\").PlaySync();"_m;
 
-    proc.setExecutable("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe").pushArg("-c").pushArg(cmd);
+    proc.setExecutable("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"_m).pushArg("-c"_m).pushArg(cmd);
 #else
-    proc.setExecutable("vlc").pushArg("--intf").pushArg("dummy").pushArg("--vout").pushArg("none").pushArg("--play-and-exit").pushArg(snd);
+    proc.setExecutable("vlc"_m).pushArg("--intf"_m).pushArg("dummy"_m).pushArg("--vout"_m).pushArg("none"_m).pushArg("--play-and-exit"_m).pushArg(snd);
 #endif
 
     proc.start();
@@ -140,7 +140,7 @@ static void drawCenteredRect(int rw, int rh)
     m::console::resetColor();
 }
 
-#define WINDOW_TITLE "Wheatley Laboratories"
+#define WINDOW_TITLE "Wheatley Laboratories"_m
 
 int main(int argc, char *argv[])
 {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
         if(strcmp(argv[i], "--print-test-objs") == 0)
             TestObject::setPrintDebug();
         else if(strcmp(argv[i], "--print-env") == 0) {
-            std::cout << m::Process::env("MGPCL_TEST").raw() << std::endl;
+            std::cout << m::Process::env("MGPCL_TEST"_m).raw() << std::endl;
             return 0;
         } else if(strcmp(argv[i], "--print-hash") == 0) {
             std::string line;
@@ -185,13 +185,13 @@ int main(int argc, char *argv[])
     m::console::setTextColor(m::kCC_Yellow);
     std::cout << g_aperture << std::endl;
     m::console::resetColor();
-    playSound("silo.wav");
+    playSound("silo.wav"_m);
 
 #ifdef MGPCL_WIN
     m::wmi::acquire(); //INIT COM
     m::wmi::release();
 
-    HWND consoleWnd = FindWindow(nullptr, WINDOW_TITLE);
+    HWND consoleWnd = FindWindow(nullptr, WINDOW_TITLE.raw());
     ITaskbarList4 *taskBar = nullptr;
 
     if(consoleWnd != nullptr) {
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     } else {
         drawCenteredRect(50, 4);
 
-        m::String str(result ? " TESTS PASSED " : " TESTS FAILED ");
+        m::String str(result ? " TESTS PASSED "_m : " TESTS FAILED "_m);
         m::Vector2i cur(m::console::getCursorPos());
         int sx = (m::console::getSize().x() - str.length()) / 2;
 
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
     }
 
     if(result)
-        playSound("passed.wav");
+        playSound("passed.wav"_m);
 
     m::console::resetColor();
 #ifdef _WIN32

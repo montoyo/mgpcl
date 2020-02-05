@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -70,9 +70,9 @@ m::URLParseError m::URL::parse(const String &url)
     m_location = url.substr(urlPos);
 
     if(!hasPort) {
-        if(m_proto == "http")
+        if(m_proto == "http"_m)
             m_port = 80;
-        else if(m_proto == "https")
+        else if(m_proto == "https"_m)
             m_port = 443;
     }
 
@@ -222,14 +222,14 @@ bool m::URL::decode(const String &u, String &dst)
 m::String m::URL::toString() const
 {
     bool putPort = true;
-    if(m_proto == "http" && m_port == 80)
+    if(m_proto == "http"_m && m_port == 80)
         putPort = false;
-    else if(m_proto == "https" && m_port == 443)
+    else if(m_proto == "https"_m && m_port == 443)
         putPort = false;
 
     String ret(m_proto.length() + 3 + m_host.length() + (putPort ? 2 : 0) + m_location.length());
     ret += m_proto;
-    ret.append("://", 3);
+    ret += "://"_m;
     ret += m_host;
 
     if(putPort) {

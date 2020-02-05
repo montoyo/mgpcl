@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -45,18 +45,22 @@ namespace m
 
         TString()
         {
-            m_data    = new T[1];
-            m_data[0] = 0;
+            m_data    = "";
             m_len     = 0;
-            m_alloc   = 1;
+            m_alloc   = -1;
         }
 
         TString(const TString<T> &src)
         {
             m_len   = src.m_len;
             m_alloc = src.m_alloc;
-            m_data  = new T[m_alloc];
-            mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+
+            if(src.isLiteral())
+                m_data = src.m_data;
+            else {
+                m_data = new T[m_alloc];
+                mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+            }
         }
 
         TString(TString<T> &&src)
@@ -68,6 +72,7 @@ namespace m
             src.m_data = nullptr;
         }
 
+#ifndef MGPCL_STR_NO_LIT_CTOR
         TString(const T *str)
         {
             mDebugAssert(str != nullptr, "passed nullptr to string function");
@@ -96,6 +101,7 @@ namespace m
             mem::copy(m_data, str, m_len * sizeof(T));
             m_data[m_len] = 0;
         }
+#endif
 
         TString(int sz)
         {
@@ -119,12 +125,19 @@ namespace m
 
         ~TString()
         {
-            if(m_data != nullptr)
+            if(m_data != nullptr && !isLiteral())
                 delete[] m_data;
+        }
+
+        bool isLiteral() const
+        {
+            return m_alloc < 0;
         }
 
         void clear()
         {
+            ensureMutable();
+
             if(m_len != 0) {
                 delete[] m_data;
                 m_data = new T[1];
@@ -137,8 +150,12 @@ namespace m
 
         void cleanup()
         {
+            if(isLiteral())
+                m_data = "";
+            else
+                m_data[0] = 0;
+
             m_len = 0;
-            m_data[0] = 0;
         }
 
         int length() const
@@ -166,11 +183,13 @@ namespace m
 
         Iterator begin()
         {
+            ensureMutable();
             return m_data;
         }
 
         Iterator end()
         {
+            ensureMutable();
             return m_data + m_len;
         }
 
@@ -195,6 +214,7 @@ namespace m
 
         TString<T> &operator += (const TString<T> &src)
         {
+            ensureMutable();
             reserve(m_len + src.m_len);
             mem::copy(m_data + m_len, src.m_data, (src.m_len + 1) * sizeof(T));
             m_len += src.m_len;
@@ -208,6 +228,7 @@ namespace m
             while(str[len] != 0)
                 len++;
 
+            ensureMutable();
             reserve(m_len + len);
             mem::copy(m_data + m_len, str, (len + 1) * sizeof(T));
             m_len += len;
@@ -216,6 +237,7 @@ namespace m
 
         TString<T> &operator += (T c)
         {
+            ensureMutable();
             reserve(m_len + 1);
             m_data[m_len] = c;
             m_data[++m_len] = 0;
@@ -224,20 +246,51 @@ namespace m
 
         TString<T> &operator = (const TString<T> &src)
         {
-            if(m_alloc < src.m_len + 1) {
-                delete[] m_data;
-                m_alloc = src.m_len + 1;
-                m_data = new T[m_alloc];
+            //So, this is complicated...
+            //Case 1:  this->isLiteral() and  src.isLiteral() => just copy all values
+            //Case 2:  this->isLiteral() and !src.isLiteral() => allocate m_data and copy src content
+            //Case 3: !this->isLiteral() and  src.isLiteral() => eventually free m_data, and then copy values
+            //Case 4: !this->isLiteral() and !src.isLiteral() => eventually free m_data, eventually allocate a new m_data, and copy src content
+
+            if(isLiteral()) {
+                if(src.isLiteral()) {
+                    m_data = src.m_data;
+                    m_len  = src.m_len; //m_alloc is already -1
+                } else {
+                    m_len   = src.m_len;
+                    m_alloc = m_len + 1;
+                    m_data  = new T[m_alloc];
+
+                    mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+                }
+            } else {
+                if(src.isLiteral()) {
+                    if(m_data != nullptr)
+                        delete[] m_data;
+
+                    m_data  = src.m_data;
+                    m_len   = src.m_len;
+                    m_alloc = -1;
+                } else {
+                    if(m_len != src.m_len) {
+                        if(m_data != nullptr)
+                            delete[] m_data;
+
+                        m_len   = src.m_len;
+                        m_alloc = m_len + 1;
+                        m_data  = new T[m_alloc];
+                    }
+
+                    mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
+                }
             }
 
-            m_len = src.m_len;
-            mem::copy(m_data, src.m_data, (m_len + 1) * sizeof(T));
             return *this;
         }
 
         TString<T> &operator = (TString<T> &&src)
         {
-            if(m_data != nullptr)
+            if(m_data != nullptr && !isLiteral())
                 delete[] m_data;
 
             m_alloc    = src.m_alloc;
@@ -255,7 +308,9 @@ namespace m
                 len++;
         
             if(m_alloc != len) {
-                delete[] m_data;
+                if(m_data != nullptr && !isLiteral())
+                    delete[] m_data;
+
                 m_alloc = len + 1;
                 m_data = new T[m_alloc];
             }
@@ -368,6 +423,7 @@ namespace m
 
         T &operator[] (int idx)
         {
+            ensureMutable();
             return m_data[idx];
         }
 
@@ -378,6 +434,8 @@ namespace m
 
         TString<T> &append(const T *str, int len = -1)
         {
+            ensureMutable();
+
             if(len < 0) {
                 len = 0; //Can't use strlen() for this since it can also be a wchar_t!
                 while(str[len] != 0)
@@ -396,6 +454,8 @@ namespace m
 
         TString<T> &append(T chr, int cnt)
         {
+            ensureMutable();
+
             if(cnt <= 0)
                 return *this;
 
@@ -436,6 +496,8 @@ namespace m
 
         TString<T> &transform(std::function<T(T)> func)
         {
+            ensureMutable();
+
             for(int i = 0; i < m_len; i++)
                 m_data[i] = func(m_data[i]);
 
@@ -574,6 +636,8 @@ namespace m
         //Mix of substr() and erase()
         TString<T> take(int beg, int end = -1)
         {
+            ensureMutable();
+
             if(end < 0)
                 end = m_len + end + 1;
             else if(end > m_len)
@@ -604,6 +668,8 @@ namespace m
 
         TString<T> &erase(int beg, int end = -1)
         {
+            ensureMutable();
+
             if(end < 0)
                 end = m_len + end + 1;
             else if(end > m_len)
@@ -627,6 +693,8 @@ namespace m
 
         TString<T> &insert(int pos, const TString<T> &str)
         {
+            ensureMutable();
+
             if(pos < 0 || pos > m_len || str.m_len <= 0)
                 return *this;
 
@@ -638,6 +706,8 @@ namespace m
 
         TString<T> &insert(int pos, const T *str, int len = -1)
         {
+            ensureMutable();
+
             if(pos < 0 || pos > m_len)
                 return *this;
 
@@ -659,6 +729,8 @@ namespace m
 
         TString<T> &toLower()
         {
+            ensureMutable();
+
             for(int i = 0; i < m_len; i++)
                 m_data[i] = static_cast<T>(tolower(static_cast<char>(m_data[i])));
 
@@ -678,6 +750,8 @@ namespace m
 
         TString<T> &toUpper()
         {
+            ensureMutable();
+
             for(int i = 0; i < m_len; i++)
                 m_data[i] = static_cast<T>(toupper(static_cast<char>(m_data[i])));
 
@@ -1005,6 +1079,8 @@ namespace m
 
         TString<T> &replace(T src, T dst)
         {
+            ensureMutable();
+
             for(int i = 0; i < m_len; i++) {
                 if(m_data[i] == src)
                     m_data[i] = dst;
@@ -1030,6 +1106,8 @@ namespace m
 
         TString<T> &trimToLength(int sz)
         {
+            ensureMutable();
+
             if(sz < 0)
                 sz = 0;
 
@@ -1044,6 +1122,18 @@ namespace m
         uint8_t byte(int i) const
         {
             return reinterpret_cast<uint8_t*>(m_data)[i];
+        }
+
+        void ensureMutable()
+        {
+            if(isLiteral()) {
+                m_alloc = m_len + 1;
+
+                T *data = new T[m_alloc];
+                mem::copy(data, m_data, m_alloc * sizeof(T));
+
+                m_data = data; //This used to be a literal, so don't delete[] the old data...
+            }
         }
 
         static TString<T> fromPointer(const void *ptr)
@@ -1290,6 +1380,16 @@ namespace m
             return ret;
         }
 
+        static TString<T> fromLiteral(const T *lit, int len)
+        {
+            TString<T> ret;
+            ret.m_data  = const_cast<T*>(lit); //yeah, i know...
+            ret.m_len   = len;
+            ret.m_alloc = -1;
+
+            return ret;
+        }
+
     protected:
         T *m_data;
         int m_len;
@@ -1297,6 +1397,8 @@ namespace m
 
         void grow(int targetSz)
         {
+            ensureMutable();
+
             int add = m_alloc + (m_alloc >> 1);
             if(add < targetSz)
                 m_alloc = targetSz;
@@ -1406,4 +1508,9 @@ namespace m
         }
     };
 
+}
+
+inline m::String operator "" _m(const char *t, std::size_t len)
+{
+    return m::String::fromLiteral(t, static_cast<int>(len));
 }

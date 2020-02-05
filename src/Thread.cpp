@@ -91,7 +91,7 @@ static class ThreadInit
 public:
     ThreadInit()
     {
-        g_mapping[GetCurrentThreadId()] = m::String("MAIN");
+        g_mapping[GetCurrentThreadId()] = m::String("MAIN"_m);
     }
 } g_threadInit;
 #endif
@@ -243,7 +243,7 @@ m::String m::Thread::currentThreadName()
 #else
     pthread_t self = pthread_self();
     if(pthread_equal(self, g_mainThread) != 0)
-        return String("MAIN");
+        return String("MAIN"_m);
 
     char tmp[16];
     return pthread_getname_np(self, tmp, 16) == 0 ? String(tmp) : String();

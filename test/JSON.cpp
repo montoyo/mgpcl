@@ -10,7 +10,7 @@ Declare Test("json"), Priority(7.0);
 TEST
 {
     volatile StackIntegrityChecker sic;
-    m::SSharedPtr<m::InputStream> is(new m::FileInputStream("test.json"));
+    m::SSharedPtr<m::InputStream> is(new m::FileInputStream("test.json"_m));
     m::String err;
     m::JSONElement root;
 
@@ -19,15 +19,15 @@ TEST
         return false;
     }
 
-    m::JSONElement &sa = root["someArray"];
+    m::JSONElement &sa = root["someArray"_m];
     testAssert(sa.isArray(), "'someArray' is not an array");
     
     m::JSONElement &saLast = sa[sa.size() - 1];
     testAssert(saLast.isObject(), "'someArray.last()' is not an object");
 
-    m::JSONElement &dee = saLast["dee"];
+    m::JSONElement &dee = saLast["dee"_m];
     testAssert(dee.isString(), "'dee' is not a string");
-    testAssert(dee.asString() == "hel\tlo", "'dee' has an unexpected value");
+    testAssert(dee.asString() == "hel\tlo"_m, "'dee' has an unexpected value");
 
     m::SSharedPtr<m::StringOStream> sos(new m::StringOStream);
     testAssert(m::json::serializeCompact(sos.staticCast<m::OutputStream>(), root), "couldn't serialize JSON 1");
@@ -43,10 +43,10 @@ TEST
 DISABLED_TEST
 {
     volatile StackIntegrityChecker sic;
-    m::File citylots("citylots.json");
+    m::File citylots("citylots.json"_m);
 
     if(citylots.exists()) {
-        m::SSharedPtr<m::InputStream> is(new m::FileInputStream("citylots.json"));
+        m::SSharedPtr<m::InputStream> is(new m::FileInputStream("citylots.json"_m));
         m::String err;
         m::JSONElement root;
 

@@ -21,7 +21,7 @@
 
 #define M_TCPCLIENT_BUFSZ 8192
 
-m::TCPClient::TCPClient() : m_thread("TCP-Client"), m_sQueue(128), m_rQueue(128)
+m::TCPClient::TCPClient() : m_thread("TCP-Client"_m), m_sQueue(128), m_rQueue(128)
 {
     m_sPos = 0;
     m_rBufPos = 0;

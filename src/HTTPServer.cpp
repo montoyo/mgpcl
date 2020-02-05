@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -31,7 +31,7 @@
 #define M_TRACE(msg)
 #endif
 
-static char g_404data[] = "<!DOCTYPE html><html lang=\"en\"><head><title>Error 404</title></head><body><h1>404 Not Found</h1></body></html>";
+static const m::String g_404data("<!DOCTYPE html><html lang=\"en\"><head><title>Error 404</title></head><body><h1>404 Not Found</h1></body></html>"_m);
 
 static void splitPathname(const m::String &str, m::List<m::String> &dst)
 {
@@ -53,7 +53,7 @@ static void splitPathname(const m::String &str, m::List<m::String> &dst)
 m::HTTPServer::HTTPServer() : m_running(1), m_inactivityTimeout(5000), m_root(nullptr)
 {
     StaticHTTPRequestHandler *shrh = new StaticHTTPRequestHandler(g_404data);
-    shrh->setResponseCode(404, "Not Found");
+    shrh->setResponseCode(404, "Not Found"_m);
     m_404handler = shrh;
 
     m_server.setConnectionTimeout(0); //Non-blocking accept
@@ -107,7 +107,7 @@ bool m::HTTPServer::start(const IPv4Address &listenAddr, int numThreads)
 
     //Configure threads
     m_threadPool.setCount(numThreads);
-    m_threadPool.setName("HSW-");
+    m_threadPool.setName("HSW-"_m);
     m_threadPool.setCallback(Worker::run);
 
     for(int i = 0; i < numThreads; i++)
@@ -143,7 +143,7 @@ void m::HTTPServer::set404Handler(HTTPRequestHandler *h)
 
     if(h == nullptr) {
         StaticHTTPRequestHandler *shrh = new StaticHTTPRequestHandler(g_404data);
-        shrh->setResponseCode(404, "Not Found");
+        shrh->setResponseCode(404, "Not Found"_m);
 
         m_404handler = shrh;
     } else
@@ -152,7 +152,7 @@ void m::HTTPServer::set404Handler(HTTPRequestHandler *h)
 
 void m::HTTPServer::bindHandler(const String &path, HTTPRequestHandler *h)
 {
-    mAssert(path.startsWith("/", 1), "path should start with a slash");
+    mAssert(path.startsWith("/"_m), "path should start with a slash");
 
     List<String> components;
     String fixedPath(http::smartEncodePathname(path));
@@ -163,7 +163,7 @@ void m::HTTPServer::bindHandler(const String &path, HTTPRequestHandler *h)
 
     Node *n = m_root;
     for(const String &component: components) {
-        bool isMatchAll = component.equals("*", 1);
+        bool isMatchAll = component == "*"_m;
         Node *child = isMatchAll ? n->m_fallbackChild : n->child(component);
 
         if(child == nullptr) {
@@ -410,25 +410,25 @@ void m::HTTPServer::Client::comReady()
                             m_responseBuffer.append(buf, lineEnd);
                             m::String upperLine(m_responseBuffer.upper());
 
-                            if(!upperLine.endsWith(" HTTP/1.1", 9) && !upperLine.endsWith(" HTTP/1.0", 9))
+                            if(!upperLine.endsWith(" HTTP/1.1"_m) && !upperLine.endsWith(" HTTP/1.0"_m))
                                 removeDueToError("invalid protocol");
                             else {
                                 HTTPRequestType method;
                                 int methodLen = -1;
 
-                                if(upperLine.startsWith("GET ", 4)) {
+                                if(upperLine.startsWith("GET "_m)) {
                                     method = kHRT_Get;
                                     methodLen = 4;
-                                } else if(upperLine.startsWith("POST ", 5)) {
+                                } else if(upperLine.startsWith("POST "_m)) {
                                     method = kHRT_Post;
                                     methodLen = 5;
-                                } else if(upperLine.startsWith("HEAD ", 5)) {
+                                } else if(upperLine.startsWith("HEAD "_m)) {
                                     method = kHRT_Head;
                                     methodLen = 5;
-                                } else if(upperLine.startsWith("PUT ", 4)) {
+                                } else if(upperLine.startsWith("PUT "_m)) {
                                     method = kHRT_Put;
                                     methodLen = 4;
-                                } else if(upperLine.startsWith("DELETE ", 7)) {
+                                } else if(upperLine.startsWith("DELETE "_m)) {
                                     method = kHRT_Delete;
                                     methodLen = 7;
                                 }
@@ -600,7 +600,7 @@ void m::HTTPServer::Client::onHeadersReceived()
             n = child;
     }
 
-    const String clKey("Content-Length");
+    const String clKey("Content-Length"_m);
     if(m_req->m_queryHeaders.hasKey(clKey)) {
         m_remDataLen = static_cast<uint64_t>(m_req->m_queryHeaders[clKey].toUInteger());
         m_req->m_queryLength = m_remDataLen;
@@ -629,11 +629,11 @@ void m::HTTPServer::Client::startResponse()
 
         buf.cleanup();
         buf += m_addr.toString(false);
-        buf.append(" - - [", 6);
-        buf += Date::now().format("%D/%n/%y:%H:%M:%S");
-        buf.append("] \"", 3);
+        buf += " - - ["_m;
+        buf += Date::now().format("%D/%n/%y:%H:%M:%S"_m);
+        buf += "] \""_m;
         buf += m_responseBuffer;
-        buf.append("\" ", 2);
+        buf += "\" "_m;
         buf += m::String::fromInteger(m_req->m_responseCode);
         buf.append(' ', 1);
         buf += m::String::fromUInteger(static_cast<uint32_t>(m_req->m_responseLength));
@@ -647,20 +647,20 @@ void m::HTTPServer::Client::startResponse()
     }
 
     m_responseBuffer.cleanup();
-    m_responseBuffer.append("HTTP/1.1 ", 9);
+    m_responseBuffer += "HTTP/1.1 "_m;
     m_responseBuffer += String::fromInteger(m_req->m_responseCode);
-    m_responseBuffer.append(' ', 1);
+    m_responseBuffer += ' ';
     m_responseBuffer += m_req->m_responseMessage;
-    m_responseBuffer.append("\r\n", 2);
+    m_responseBuffer += "\r\n"_m;
 
     for(const HashMap<String, String, StringLowerHasher>::Pair &p: m_req->m_responseHeaders) {
         m_responseBuffer += p.key;
-        m_responseBuffer.append(": ", 2);
+        m_responseBuffer += ": "_m;
         m_responseBuffer += p.value;
-        m_responseBuffer.append("\r\n", 2);
+        m_responseBuffer += "\r\n"_m;
     }
 
-    m_responseBuffer.append("\r\n", 2);
+    m_responseBuffer += "\r\n"_m;
     m_remDataLen = m_responseBuffer.length();
 }
 
@@ -776,7 +776,7 @@ void m::StaticHTTPRequestHandler::processRequest(HTTPServerRequest *req)
     req->setResponse(m_status, m_message);
 
     if(req->method() != kHRT_Head) {
-        req->setResponseHeader("Content-Type", m_contentType);
+        req->setResponseHeader("Content-Type"_m, m_contentType);
         req->setResponseLength(static_cast<uint64_t>(m_data.length()));
     }
 }

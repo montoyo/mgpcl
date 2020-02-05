@@ -40,10 +40,10 @@ public:
     void processRequest(m::HTTPServerRequest *req) override
     {
         m::SimpleHTTPRequestHandler::SimpleUserdata *ud = static_cast<m::SimpleHTTPRequestHandler::SimpleUserdata*>(req->userdata());
-        ud->setResponse(ud->requestContent() + "\n" + req->wildcard(0) + "\ntest val=" + req->urlParam("test"));
+        ud->setResponse(ud->requestContent() + "\n" + req->wildcard(0) + "\ntest val=" + req->urlParam("test"_m));
 
-        req->setResponse(200, "OK");
-        req->setResponseHeader("Content-Type", "text/plain");
+        req->setResponse(200, "OK"_m);
+        req->setResponseHeader("Content-Type"_m, "text/plain"_m);
         m::SimpleHTTPRequestHandler::processRequest(req);
     }
 };
@@ -55,13 +55,13 @@ void mTestHTTPServer()
     m::inet::initSSL();
 
     m::HTTPServer server;
-    server.bindHandler("/", new m::StaticHTTPRequestHandler("<!DOCTYPE html><html lang=\"en\"><head><title>Hi</title></head><body><h1>It Works!</h1></body></html>"));
-    server.bindHandler("/form/*/test", new m::StaticHTTPRequestHandler("<!DOCTYPE html><html lang=\"en\"><head><title>Form Test</title></head><body><form action=\"echo\" method=\"POST\"><input type=\"submit\" name=\"test\" /></form></body></html>"));
-    server.bindHandler("/form/*/echo", new EchoHandler);
-    server.bindHandler("/shutdown", new ShutdownHandler);
+    server.bindHandler("/"_m, new m::StaticHTTPRequestHandler("<!DOCTYPE html><html lang=\"en\"><head><title>Hi</title></head><body><h1>It Works!</h1></body></html>"_m));
+    server.bindHandler("/form/*/test"_m, new m::StaticHTTPRequestHandler("<!DOCTYPE html><html lang=\"en\"><head><title>Form Test</title></head><body><form action=\"echo\" method=\"POST\"><input type=\"submit\" name=\"test\" /></form></body></html>"_m));
+    server.bindHandler("/form/*/echo"_m, new EchoHandler);
+    server.bindHandler("/shutdown"_m, new ShutdownHandler);
 
 #ifndef MGPCL_NO_SSL
-    server.enableSSL("certificate.pem", "key.pem");
+    server.enableSSL("certificate.pem"_m, "key.pem"_m);
 #endif
 
     server.start(m::IPv4Address(127, 0, 0, 1, 1234), 4);

@@ -30,7 +30,7 @@ TEST
             dos->setEndianness(e);
 
             *dos << int(32) << uint16_t(12);
-            *dos << m::String("some test");
+            *dos << m::String("some test"_m);
             *dos << float(12.14f);
 
             uint64_t pos = dos->pos();
@@ -75,7 +75,7 @@ TEST
         dos->seek(6);
         *dos << int(-789);
         dos->seek(0);
-        *dos << m::String("test");
+        *dos << m::String("test"_m);
         dos->seek(0);
         *dos << uint16_t(3);
         testAssert(dos->seek(0, m::SeekPos::End), "seek failed");
@@ -94,7 +94,7 @@ TEST
 
         *dis >> a >> b >> c >> d;
 
-        testAssert(a == "tes", "invalid string reading");
+        testAssert(a == "tes"_m, "invalid string reading");
         testAssert(b == 't', "invalid char reading");
         testAssert(c == -789, "invalid int reading");
         testAssert(d == 1.54, "invalid double reading");
@@ -110,12 +110,12 @@ TEST
     m::SSharedPtr<m::OutputStream> cout(new m::STDOutputStream(m::STDHandle::HOutput));
     m::TextOutputStream tos(cout);
 
-    tos << "[i]\tthis is a test" << m::eol;
-    tos << m::String("[i]\tSome pointer: ") << &tos << m::eol;
-    tos << "[i]\tSome integer: " << 1234 << m::eol;
-    tos << "[i]\tSome double: " << 12.34 << m::eol;
-    tos << "[i]\tSome char: " << 'c' << m::eol;
-    tos << "[i]\tSome byte: " << static_cast<uint8_t>(0xab) << m::eol;
+    tos << "[i]\tthis is a test" << m::eol; //Test without m::String
+    tos << "[i]\tSome pointer: "_m << &tos << m::eol;
+    tos << "[i]\tSome integer: "_m << 1234 << m::eol;
+    tos << "[i]\tSome double: "_m << 12.34 << m::eol;
+    tos << "[i]\tSome char: "_m << 'c' << m::eol;
+    tos << "[i]\tSome byte: "_m << static_cast<uint8_t>(0xab) << m::eol;
 
     return true;
 }
@@ -136,9 +136,9 @@ TEST
 //Serial IO test. Disabled by default to avoid messing
 //around with your serial devices. If you have any, that is.
 #ifdef MGPCL_WIN
-#define M_TEST_SERIAL_PORT "COM3"
+#define M_TEST_SERIAL_PORT "COM3"_m
 #else
-#define M_TEST_SERIAL_PORT "/dev/ttyACM0"
+#define M_TEST_SERIAL_PORT "/dev/ttyACM0"_m
 #endif
 
 static bool readTO(m::TextInputStream &tis, m::String &dst)
@@ -169,16 +169,16 @@ DISABLED_TEST
     m::TextOutputStream tos(sp.outputStream<m::RefCounter>().staticCast<m::OutputStream>(), m::LineEnding::CRLF);
     m::String line;
 
-    tos << "What's on this drive?" << m::eol;
+    tos << "What's on this drive?"_m << m::eol;
     testAssert(readTO(tis, line), "arduino didn't answer 1");
-    testAssert(line == "Project insight requires... insight", "arduino didn't answer correctly 1");
+    testAssert(line == "Project insight requires... insight"_m, "arduino didn't answer correctly 1");
     testAssert(readTO(tis, line), "arduino didn't answer 2");
-    testAssert(line == "So I wrote an algorithm", "arduino didn't answer correctly 2");
-    tos << "What kind of algorithm? What does it do?" << m::eol;
+    testAssert(line == "So I wrote an algorithm"_m, "arduino didn't answer correctly 2");
+    tos << "What kind of algorithm? What does it do?"_m << m::eol;
     testAssert(readTO(tis, line), "arduino didn't answer 3");
-    testAssert(line == "The answer to your question is fascinating.", "arduino didn't answer correctly 3");
+    testAssert(line == "The answer to your question is fascinating."_m, "arduino didn't answer correctly 3");
     testAssert(readTO(tis, line), "arduino didn't answer 4");
-    testAssert(line == "Unfortunately, you shall be too dead to hear it.", "arduino didn't answer correctly 4");
+    testAssert(line == "Unfortunately, you shall be too dead to hear it."_m, "arduino didn't answer correctly 4");
 
     tis.close();
     tos.close();

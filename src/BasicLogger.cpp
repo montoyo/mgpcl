@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -62,18 +62,18 @@ void m::BasicLogger::vlog(LogLevel level, const char *fname, int line, const cha
         break;
     }
 
-    str.append("] [", 3);
+    str += "] ["_m;
 
     String tName(Thread::currentThreadName());
     if(tName.length() > 6) {
         str.append(tName.raw(), 4);
-        str.append("..] [", 5);
+        str += "..] ["_m;
     } else {
         str += tName;
         for(int i = tName.length(); i < 6; i++)
             str += ' ';
 
-        str.append("] [", 3);
+        str += "] ["_m;
     }
 
     str.append(fname + slashPos, fnameLen - slashPos);
@@ -86,11 +86,11 @@ void m::BasicLogger::vlog(LogLevel level, const char *fname, int line, const cha
     if(pad > 0)
         str.append(' ', pad);
 
-    str.append("] ", 2);
+    str += "] "_m;
     str += String::vformat(format, lst);
     
 #ifdef MGPCL_WIN
-    str.append("\r\n", 2);
+    str += "\r\n"_m;
 #else
     str += '\n';
 #endif

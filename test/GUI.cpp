@@ -28,15 +28,15 @@ TEST
                     dlgCount++;
             }
         }
-    }, "DialogKiller2000");
+    }, "DialogKiller2000"_m);
 
     thread.start();
 #endif
 
-    m::msgBox::info("This is the text", "This is the title", m::kMBB_OkCancel);
-    m::msgBox::warning("This is the text", "This is the title", m::kMBB_YesNo);
-    m::msgBox::error("This is the text", "This is the title", m::kMBB_CancelTryAgainContinue);
-    m::msgBox::question("This is the text", "This is the title", m::kMBB_AbortRetryIgnore);
+    m::msgBox::info("This is the text"_m, "This is the title"_m, m::kMBB_OkCancel);
+    m::msgBox::warning("This is the text"_m, "This is the title"_m, m::kMBB_YesNo);
+    m::msgBox::error("This is the text"_m, "This is the title"_m, m::kMBB_CancelTryAgainContinue);
+    m::msgBox::question("This is the text"_m, "This is the title"_m, m::kMBB_AbortRetryIgnore);
     
 #ifdef MGPCL_WIN
     running.set(0);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017 BARBOTIN Nicolas
+/* Copyright (C) 2020 BARBOTIN Nicolas
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this
  * software and associated documentation files (the "Software"), to deal in the Software
@@ -102,11 +102,11 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
         String cmd(proc.commandName().lower());
 
 #ifdef MGPCL_WIN
-        if(cmd.endsWith(".exe"))
+        if(cmd.endsWith(".exe"_m))
             cmd.erase(cmd.length() - 4);
 #endif
 
-        if(cmd == "java" || cmd == "javaw") {
+        if(cmd == "java"_m || cmd == "javaw"_m) {
             String cmdLine;
             if(!proc.commandLine(cmdLine))
                 return false;
@@ -115,9 +115,9 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
             parseArgs(cmdLine, args, false);
 
             for(int i = 0; i < args.size() - 1; i++) {
-                if(args[i].toLower() == "-jar") {
+                if(args[i].toLower() == "-jar"_m) {
                     String fname(File(args[i + 1]).fileName().lower());
-                    if(fname.startsWith("net-logger-") && fname.endsWith(".jar"))
+                    if(fname.startsWith("net-logger-"_m) && fname.endsWith(".jar"_m))
                         return true; //Gotcha! Already started :p
 
                     break;
@@ -132,7 +132,7 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
 
     for(int limit = 0; keepGoing && limit < 16; limit++) {
         for(File &child: dir) {
-            if(child.isDirectory() && child.fileName() == "net-logger") {
+            if(child.isDirectory() && child.fileName() == "net-logger"_m) {
                 keepGoing = false;
                 break;
             }
@@ -149,7 +149,7 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
     if(keepGoing)
         return false;
 
-    dir.setPath(dir.path() + "/net-logger/build/libs");
+    dir.setPath(dir.path() + "/net-logger/build/libs"_m);
     if(!dir.isDirectory())
         return false;
 
@@ -157,7 +157,7 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
         if(child.isFile()) {
             String fname(child.fileName().lower());
 
-            if(fname.startsWith("net-logger-") && fname.endsWith(".jar")) //Filter versions
+            if(fname.startsWith("net-logger-"_m) && fname.endsWith(".jar"_m)) //Filter versions
                 return startSubprocess(child.path(), cod);
         }
     }
@@ -167,14 +167,14 @@ bool m::NetLogger::tryAutoStartSubprocess(bool cod) const
 
 bool m::NetLogger::startSubprocess(const String &jar, bool cod) const
 {
-    String java(Process::env("JAVA_HOME"));
+    String java(Process::env("JAVA_HOME"_m));
     if(java.isEmpty())
         return false;
 
 #ifdef MGPCL_WIN
-    java += "\\bin\\javaw.exe";
+    java += "\\bin\\javaw.exe"_m;
 #else
-    java += "/bin/java";
+    java += "/bin/java"_m;
 #endif
 
     File javaExe(java);
@@ -182,10 +182,10 @@ bool m::NetLogger::startSubprocess(const String &jar, bool cod) const
         return false;
 
     Process p;
-    p.setExecutable(javaExe.path()).pushArg("-jar").pushArg(jar);
+    p.setExecutable(javaExe.path()).pushArg("-jar"_m).pushArg(jar);
 
     if(cod)
-        p.pushArg("--close-on-disconnect");
+        p.pushArg("--close-on-disconnect"_m);
 
     return p.start().hasStarted();
 }

@@ -45,9 +45,17 @@ namespace m
 
         TString()
         {
-            m_data    = "";
-            m_len     = 0;
-            m_alloc   = -1;
+            if /*constexpr*/ (sizeof(T) == 1) {
+                m_data  = const_cast<T*>("");
+                m_len   = 0;
+                m_alloc = -1;
+            } else {
+                m_data  = new T[1];
+                m_len   = 0;
+                m_alloc = 1;
+
+                m_data[0] = T(0);
+            }
         }
 
         TString(const TString<T> &src)
@@ -136,24 +144,36 @@ namespace m
 
         void clear()
         {
-            ensureMutable();
-
             if(m_len != 0) {
-                delete[] m_data;
-                m_data = new T[1];
-                m_data[0] = 0;
+                if(sizeof(T) == 1) {
+                    m_data  = const_cast<T*>("");
+                    m_len   = 0;
+                    m_alloc = -1;
+                } else {
+                    if(!isLiteral() && m_data != nullptr)
+                        delete[] m_data;
 
-                m_alloc = 1;
-                m_len = 0;
+                    m_data = new T[1];
+                    m_data[0] = T(0);
+
+                    m_alloc = 1;
+                    m_len = 0;
+                }
             }
         }
 
         void cleanup()
         {
-            if(isLiteral())
-                m_data = "";
-            else
-                m_data[0] = 0;
+            if(isLiteral()) {
+                if(sizeof(T) == 1)
+                    m_data = const_cast<T*>("");
+                else {
+                    m_data    = new T[1];
+                    m_data[0] = T(0);
+                    m_alloc   = 1;
+                }
+            } else
+                m_data[0] = T(0);
 
             m_len = 0;
         }
